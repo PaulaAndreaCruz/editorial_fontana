@@ -7,13 +7,13 @@
     <title>Libro | Editorial Fontana</title>
     
     <!-- PageFlip.js CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip@latest/dist/page-flip.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip@1.4.9/dist/page-flip.min.css">
     
     <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
     <!-- PageFlip.js -->
-    <script src="https://cdn.jsdelivr.net/npm/page-flip@latest/dist/page-flip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@1.4.9/dist/page-flip.min.js"></script>
 
     <style>
         * {
@@ -421,6 +421,27 @@
     </div>
 
     <script>
+        // Esperar a que PageFlip esté disponible
+        function waitForPageFlip() {
+            return new Promise((resolve) => {
+                if (typeof PageFlip !== 'undefined') {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (typeof PageFlip !== 'undefined') {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                    // Timeout después de 5 segundos
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }, 5000);
+                }
+            });
+        }
+
         // Configuración PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -509,7 +530,14 @@
         }
 
         // Inicializar PageFlip.js
-        function initPageFlip(imageUrls) {
+        async function initPageFlip(imageUrls) {
+            // Verificar que PageFlip está disponible
+            if (typeof PageFlip === 'undefined') {
+                showError('Error: PageFlip.js no se cargó correctamente. Recarga la página.');
+                console.error('PageFlip is not defined');
+                return;
+            }
+
             const bookElement = document.getElementById('book');
             bookElement.innerHTML = '';
 
@@ -612,6 +640,9 @@
         // Cargar libro
         async function init() {
             try {
+                // Esperar a que PageFlip cargue
+                await waitForPageFlip();
+
                 if (!bookId) {
                     showError('ID de libro no especificado');
                     return;
@@ -637,8 +668,12 @@
             }
         }
 
-        // Iniciar
-        window.addEventListener('load', init);
+        // Iniciar cuando la página cargue completamente
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
