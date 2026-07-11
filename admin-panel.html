@@ -527,16 +527,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="authorPhoto">Foto del Autor</label>
-                    <input 
-                        type="url" 
-                        id="authorPhoto" 
-                        class="form-input" 
-                        placeholder="URL de Google Drive o imagen (ej: https://drive.google.com/...)"
-                    >
-                    <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
-                        💡 Puedes usar Google Drive: Sube imagen → Comparte → Copia el enlace
-                    </small>
+                    <label class="form-label">📸 Foto del Autor</label>
+                    <div style="padding: 1rem; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: var(--text-secondary);">
+                        ✅ <strong>Automática:</strong> Se extrae de la última página de tu PDF<br>
+                        <small>Solo asegúrate que la última página tenga la foto del autor/alumno</small>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -633,6 +628,26 @@
                 await firstPage.render({ canvasContext: context, viewport }).promise;
                 const coverImage = canvas.toDataURL('image/jpeg', 0.8);
 
+                // Extraer última página como foto del autor
+                let authorPhotoImage = '';
+                try {
+                    const lastPageNum = pdf.numPages;
+                    if (lastPageNum > 1) {
+                        const lastPage = await pdf.getPage(lastPageNum);
+                        const authorCanvas = document.createElement('canvas');
+                        const authorContext = authorCanvas.getContext('2d');
+                        const authorViewport = lastPage.getViewport({ scale: 1.5 });
+                        authorCanvas.width = authorViewport.width;
+                        authorCanvas.height = authorViewport.height;
+                        
+                        await lastPage.render({ canvasContext: authorContext, viewport: authorViewport }).promise;
+                        authorPhotoImage = authorCanvas.toDataURL('image/jpeg', 0.8);
+                        console.log('Foto del autor extraída de la última página');
+                    }
+                } catch (error) {
+                    console.warn('No se pudo extraer foto del autor:', error.message);
+                }
+
                 // Segunda lectura: Para convertir a base64 y guardar
                 const fileDataForStorage = await readFileAsDataURL(file);
                 const pdfBase64 = arrayBufferToBase64(fileDataForStorage);
@@ -640,6 +655,7 @@
                 currentPdfData = {
                     pdf: pdfBase64,  // Guardamos como base64 string
                     cover: coverImage,
+                    authorPhoto: authorPhotoImage,  // Foto extraída de última página
                     fileName: file.name,
                     fileSize: (file.size / 1024 / 1024).toFixed(2),
                     pageCount: pdf.numPages
@@ -681,6 +697,14 @@
                 document.getElementById('previewCover').appendChild(coverImg);
             };
             coverImg.src = currentPdfData.cover;
+
+            // Mostrar mensaje si se extrajo foto del autor
+            if (currentPdfData.authorPhoto) {
+                showAlert('✅ Foto del autor extraída de la última página', 'success');
+                console.log('Foto del autor disponible:', currentPdfData.authorPhoto.substring(0, 50) + '...');
+            } else {
+                console.warn('No se pudo extraer foto del autor');
+            }
 
             document.getElementById('bookForm').style.display = 'block';
         }
@@ -762,7 +786,9 @@
             const year = document.getElementById('bookYear').value.trim();
             const genre = document.getElementById('bookGenre').value.trim();
             const description = document.getElementById('bookDescription').value.trim();
-            const authorPhoto = document.getElementById('authorPhoto').value.trim() || '';
+            
+            // La foto del autor se extrae automáticamente de la última página del PDF
+            const authorPhoto = currentPdfData.authorPhoto || '';
 
             console.log('Datos del formulario:', { title, author, year, genre, description });
 
