@@ -519,7 +519,7 @@
                 <div class="form-group">
                     <label class="form-label" for="bookGenre">Género</label>
                     <select id="bookGenre" class="form-select" required>
-                        <option value="">Selecciona un género</option>
+                        <option value="">-- Selecciona un género --</option>
                         <option value="poesia">Poesía</option>
                         <option value="narrativa">Narrativa</option>
                         <option value="ensayo">Ensayo</option>
@@ -691,31 +691,78 @@
         function handleSubmit(event) {
             event.preventDefault();
 
+            // Validar que hay PDF
             if (!currentPdfData) {
-                showAlert('Por favor selecciona un PDF', 'error');
+                showAlert('❌ Por favor selecciona un PDF primero', 'error');
                 return;
             }
 
-            const book = {
-                id: Date.now(),
-                title: document.getElementById('bookTitle').value,
-                author: document.getElementById('bookAuthor').value,
-                year: document.getElementById('bookYear').value,
-                genre: document.getElementById('bookGenre').value,
-                description: document.getElementById('bookDescription').value,
-                authorPhoto: document.getElementById('authorPhoto').value || '',
-                cover: currentPdfData.cover,
-                pdf: currentPdfData.pdf,
-                pages: currentPdfData.pageCount
-            };
+            // Obtener valores del formulario
+            const title = document.getElementById('bookTitle').value.trim();
+            const author = document.getElementById('bookAuthor').value.trim();
+            const year = document.getElementById('bookYear').value.trim();
+            const genre = document.getElementById('bookGenre').value.trim();
+            const description = document.getElementById('bookDescription').value.trim();
+            const authorPhoto = document.getElementById('authorPhoto').value.trim() || '';
 
-            let books = JSON.parse(localStorage.getItem('editoralBooks')) || [];
-            books.push(book);
-            localStorage.setItem('editoralBooks', JSON.stringify(books));
+            // Validar campos requeridos
+            if (!title) {
+                showAlert('❌ Por favor ingresa el título del libro', 'error');
+                document.getElementById('bookTitle').focus();
+                return;
+            }
 
-            showAlert('✅ Libro guardado exitosamente', 'success');
-            cancelUpload();
-            loadBooks();
+            if (!author) {
+                showAlert('❌ Por favor ingresa el nombre del autor', 'error');
+                document.getElementById('bookAuthor').focus();
+                return;
+            }
+
+            if (!year) {
+                showAlert('❌ Por favor ingresa el año de publicación', 'error');
+                document.getElementById('bookYear').focus();
+                return;
+            }
+
+            if (!genre || genre === '') {
+                showAlert('❌ Por favor selecciona un género', 'error');
+                document.getElementById('bookGenre').focus();
+                return;
+            }
+
+            if (!description) {
+                showAlert('❌ Por favor ingresa una descripción', 'error');
+                document.getElementById('bookDescription').focus();
+                return;
+            }
+
+            try {
+                const book = {
+                    id: Date.now(),
+                    title: title,
+                    author: author,
+                    year: year,
+                    genre: genre,
+                    description: description,
+                    authorPhoto: authorPhoto,
+                    cover: currentPdfData.cover,
+                    pdf: currentPdfData.pdf,
+                    pages: currentPdfData.pageCount
+                };
+
+                let books = JSON.parse(localStorage.getItem('editoralBooks')) || [];
+                books.push(book);
+                localStorage.setItem('editoralBooks', JSON.stringify(books));
+
+                showAlert('✅ ¡Libro guardado exitosamente!', 'success');
+                setTimeout(() => {
+                    cancelUpload();
+                    loadBooks();
+                }, 1500);
+            } catch (error) {
+                showAlert('❌ Error al guardar el libro: ' + error.message, 'error');
+                console.error('Error:', error);
+            }
         }
 
         function cancelUpload() {
