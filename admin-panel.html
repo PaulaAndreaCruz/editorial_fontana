@@ -491,19 +491,41 @@
                     throw new Error('URL de Google Drive inválida. Asegúrate de usar el formato correcto.');
                 }
                 
-                // Construir URL de descarga directa
-                const downloadUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
-                currentPDF = downloadUrl;
-                
                 showAlert('⏳ Cargando PDF desde Google Drive...', 'info');
                 
-                // Cargar y validar el PDF
-                const response = await fetch(downloadUrl);
-                if (!response.ok) {
-                    throw new Error('No se pudo descargar el PDF. Verifica que el enlace sea válido y esté compartido.');
+                // Usar URL de descarga directa de Google Drive
+                const googleDriveUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
+                
+                // Intentar con fetch directo primero
+                let arrayBuffer;
+                try {
+                    const response = await fetch(googleDriveUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/pdf'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    arrayBuffer = await response.arrayBuffer();
+                } catch (e) {
+                    console.warn('Fetch directo falló, intentando con proxy CORS...', e);
+                    
+                    // Si falla, usar proxy CORS
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(googleDriveUrl)}`;
+                    const response = await fetch(proxyUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error('No se pudo descargar el PDF. Verifica que:\n1. El enlace sea válido\n2. El PDF esté compartido públicamente\n3. Sea un PDF real (no otro tipo de archivo)');
+                    }
+                    
+                    arrayBuffer = await response.arrayBuffer();
                 }
                 
-                const arrayBuffer = await response.arrayBuffer();
+                currentPDF = googleDriveUrl; // Guardar la URL para luego
                 await extractPDFInfo(arrayBuffer, fileId);
                 document.getElementById('previewContainer').style.display = 'block';
                 
