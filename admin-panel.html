@@ -770,6 +770,40 @@
             });
         }
 
+        async function editBook(id) {
+            try {
+                console.log('Editando libro con ID:', id);
+                const books = await getBooksFromIndexedDB();
+                const book = books.find(b => b.id === id);
+                
+                if (!book) {
+                    showAlert('❌ Libro no encontrado', 'error');
+                    return;
+                }
+                
+                console.log('Libro a editar:', book);
+                
+                // Llenar formulario con datos del libro
+                document.getElementById('bookTitle').value = book.title;
+                document.getElementById('bookAuthor').value = book.author;
+                document.getElementById('bookYear').value = book.year;
+                document.getElementById('bookGenre').value = book.genre;
+                document.getElementById('bookDescription').value = book.description;
+                
+                // Scroll suave al formulario
+                document.getElementById('bookForm').scrollIntoView({ behavior: 'smooth' });
+                document.querySelector('button[onclick="handleSubmitClick()"]').textContent = '💾 Actualizar Libro';
+                
+                // Guardar ID para actualizar después
+                window.editingBookId = id;
+                
+                showAlert('✏️ Modo edición: Modifica los datos y haz click en "Actualizar Libro"', 'info');
+            } catch (error) {
+                console.error('Error editando libro:', error);
+                showAlert('❌ Error: ' + error.message, 'error');
+            }
+        }
+
         async function handleSubmitClick() {
             console.log('Click en guardar libro detectado');
             console.log('currentPdfData:', currentPdfData);
@@ -825,7 +859,7 @@
 
             try {
                 const book = {
-                    id: Date.now(),
+                    id: window.editingBookId || Date.now(),
                     title: title,
                     author: author,
                     year: year,
@@ -839,12 +873,23 @@
 
                 console.log('Libro a guardar:', book);
 
+                // Si estamos editando, eliminar el anterior primero
+                if (window.editingBookId) {
+                    console.log('Eliminando libro anterior...');
+                    await deleteBookFromIndexedDB(window.editingBookId);
+                }
+
                 // Guardar en IndexedDB
                 await saveBookToIndexedDB(book);
 
                 console.log('Libro guardado en IndexedDB');
 
-                showAlert('✅ ¡Libro guardado exitosamente!', 'success');
+                if (window.editingBookId) {
+                    showAlert('✅ ¡Libro actualizado exitosamente!', 'success');
+                    window.editingBookId = null;
+                } else {
+                    showAlert('✅ ¡Libro guardado exitosamente!', 'success');
+                }
                 
                 setTimeout(() => {
                     cancelUpload();
@@ -896,6 +941,7 @@
                                 <div>${book.year} • ${book.genre}</div>
                             </div>
                             <div class="book-actions">
+                                <button class="btn-edit" onclick="editBook(${book.id})" style="background: linear-gradient(135deg, #0099ff, #00d4ff); margin-right: 0.5rem;">✏️ Editar</button>
                                 <button class="btn-delete" onclick="deleteBook(${book.id})">Eliminar</button>
                             </div>
                         </div>
