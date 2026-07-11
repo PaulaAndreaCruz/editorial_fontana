@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EDITORIAL FONTANA - Repositorio virtual de libros y artículos científicos de alto nivel académico">
+    <meta name="theme-color" content="#0a0e27">
+    <title>EDITORIAL FONTANA | Biblioteca Digital</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #0f1535;
+            --bg-tertiary: #1a1f3a;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #0099ff;
+            --accent-tertiary: #00ff88;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --glass-light: rgba(255, 255, 255, 0.05);
+            --glass-dark: rgba(0, 0, 0, 0.2);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ==================== HEADER ==================== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 14, 39, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-light);
+            padding: 1rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav a:hover {
+            color: var(--accent-primary);
+        }
+
+        .nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav a:hover::after {
+            width: 100%;
+        }
+
+        .btn-admin {
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            color: #000;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-admin:hover {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* ==================== HERO SECTION ==================== */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 60px;
+            overflow: hidden;
+        }
+
+        .hero-video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .video-frame {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            border: none;
+        }
+
+        .video-frame.active {
+            opacity: 1;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(10, 14, 39, 0.3), rgba(10, 14, 39, 0.7));
+            z-index: -1;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            animation: fadeInUp 1.2s ease-out;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero-top {
+            margin-top: 1rem;
+        }
+
+        .hero-center {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 3rem;
+        }
+
+        .hero-logo {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+        }
+
+        .hero-description {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.4;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-description .highlight {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-explore {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-explore:hover {
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.8);
+            transform: translateY(-3px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== SEARCH SECTION ==================== */
+        .search-section {
+            padding: 3rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--glass-light);
+        }
+
+        .search-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .search-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-light);
+            border-radius: 50px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            background: rgba(10, 14, 39, 0.6);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-select {
+            padding: 0.8rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-light);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:hover,
+        .filter-select:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+        }
+
+        /* ==================== LIBRARY SECTION ==================== */
+        .library-section {
+            padding: 4rem 2rem;
+            background: var(--bg-primary);
+        }
+
+        .library-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .book-card {
+            background: var(--glass-light);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-light);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            group: hover;
+        }
+
+        .book-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        .book-info {
+            padding: 1.5rem;
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        .book-author {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-light);
+        }
+
+        .book-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .book-btn:hover {
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        /* ==================== INSTITUTIONAL SECTION ==================== */
+        .institutional {
+            padding: 4rem 2rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--glass-light);
+        }
+
+        .institutional-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .institutional-content {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            padding: 2rem;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--glass-light);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .nav {
+                gap: 1rem;
+            }
+
+            .nav a {
+                font-size: 0.8rem;
+            }
+
+            .hero-logo {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .btn-explore {
+                padding: 0.8rem 2rem;
+                font-size: 0.95rem;
+            }
+
+            .search-title {
+                font-size: 1.5rem;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .book-cover {
+                height: 220px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 1rem;
+            }
+
+            .nav {
+                gap: 0.5rem;
+            }
+
+            .btn-admin {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .hero {
+                margin-top: 50px;
+            }
+
+            .hero-logo {
+                font-size: 1.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.75rem;
+            }
+
+            .btn-explore {
+                padding: 0.7rem 1.5rem;
+                font-size: 0.85rem;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .book-info {
+                padding: 1rem;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header>
+        <div class="header-content">
+            <div class="logo">EDITORIAL FONTANA</div>
+            <nav class="nav">
+                <a href="#biblioteca">Biblioteca</a>
+                <a href="#autores">Autores</a>
+                <a href="#contacto">Contacto</a>
+                <button class="btn-admin">Panel Admin</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="hero">
+        <div class="hero-video-container" id="videoContainer">
+            <!-- Video 1 de Google Drive -->
+            <iframe 
+                class="video-frame active"
+                id="video1"
+                src="https://drive.google.com/file/d/160G0ryKDOKC_tqtMmZmhUMvYWHpTItjv/preview?autoplay=1" 
+                allow="autoplay *"
+                allowfullscreen>
+            </iframe>
+            
+            <!-- Video 2 de Google Drive -->
+            <iframe 
+                class="video-frame"
+                id="video2"
+                src="https://drive.google.com/file/d/1mK7IvYU--LcnTYQ7h-bu3OOSBbTtqglQ/preview?autoplay=1" 
+                allow="autoplay *"
+                allowfullscreen>
+            </iframe>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-top">
+                <div class="hero-logo">EDITORIAL FONTANA</div>
+                <div class="hero-subtitle">Repositorio Virtual de Libros y Artículos Científicos</div>
+            </div>
+            
+            <div class="hero-center">
+                <button class="btn-explore" onclick="document.getElementById('biblioteca').scrollIntoView()">
+                    Explorar Biblioteca
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SEARCH SECTION ==================== -->
+    <section class="search-section">
+        <div class="search-container">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Busca por título, autor, palabras clave..."
+                    onkeyup="filterBooks()"
+                >
+            </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Año</label>
+                    <select class="filter-select" id="yearFilter" onchange="filterBooks()">
+                        <option value="">Todos los años</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Género</label>
+                    <select class="filter-select" id="genreFilter" onchange="filterBooks()">
+                        <option value="">Todos los géneros</option>
+                        <option value="educacion">Educación</option>
+                        <option value="ciencia">Ciencia</option>
+                        <option value="tecnologia">Tecnología</option>
+                        <option value="arte">Arte y Cultura</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Idioma</label>
+                    <select class="filter-select" id="languageFilter" onchange="filterBooks()">
+                        <option value="">Todos los idiomas</option>
+                        <option value="español">Español</option>
+                        <option value="inglés">Inglés</option>
+                        <option value="portugués">Portugués</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== LIBRARY SECTION ==================== -->
+    <section class="library-section" id="biblioteca">
+        <div class="library-container">
+            <h2 class="section-title">Biblioteca Virtual</h2>
+            <div class="books-grid" id="booksGrid">
+                <!-- Los libros se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== INSTITUTIONAL SECTION ==================== -->
+    <section class="institutional" id="contacto">
+        <div class="institutional-container">
+            <h2 class="section-title">Sobre EDITORIAL FONTANA</h2>
+            <div class="institutional-content">
+                <p>
+                    EDITORIAL FONTANA es un repositorio virtual dedicado a la preservación, 
+                    difusión y acceso de libros y artículos científicos de alto nivel académico. 
+                    Nuestro compromiso es poner al alcance del público una colección seleccionada 
+                    de obras que contribuyen al conocimiento, la investigación y la educación.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer>
+        <p>&copy; 2024 EDITORIAL FONTANA. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // ==================== BASE DE DATOS DE LIBROS ==================== 
+        const booksDatabase = [
+            {
+                id: 1,
+                title: "Innovación en la Educación Digital",
+                author: "Dr. Juan Pérez García",
+                year: "2024",
+                genre: "educacion",
+                language: "español",
+                pages: 324,
+                isbn: "978-3-16-148410-0",
+                keywords: ["educación", "digital", "innovación", "tecnología educativa"]
+            },
+            {
+                id: 2,
+                title: "Fundamentos de Inteligencia Artificial",
+                author: "Dra. María López Martínez",
+                year: "2024",
+                genre: "tecnologia",
+                language: "español",
+                pages: 456,
+                isbn: "978-3-16-148410-1",
+                keywords: ["IA", "machine learning", "algoritmos", "computación"]
+            },
+            {
+                id: 3,
+                title: "La Sostenibilidad en el Siglo XXI",
+                author: "Prof. Carlos Rodríguez",
+                year: "2023",
+                genre: "ciencia",
+                language: "español",
+                pages: 298,
+                isbn: "978-3-16-148410-2",
+                keywords: ["sostenibilidad", "medio ambiente", "cambio climático"]
+            },
+            {
+                id: 4,
+                title: "Arte y Tecnología: Un Diálogo Contemporáneo",
+                author: "Catalina Morales Ruiz",
+                year: "2023",
+                genre: "arte",
+                language: "español",
+                pages: 287,
+                isbn: "978-3-16-148410-3",
+                keywords: ["arte", "tecnología", "diseño", "creatividad"]
+            },
+            {
+                id: 5,
+                title: "Neurotecnología y Cognitiva",
+                author: "Dr. Roberto Silva",
+                year: "2024",
+                genre: "ciencia",
+                language: "inglés",
+                pages: 512,
+                isbn: "978-3-16-148410-4",
+                keywords: ["neuro", "cognición", "cerebro", "tecnología"]
+            },
+            {
+                id: 6,
+                title: "Pedagogía Moderna: Métodos Innovadores",
+                author: "Dra. Ana Martínez López",
+                year: "2023",
+                genre: "educacion",
+                language: "español",
+                pages: 376,
+                isbn: "978-3-16-148410-5",
+                keywords: ["pedagogía", "educación", "métodos", "aprendizaje"]
+            },
+            {
+                id: 7,
+                title: "Programación Cuántica Avanzada",
+                author: "Prof. David Chen",
+                year: "2024",
+                genre: "tecnologia",
+                language: "inglés",
+                pages: 598,
+                isbn: "978-3-16-148410-6",
+                keywords: ["computación cuántica", "programación", "física"]
+            },
+            {
+                id: 8,
+                title: "Biodiversidad y Conservación",
+                author: "Dra. Elena González",
+                year: "2022",
+                genre: "ciencia",
+                language: "español",
+                pages: 445,
+                isbn: "978-3-16-148410-7",
+                keywords: ["biodiversidad", "ecología", "conservación", "naturaleza"]
+            },
+            {
+                id: 9,
+                title: "Expresionismo Abstracto Contemporáneo",
+                author: "Prof. Michel Dubois",
+                year: "2023",
+                genre: "arte",
+                language: "portugués",
+                pages: 289,
+                isbn: "978-3-16-148410-8",
+                keywords: ["arte abstracto", "expresionismo", "pintura", "modernidad"]
+            },
+            {
+                id: 10,
+                title: "Transformación Digital en Empresas",
+                author: "Dr. Francisco Ruiz",
+                year: "2024",
+                genre: "tecnologia",
+                language: "español",
+                pages: 401,
+                isbn: "978-3-16-148410-9",
+                keywords: ["transformación digital", "empresa", "tecnología", "gestión"]
+            },
+            {
+                id: 11,
+                title: "Historia de la Educación Latinoamericana",
+                author: "Prof. Gustavo Moreno",
+                year: "2022",
+                genre: "educacion",
+                language: "español",
+                pages: 523,
+                isbn: "978-3-16-148410-10",
+                keywords: ["historia", "educación", "latinoamérica", "cultura"]
+            },
+            {
+                id: 12,
+                title: "Física Teórica Moderna",
+                author: "Dr. Hermann Schmidt",
+                year: "2021",
+                genre: "ciencia",
+                language: "inglés",
+                pages: 678,
+                isbn: "978-3-16-148410-11",
+                keywords: ["física", "relatividad", "cuántica", "teoría"]
+            }
+        ];
+
+        // ==================== RENDER BOOKS ==================== 
+        function renderBooks(books) {
+            const grid = document.getElementById('booksGrid');
+            grid.innerHTML = '';
+
+            books.forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                card.innerHTML = `
+                    <div class="book-cover">${book.id}</div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        <div class="book-meta">
+                            <span>${book.year}</span>
+                            <span>${book.pages} págs</span>
+                        </div>
+                        <button class="book-btn" onclick="viewBook(${book.id})">Ver Libro</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ==================== FILTER BOOKS ==================== 
+        function filterBooks() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const yearFilter = document.getElementById('yearFilter').value;
+            const genreFilter = document.getElementById('genreFilter').value;
+            const languageFilter = document.getElementById('languageFilter').value;
+
+            const filtered = booksDatabase.filter(book => {
+                const matchSearch = book.title.toLowerCase().includes(searchText) ||
+                                  book.author.toLowerCase().includes(searchText) ||
+                                  book.keywords.some(kw => kw.toLowerCase().includes(searchText));
+                const matchYear = !yearFilter || book.year === yearFilter;
+                const matchGenre = !genreFilter || book.genre === genreFilter;
+                const matchLanguage = !languageFilter || book.language === languageFilter;
+
+                return matchSearch && matchYear && matchGenre && matchLanguage;
+            });
+
+            renderBooks(filtered);
+        }
+
+        // ==================== VIEW BOOK ==================== 
+        function viewBook(bookId) {
+            const book = booksDatabase.find(b => b.id === bookId);
+            alert(`Abriendo: ${book.title}\n\nAutor: ${book.author}\nAño: ${book.year}\n\n(Esta funcionalidad se implementará en la página individual del libro)`);
+        }
+
+        // ==================== VIDEO ROTATION ==================== 
+        let currentVideoIndex = 0;
+        const videos = ['video1', 'video2'];
+        const VIDEO_DURATION = 45000; // 45 segundos por video
+
+        function rotateVideos() {
+            // Desactivar video actual
+            document.getElementById(videos[currentVideoIndex]).classList.remove('active');
+            
+            // Cambiar al siguiente video
+            currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+            
+            // Activar nuevo video
+            document.getElementById(videos[currentVideoIndex]).classList.add('active');
+        }
+
+        // ==================== INIT ==================== 
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBooks(booksDatabase);
+
+            // Iniciar rotación de videos
+            setInterval(rotateVideos, VIDEO_DURATION);
+        });
+
+        // ==================== SMOOTH SCROLL ==================== 
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
