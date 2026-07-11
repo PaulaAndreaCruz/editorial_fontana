@@ -306,8 +306,120 @@
             color: var(--text-secondary);
         }
 
-        /* ==================== ABOUT SECTION ==================== */
-        .about {
+        .project-section {
+            padding: 5rem 2rem;
+            background: var(--primary);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .project-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .project-content h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .project-content .accent {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .project-content p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+
+        .project-content p:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* BOTÓN LETRAS Y VERSOS - TARJETA CON IMAGEN */
+        .seal-button {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid var(--border-light);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.1);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            background: none;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .seal-button:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 30px 80px rgba(0, 212, 255, 0.25);
+        }
+
+        .seal-button img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .seal-button:hover img {
+            transform: scale(1.05);
+        }
+
+        .seal-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(10, 14, 39, 0) 0%, rgba(10, 14, 39, 0.7) 100%);
+            z-index: 2;
+            transition: all 0.4s ease;
+        }
+
+        .seal-button:hover .seal-overlay {
+            background: linear-gradient(180deg, rgba(10, 14, 39, 0.3) 0%, rgba(10, 14, 39, 0.85) 100%);
+        }
+
+        .seal-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .seal-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .seal-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
             padding: 5rem 2rem;
             background: var(--secondary);
             border-top: 1px solid var(--border-light);
@@ -566,6 +678,19 @@
                 gap: 1.5rem;
             }
 
+            .project-wrapper {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .seal-button {
+                height: 400px;
+            }
+
+            .seal-title {
+                font-size: 1.8rem;
+            }
+
             .about-wrapper {
                 grid-template-columns: 1fr;
                 gap: 2rem;
@@ -616,6 +741,14 @@
                 font-size: 0.9rem;
             }
 
+            .seal-button {
+                height: 350px;
+            }
+
+            .seal-title {
+                font-size: 1.5rem;
+            }
+
             .books-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                 gap: 1rem;
@@ -627,6 +760,10 @@
 
             .section-title {
                 font-size: 1.8rem;
+            }
+
+            .project-content h2 {
+                font-size: 1.5rem;
             }
         }
 
@@ -653,6 +790,18 @@
 
             .features {
                 gap: 1rem;
+            }
+
+            .seal-button {
+                height: 300px;
+            }
+
+            .seal-title {
+                font-size: 1.2rem;
+            }
+
+            .seal-icon {
+                font-size: 2rem;
             }
 
             .books-grid {
@@ -742,6 +891,36 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- ==================== PROJECT SECTION ==================== -->
+    <section class="project-section">
+        <div class="project-wrapper">
+            <div class="project-content">
+                <h2>
+                    Acerca del Proyecto <span class="accent">Editorial Fontana</span>
+                </h2>
+                <p>
+                    El proyecto 'Editorial Fontana' se consolida a partir del rol editorial que adquirió el Gimnasio Campestre la Fontana ante la Biblioteca Nacional de Colombia para contribuir en la formalización de la producción bibliográfica que se desarrolla en nuestra institución (GCF News School Magazine -Anual y semanal-, la Revista Fontana Seeds, los escritos de Plan Escritor, los informes de investigación, entre otros).
+                </p>
+                <p>
+                    Esto permite la difusión y divulgación en la comunidad educativa con impacto local y regional acerca del quehacer pedagógico, investigativo, cultural, científico y tecnológico que desarrollan estudiantes y docentes para alcanzar así la cultura de la investigación como parte del diario de la institución, uno de los pilares de nuestro Proyecto Educativo Institucional.
+                </p>
+                <p>
+                    El Departamento de Investigación e Innovación en cooperación con el Departamento de Comunicación establecen tres sellos editoriales que permiten organizar y divulgar la producción bibliográfica de acuerdo a su tipología.
+                </p>
+            </div>
+
+            <!-- BOTÓN LETRAS Y VERSOS CON IMAGEN -->
+            <button class="seal-button" onclick="openSeal('letras-versos')">
+                <img src="letras-versos.png" alt="Letras y Versos Fontana - Editorial">
+                <div class="seal-overlay"></div>
+                <div class="seal-content">
+                    <div class="seal-icon">📚</div>
+                    <h3 class="seal-title">LETRAS Y VERSOS FONTANA</h3>
+                </div>
+            </button>
         </div>
     </section>
 
@@ -958,6 +1137,12 @@
         function viewBook(bookId) {
             const book = booksDatabase.find(b => b.id === bookId);
             alert(`Abriendo: ${book.title}\n\nAutor: ${book.author}`);
+        }
+
+        function openSeal(sealType) {
+            if (sealType === 'letras-versos') {
+                alert('Explorando: LETRAS Y VERSOS FONTANA\n\nSección dedicada a poesía, narrativa y escritos de índole literario.');
+            }
         }
 
         // ==================== ROTACIÓN DE VIDEOS ====================
