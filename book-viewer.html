@@ -188,6 +188,41 @@
             margin-bottom: 3rem;
         }
 
+        .author-container {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .author-photo-wrapper {
+            width: 180px;
+            height: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border-light);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .author-photo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
         .section-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -201,6 +236,17 @@
             color: var(--text-secondary);
         }
 
+        @media (max-width: 768px) {
+            .author-container {
+                grid-template-columns: 1fr;
+            }
+
+            .author-photo-wrapper {
+                width: 100%;
+                height: 250px;
+            }
+        }
+
         /* ==================== PDF VIEWER ==================== */
         .pdf-viewer-section {
             background: var(--glass-bg);
@@ -211,16 +257,71 @@
         }
 
         .pdf-viewer-container {
-            background: #1a1a2e;
-            border-radius: 10px;
+            background: linear-gradient(to right, #0a0e27 0%, #1a1a2e 50%, #0a0e27 100%);
+            border-radius: 15px;
             overflow: hidden;
             margin-bottom: 1.5rem;
+            padding: 3rem 2rem 2rem 2rem;
+            position: relative;
+            box-shadow: 
+                inset -30px 0 40px rgba(0, 0, 0, 0.8),
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(0, 212, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+        }
+
+        .pdf-viewer-container::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, 0.5), transparent);
+            z-index: 10;
+        }
+
+        .pdf-canvas-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            animation: pageFlip 0.6s ease-out;
+        }
+
+        @keyframes pageFlip {
+            from {
+                transform: rotateY(15deg) scale(0.95);
+                opacity: 0.8;
+            }
+            to {
+                transform: rotateY(0deg) scale(1);
+                opacity: 1;
+            }
         }
 
         .pdf-canvas {
             width: 100%;
             height: auto;
             display: block;
+            background: white;
+        }
+
+        .pdf-page-number {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 600;
         }
 
         .pdf-controls {
@@ -459,8 +560,16 @@
         <!-- AUTHOR BIO -->
         <div class="author-section">
             <h2 class="section-title">👤 Acerca del Autor</h2>
-            <div class="author-content" id="authorBio">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            <div class="author-container">
+                <div class="author-photo-wrapper">
+                    <img id="authorPhoto" src="" alt="Foto del Autor" style="display: none;">
+                    <span id="authorPhotoPlaceholder">📷 Sin foto</span>
+                </div>
+                <div class="author-info">
+                    <div class="author-content" id="authorBio">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -469,7 +578,10 @@
             <h2 class="section-title">📖 Leer Libro</h2>
             
             <div class="pdf-viewer-container">
-                <canvas id="pdfCanvas" class="pdf-canvas"></canvas>
+                <div class="pdf-canvas-wrapper">
+                    <canvas id="pdfCanvas" class="pdf-canvas"></canvas>
+                    <div class="pdf-page-number" id="pageNumberDisplay">1</div>
+                </div>
             </div>
 
             <div class="pdf-controls">
@@ -565,6 +677,19 @@
             // Biografía del autor (placeholder)
             document.getElementById('authorBio').textContent = `${book.author} es un autor destacado cuyas obras han dejado huella en la literatura contemporánea. Sus escritos reflejan una profunda comprensión del ser humano y la sociedad.`;
 
+            // Foto del autor
+            if (book.authorPhoto) {
+                const photoImg = document.getElementById('authorPhoto');
+                const photoPlaceholder = document.getElementById('authorPhotoPlaceholder');
+                photoImg.src = book.authorPhoto;
+                photoImg.style.display = 'block';
+                if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+                photoImg.onerror = function() {
+                    photoImg.style.display = 'none';
+                    if (photoPlaceholder) photoPlaceholder.style.display = 'block';
+                };
+            }
+
             // Cargar PDF
             loadPdf(book.pdf);
         }
@@ -609,6 +734,7 @@
             }
 
             document.getElementById('pageNum').value = num;
+            document.getElementById('pageNumberDisplay').textContent = num;
             updateButtons();
         }
 
