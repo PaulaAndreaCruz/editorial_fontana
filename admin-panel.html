@@ -635,8 +635,11 @@
                 await firstPage.render({ canvasContext: context, viewport }).promise;
                 const coverImage = canvas.toDataURL('image/jpeg', 0.8);
 
+                // Convertir ArrayBuffer a base64 para guardar en localStorage
+                const pdfBase64 = arrayBufferToBase64(fileData);
+
                 currentPdfData = {
-                    pdf: fileData,
+                    pdf: pdfBase64,  // Guardamos como base64 string
                     cover: coverImage,
                     fileName: file.name,
                     fileSize: (file.size / 1024 / 1024).toFixed(2),
@@ -656,6 +659,15 @@
                 reader.onerror = reject;
                 reader.readAsArrayBuffer(file);
             });
+        }
+
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
         }
 
         function showPreview() {
