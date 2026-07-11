@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Visor Profesional de Libros - Editorial Fontana">
     <title>Libro | Editorial Fontana</title>
-    
-    <!-- PageFlip.js CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip@1.4.9/dist/page-flip.min.css">
     
     <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    
-    <!-- PageFlip.js -->
-    <script src="https://cdn.jsdelivr.net/npm/page-flip@1.4.9/dist/page-flip.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
 
     <style>
         * {
@@ -22,27 +18,10 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #0a0e27;
-            --secondary: #1a1f3a;
-            --accent: #00d4ff;
-            --success: #00ff88;
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0a0a0;
-        }
-
         body {
-            background: var(--primary);
-            color: var(--text-primary);
+            background: #0a0e27;
+            color: #e0e0e0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-        }
-
-        html, body, #root {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
         }
 
         .container {
@@ -50,81 +29,86 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background: var(--primary);
             padding: 1rem;
+            align-items: center;
         }
 
         .header {
+            width: 100%;
+            max-width: 1200px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 2px solid var(--secondary);
+            border-bottom: 2px solid #1a1f3a;
         }
 
         .header h1 {
-            color: var(--accent);
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            color: #00d4ff;
+            font-size: 2rem;
             text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
         .header-info {
             font-size: 0.9rem;
-            color: var(--text-secondary);
+            color: #a0a0a0;
         }
 
         .btn-back {
-            background: var(--accent);
-            color: var(--primary);
+            background: #00d4ff;
+            color: #0a0e27;
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 50px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
         }
 
         .btn-back:hover {
             background: #00b8d4;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
             transform: translateY(-2px);
         }
 
         .book-container {
-            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            height: 600px;
+            margin: 1rem 0;
+            background: #1a1f3a;
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 1rem 0;
-            perspective: 1200px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
         }
 
         #book {
             width: 100%;
-            max-width: 90vw;
-            height: auto;
-            max-height: 85vh;
-        }
-
-        .book {
-            width: 100%;
             height: 100%;
+            perspective: 1200px;
         }
 
-        .page {
-            width: 100%;
+        .book-page {
+            width: 48%;
             height: 100%;
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
+            float: left;
             overflow: hidden;
             position: relative;
+            box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.1);
         }
 
-        .page img {
+        .book-page:first-child {
+            border-right: 3px solid #444;
+        }
+
+        .book-page img {
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -132,39 +116,38 @@
         }
 
         .controls {
+            width: 100%;
+            max-width: 1000px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 1rem;
             margin-top: 1.5rem;
             padding: 1rem;
-            background: var(--secondary);
+            background: #1a1f3a;
             border-radius: 12px;
             flex-wrap: wrap;
         }
 
         .btn-control {
-            background: var(--accent);
-            color: var(--primary);
+            background: #00d4ff;
+            color: #0a0e27;
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
             min-height: 44px;
         }
 
         .btn-control:hover:not(:disabled) {
             background: #00b8d4;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
             transform: translateY(-2px);
         }
 
         .btn-control:disabled {
             background: #555;
-            color: #999;
             cursor: not-allowed;
             opacity: 0.5;
         }
@@ -173,24 +156,24 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--text-secondary);
+            color: #a0a0a0;
             font-family: 'Courier New', monospace;
-            min-width: 120px;
+            flex: 1;
             justify-content: center;
         }
 
         .page-input {
             width: 50px;
             padding: 0.5rem;
-            background: var(--primary);
-            border: 2px solid var(--accent);
+            background: #0a0e27;
+            border: 2px solid #00d4ff;
             border-radius: 6px;
-            color: var(--accent);
+            color: #00d4ff;
             text-align: center;
             font-weight: bold;
         }
 
-        .loading-spinner {
+        .loading {
             position: fixed;
             top: 0;
             left: 0;
@@ -201,15 +184,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 2rem;
             z-index: 1000;
+            gap: 2rem;
         }
 
         .spinner {
             width: 60px;
             height: 60px;
             border: 4px solid rgba(0, 212, 255, 0.2);
-            border-top-color: var(--accent);
+            border-top-color: #00d4ff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -218,21 +201,7 @@
             to { transform: rotate(360deg); }
         }
 
-        .progress-bar {
-            width: 300px;
-            height: 4px;
-            background: rgba(0, 212, 255, 0.2);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            transition: width 0.3s ease;
-        }
-
-        .error-container {
+        .error {
             position: fixed;
             top: 0;
             left: 0;
@@ -243,214 +212,84 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 2rem;
             z-index: 1000;
+            gap: 2rem;
         }
 
-        .error-message {
+        .error-text {
             color: #ff4444;
             font-size: 1.2rem;
-            text-align: center;
             max-width: 500px;
-        }
-
-        .hints {
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
             text-align: center;
-            border-top: 1px solid var(--secondary);
-            padding-top: 1rem;
         }
 
-        .hints p {
-            margin: 0.5rem 0;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 0.75rem;
+            .book-container {
+                height: 400px;
             }
 
             .header {
                 flex-direction: column;
                 gap: 1rem;
-                align-items: flex-start;
             }
 
             .controls {
                 flex-direction: column;
-                width: 100%;
             }
 
             .btn-control {
                 width: 100%;
             }
-
-            .page-info {
-                width: 100%;
-            }
-
-            #book {
-                max-width: 100vw;
-                max-height: 60vh;
-            }
-
-            .hints {
-                font-size: 0.75rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.2rem;
-            }
-
-            .btn-back {
-                padding: 0.5rem 1rem;
-                font-size: 0.8rem;
-            }
-
-            .controls {
-                gap: 0.5rem;
-            }
-
-            .btn-control {
-                padding: 0.6rem 1rem;
-                font-size: 0.8rem;
-            }
-        }
-
-        /* Animación de carga */
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #0f1419;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00b8d4;
-        }
-
-        /* PageFlip personalización */
-        .page-flip-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
     </style>
 </head>
 <body>
-    <div id="root">
-        <div class="container">
-            <!-- Header -->
-            <div class="header">
-                <div>
-                    <h1 id="bookTitle">Cargando...</h1>
-                    <div class="header-info">
-                        <span id="bookAuthor"></span> • <span id="bookYear"></span>
-                    </div>
-                </div>
-                <button class="btn-back" onclick="goBack()">← VOLVER</button>
-            </div>
-
-            <!-- Libro -->
-            <div class="book-container">
-                <div id="book" class="book"></div>
-            </div>
-
-            <!-- Controles -->
-            <div class="controls">
-                <button class="btn-control" id="btnPrev" onclick="prevPage()">← Anterior</button>
-                
-                <div class="page-info">
-                    <span>Página:</span>
-                    <input type="number" id="pageNum" class="page-input" min="1" onchange="goToPage()">
-                    <span>/</span>
-                    <span id="totalPages">0</span>
-                </div>
-
-                <button class="btn-control" id="btnNext" onclick="nextPage()">Siguiente →</button>
-            </div>
-
-            <!-- Hints -->
-            <div class="hints">
-                <p>💡 Usa flechas del teclado (← →) para navegar</p>
-                <p>💡 Haz clic en las esquinas o arrastra para voltear la página</p>
-                <p>💡 En móvil: desliza hacia los lados (swipe)</p>
-            </div>
-        </div>
-
-        <!-- Loading -->
-        <div id="loading" class="loading-spinner" style="display: none;">
-            <div class="spinner"></div>
+    <div class="container">
+        <div class="header">
             <div>
-                <div class="progress-bar">
-                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                <h1 id="bookTitle">Cargando...</h1>
+                <div class="header-info">
+                    <span id="bookAuthor"></span> • <span id="bookYear"></span>
                 </div>
-                <p id="loadingText" style="margin-top: 1rem; color: var(--text-secondary);">Renderizando páginas...</p>
             </div>
+            <button class="btn-back" onclick="goBack()">← VOLVER</button>
         </div>
 
-        <!-- Error -->
-        <div id="error" class="error-container" style="display: none;">
-            <p class="error-message" id="errorMessage">Error cargando el libro</p>
-            <button class="btn-back" onclick="goBack()">← Volver</button>
+        <div class="book-container" id="bookContainer">
+            <div id="book"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-control" id="btnPrev" onclick="prevPage()">← Anterior</button>
+            
+            <div class="page-info">
+                <span>Página:</span>
+                <input type="number" id="pageNum" class="page-input" min="1" onchange="goToPageInput()">
+                <span>/</span>
+                <span id="totalPages">0</span>
+            </div>
+
+            <button class="btn-control" id="btnNext" onclick="nextPage()">Siguiente →</button>
         </div>
     </div>
 
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p id="loadingText" style="color: #a0a0a0;">Cargando y renderizando PDF...</p>
+    </div>
+
+    <div id="error" class="error" style="display: none;">
+        <p class="error-text" id="errorText">Error</p>
+        <button class="btn-back" onclick="goBack()">← Volver</button>
+    </div>
+
     <script>
-        // Esperar a que PageFlip esté disponible
-        function waitForPageFlip() {
-            return new Promise((resolve) => {
-                if (typeof PageFlip !== 'undefined') {
-                    resolve();
-                } else {
-                    const checkInterval = setInterval(() => {
-                        if (typeof PageFlip !== 'undefined') {
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    }, 100);
-                    // Timeout después de 5 segundos
-                    setTimeout(() => {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }, 5000);
-                }
-            });
-        }
-
-        // Configuración PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-        let pageFlip = null;
         let db = null;
         let currentBook = null;
-        let currentPageNum = 1;
+        let allPages = [];
+        let currentPageIndex = 0;
 
-        // Obtener ID del libro de la URL
+        // Obtener ID de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const bookId = parseInt(urlParams.get('id'));
 
@@ -458,18 +297,21 @@
         async function initDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open('EditorialFontana', 1);
-                request.onsuccess = () => { db = request.result; resolve(); };
                 request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve();
+                };
                 request.onupgradeneeded = (e) => {
-                    const d = e.target.result;
-                    if (!d.objectStoreNames.contains('books')) {
-                        d.createObjectStore('books', { keyPath: 'id' });
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains('books')) {
+                        database.createObjectStore('books', { keyPath: 'id' });
                     }
                 };
             });
         }
 
-        // Obtener libro de IndexedDB
+        // Obtener libro
         async function getBook(id) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['books'], 'readonly');
@@ -480,10 +322,10 @@
             });
         }
 
-        // Cargar y renderizar PDF
-        async function loadAndRenderPDF(pdfData) {
+        // Renderizar PDF
+        async function renderPDF(pdfData) {
             try {
-                showLoading(true);
+                document.getElementById('loading').style.display = 'flex';
                 
                 // Convertir base64 a ArrayBuffer
                 const binaryString = atob(pdfData);
@@ -494,9 +336,9 @@
 
                 // Cargar PDF
                 const pdf = await pdfjsLib.getDocument(bytes.buffer).promise;
-                const pageImages = [];
+                allPages = [];
 
-                // Renderizar cada página
+                // Renderizar páginas
                 for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                     const page = await pdf.getPage(pageNum);
                     const canvas = document.createElement('canvas');
@@ -511,104 +353,75 @@
                         viewport: viewport
                     }).promise;
 
-                    const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
-                    pageImages.push(imageUrl);
-
-                    // Actualizar progreso
-                    const progress = (pageNum / pdf.numPages) * 100;
-                    updateProgress(progress);
+                    allPages.push(canvas.toDataURL('image/jpeg', 0.95));
                 }
 
-                // Inicializar PageFlip
-                initPageFlip(pageImages);
-                showLoading(false);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('totalPages').textContent = allPages.length;
+                currentPageIndex = 0;
+                displayPages();
 
             } catch (error) {
-                showError('Error al renderizar el PDF: ' + error.message);
                 console.error('Error:', error);
+                showError('Error al renderizar PDF: ' + error.message);
             }
         }
 
-        // Inicializar PageFlip.js
-        async function initPageFlip(imageUrls) {
-            // Verificar que PageFlip está disponible
-            if (typeof PageFlip === 'undefined') {
-                showError('Error: PageFlip.js no se cargó correctamente. Recarga la página.');
-                console.error('PageFlip is not defined');
-                return;
+        // Mostrar páginas
+        function displayPages() {
+            const bookDiv = document.getElementById('book');
+            bookDiv.innerHTML = '';
+
+            // Mostrar 2 páginas: izquierda y derecha
+            const leftPageNum = currentPageIndex;
+            const rightPageNum = currentPageIndex + 1;
+
+            // Página izquierda
+            const leftDiv = document.createElement('div');
+            leftDiv.className = 'book-page';
+            if (leftPageNum < allPages.length) {
+                const leftImg = document.createElement('img');
+                leftImg.src = allPages[leftPageNum];
+                leftDiv.appendChild(leftImg);
             }
+            bookDiv.appendChild(leftDiv);
 
-            const bookElement = document.getElementById('book');
-            bookElement.innerHTML = '';
+            // Página derecha
+            const rightDiv = document.createElement('div');
+            rightDiv.className = 'book-page';
+            if (rightPageNum < allPages.length) {
+                const rightImg = document.createElement('img');
+                rightImg.src = allPages[rightPageNum];
+                rightDiv.appendChild(rightImg);
+            }
+            bookDiv.appendChild(rightDiv);
 
-            // Crear elementos de página
-            imageUrls.forEach(imageUrl => {
-                const page = document.createElement('div');
-                page.className = 'page';
-                const img = document.createElement('img');
-                img.src = imageUrl;
-                page.appendChild(img);
-                bookElement.appendChild(page);
-            });
-
-            // Configurar PageFlip
-            pageFlip = new PageFlip(bookElement, {
-                width: 600,
-                height: 700,
-                size: 'stretch',
-                minWidth: 300,
-                maxWidth: 1200,
-                minHeight: 400,
-                maxHeight: 1200,
-                maxShadowOpacity: 0.5,
-                showCover: true,
-                flareAngle: 60,
-                density: 0.6,
-                startPage: 1,
-                autoSize: true,
-                useMouseEvents: true,
-                swipeDistance: 50,
-                clickEventForward: true,
-                useSound: false,
-            });
-
-            // Eventos
-            pageFlip.on('flip', (object) => {
-                currentPageNum = object.data + 1;
-                updatePageInfo();
-            });
-
-            // Inicializar
-            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
-            updatePageInfo();
-        }
-
-        // Actualizar información de página
-        function updatePageInfo() {
-            const totalPages = pageFlip ? pageFlip.getPageCount() : 0;
-            document.getElementById('pageNum').value = currentPageNum;
-            document.getElementById('totalPages').textContent = totalPages;
-            
-            // Actualizar botones
-            document.getElementById('btnPrev').disabled = currentPageNum <= 1;
-            document.getElementById('btnNext').disabled = currentPageNum >= totalPages;
+            // Actualizar controles
+            document.getElementById('pageNum').value = leftPageNum + 1;
+            document.getElementById('btnPrev').disabled = leftPageNum <= 0;
+            document.getElementById('btnNext').disabled = rightPageNum >= allPages.length;
         }
 
         // Navegación
         function nextPage() {
-            if (pageFlip) pageFlip.turnToNextPage();
+            if (currentPageIndex + 2 < allPages.length) {
+                currentPageIndex += 2;
+                displayPages();
+            }
         }
 
         function prevPage() {
-            if (pageFlip) pageFlip.turnToPrevPage();
+            if (currentPageIndex >= 2) {
+                currentPageIndex -= 2;
+                displayPages();
+            }
         }
 
-        function goToPage() {
-            const pageNum = parseInt(document.getElementById('pageNum').value);
-            if (pageFlip && pageNum >= 1 && pageNum <= pageFlip.getPageCount()) {
-                pageFlip.turnToPage(pageNum - 1);
-                currentPageNum = pageNum;
-                updatePageInfo();
+        function goToPageInput() {
+            const pageNum = parseInt(document.getElementById('pageNum').value) - 1;
+            if (pageNum >= 0 && pageNum < allPages.length) {
+                currentPageIndex = pageNum % 2 === 0 ? pageNum : pageNum - 1;
+                displayPages();
             }
         }
 
@@ -619,30 +432,19 @@
         });
 
         // UI
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'flex' : 'none';
-        }
-
-        function updateProgress(progress) {
-            document.getElementById('progressFill').style.width = progress + '%';
-            document.getElementById('loadingText').textContent = `Renderizando páginas... ${Math.round(progress)}%`;
-        }
-
         function showError(message) {
-            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorText').textContent = message;
             document.getElementById('error').style.display = 'flex';
+            document.getElementById('loading').style.display = 'none';
         }
 
         function goBack() {
             history.back();
         }
 
-        // Cargar libro
+        // Inicializar
         async function init() {
             try {
-                // Esperar a que PageFlip cargue
-                await waitForPageFlip();
-
                 if (!bookId) {
                     showError('ID de libro no especificado');
                     return;
@@ -661,14 +463,15 @@
                 document.getElementById('bookAuthor').textContent = book.author;
                 document.getElementById('bookYear').textContent = book.year;
 
-                await loadAndRenderPDF(book.pdf);
+                await renderPDF(book.pdf);
+
             } catch (error) {
                 showError('Error: ' + error.message);
-                console.error('Error:', error);
+                console.error(error);
             }
         }
 
-        // Iniciar cuando la página cargue completamente
+        // Iniciar cuando DOM esté listo
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
