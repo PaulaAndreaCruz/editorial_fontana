@@ -530,6 +530,19 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label" for="authorPhoto">Foto del Autor</label>
+                    <input 
+                        type="url" 
+                        id="authorPhoto" 
+                        class="form-input" 
+                        placeholder="URL de Google Drive o imagen (ej: https://drive.google.com/...)"
+                    >
+                    <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
+                        💡 Puedes usar Google Drive: Sube imagen → Comparte → Copia el enlace
+                    </small>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label" for="bookDescription">Descripción</label>
                     <textarea 
                         id="bookDescription" 
@@ -676,6 +689,7 @@
                 year: document.getElementById('bookYear').value,
                 genre: document.getElementById('bookGenre').value,
                 description: document.getElementById('bookDescription').value,
+                authorPhoto: document.getElementById('authorPhoto').value || '',
                 cover: currentPdfData.cover,
                 pdf: currentPdfData.pdf,
                 pages: currentPdfData.pageCount
