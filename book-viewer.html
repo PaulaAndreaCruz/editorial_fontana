@@ -994,22 +994,37 @@
                     throw new Error('No hay datos de PDF disponibles');
                 }
                 
-                // Convertir base64 de vuelta a ArrayBuffer
                 let pdfArrayBuffer;
-                if (typeof pdfData === 'string') {
-                    // Extraer solo la parte base64 si tiene prefijo data:
+                
+                // Si es una URL de Google Drive o URL HTTP
+                if (typeof pdfData === 'string' && (pdfData.startsWith('http://') || pdfData.startsWith('https://'))) {
+                    console.log('Cargando desde URL:', pdfData);
+                    try {
+                        const response = await fetch(pdfData);
+                        if (!response.ok) {
+                            throw new Error(`Error HTTP ${response.status}: No se pudo descargar el PDF`);
+                        }
+                        pdfArrayBuffer = await response.arrayBuffer();
+                        console.log('PDF descargado desde URL, tamaño:', pdfArrayBuffer.byteLength);
+                    } catch (e) {
+                        console.error('Error descargando desde URL:', e);
+                        throw new Error('No se pudo descargar el PDF desde la URL. Verifica que el enlace sea válido.');
+                    }
+                }
+                // Si es base64 (formato antiguo)
+                else if (typeof pdfData === 'string') {
+                    console.log('Cargando desde base64');
+                    
                     let base64String = pdfData.trim();
                     if (base64String.includes(',')) {
                         base64String = base64String.split(',')[1];
                     }
                     
-                    // Validar que sea base64 válido
                     if (!base64String || base64String.length === 0) {
                         throw new Error('Datos base64 vacíos o inválidos');
                     }
                     
                     try {
-                        // Intentar decodificar
                         const binaryString = atob(base64String);
                         if (!binaryString || binaryString.length === 0) {
                             throw new Error('Decodificación resultó en datos vacíos');
@@ -1021,13 +1036,12 @@
                         }
                         pdfArrayBuffer = bytes.buffer;
                         
-                        // Validar que es un PDF válido (comienza con %PDF)
                         if (binaryString.substring(0, 4) !== '%PDF') {
                             throw new Error('El archivo no parece ser un PDF válido');
                         }
                     } catch (e) {
                         console.error('Error decodificando base64:', e);
-                        throw new Error('El PDF no está correctamente codificado. Por favor, recarga el libro desde el admin panel.');
+                        throw new Error('El PDF no está correctamente codificado.');
                     }
                 } else {
                     pdfArrayBuffer = pdfData;
