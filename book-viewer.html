@@ -8,15 +8,12 @@
     
     <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    </script>
-
-    <!-- StPageFlip CSS + JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip@latest/dist/page-flip.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/page-flip@latest/dist/page-flip.min.js"></script>
-
-    <!-- Three.js (para compatibilidad) -->
+    
+    <!-- FlipBook.js - Visor profesional de flip books -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flipbook-js/dist/flipbook.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flipbook-js/dist/flipbook.min.js"></script>
+    
+    <!-- Three.js (usado por FlipBook.js para 3D) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <style>
@@ -220,49 +217,12 @@
             font-size: 0.85rem;
             text-align: center;
             padding: 1rem;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .author-photo-wrapper:hover {
-            transform: scale(1.05);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
         }
 
         .author-photo-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-
-        .zoom-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 212, 255, 0.9);
-            color: var(--primary);
-            border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .author-photo-wrapper:hover .zoom-button {
-            display: flex;
-        }
-
-        .zoom-button:hover {
-            background: var(--accent-cyan);
-            transform: scale(1.1);
         }
 
         .author-info {
@@ -294,7 +254,7 @@
             }
         }
 
-        /* ==================== PDF VIEWER (STPAGEFLIP) ==================== */
+        /* ==================== PDF VIEWER (FLIP BOOK) ==================== */
         .pdf-viewer-section {
             background: var(--glass-bg);
             border: 1px solid var(--border-light);
@@ -306,9 +266,9 @@
         .pdf-viewer-container {
             background: linear-gradient(to right, #0a0e27 0%, #1a1a2e 50%, #0a0e27 100%);
             border-radius: 15px;
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: 1.5rem;
-            padding: 3rem 2rem;
+            padding: 3rem 2rem 2rem 2rem;
             position: relative;
             box-shadow: 
                 inset -30px 0 40px rgba(0, 0, 0, 0.8),
@@ -333,25 +293,80 @@
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
         }
 
-        #book {
+        .flipbook-wrapper {
+            position: relative;
             width: 100%;
-            max-width: 800px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-width: 900px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+            perspective: 1500px;
         }
 
-        .page {
+        .flipbook-spine {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(to right, 
+                rgba(0, 0, 0, 0.8) 0%, 
+                rgba(50, 50, 50, 0.6) 40%,
+                rgba(50, 50, 50, 0.6) 60%,
+                rgba(0, 0, 0, 0.8) 100%);
+            z-index: 15;
+            box-shadow: 
+                inset 2px 0 5px rgba(0, 0, 0, 0.9),
+                inset -2px 0 5px rgba(255, 255, 255, 0.1),
+                0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .pages-container {
+            position: relative;
             width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            perspective: 1500px;
+            transform-style: preserve-3d;
+        }
+
+        .page-side {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .page-left {
+            perspective: 1200px;
+            transform-origin: right center;
+        }
+
+        .page-right {
+            perspective: 1200px;
+            transform-origin: left center;
+        }
+
+        .pdf-canvas-wrapper {
+            position: relative;
+            width: 95%;
             height: 100%;
             background: white;
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset -3px 0 8px rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
             display: flex;
-            align-items: center;
             justify-content: center;
-        }
-
-        .page img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+            align-items: center;
+            animation: pageFlip 0.6s ease-out;
         }
 
         /* CONTROLES DE ZOOM */
@@ -360,13 +375,12 @@
             justify-content: center;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1.5rem;
+            margin: 1.5rem 0;
             padding: 1rem;
             background: rgba(0, 20, 40, 0.6);
             border: 1px solid rgba(0, 212, 255, 0.3);
             border-radius: 10px;
             backdrop-filter: blur(10px);
-            flex-wrap: wrap;
         }
 
         .zoom-btn {
@@ -377,7 +391,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -386,31 +400,115 @@
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
         }
 
-        .zoom-info {
-            color: var(--text-secondary);
-            font-weight: 700;
-            font-size: 0.9rem;
-            min-width: 100px;
-            text-align: center;
+        .zoom-btn:active {
+            transform: scale(0.95);
         }
 
-        /* CONTROLES DE NAVEGACIÓN */
-        .book-controls {
+        .zoom-level {
+            min-width: 70px;
+            text-align: center;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        /* ANIMACIONES DE FLIP 3D REALISTAS */
+        @keyframes pageFlipForward {
+            0% {
+                transform: rotateY(0deg) rotateX(0deg);
+                filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+            }
+            25% {
+                transform: rotateY(25deg) rotateX(2deg);
+                filter: drop-shadow(-5px 0 10px rgba(0, 0, 0, 0.4));
+            }
+            50% {
+                transform: rotateY(45deg) rotateX(4deg);
+                filter: drop-shadow(-15px 0 30px rgba(0, 0, 0, 0.6));
+            }
+            75% {
+                transform: rotateY(65deg) rotateX(2deg);
+                filter: drop-shadow(-10px 0 15px rgba(0, 0, 0, 0.4));
+            }
+            100% {
+                transform: rotateY(0deg) rotateX(0deg);
+                filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+            }
+        }
+
+        @keyframes pageFlipBackward {
+            0% {
+                transform: rotateY(0deg) rotateX(0deg);
+                filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+            }
+            25% {
+                transform: rotateY(-25deg) rotateX(-2deg);
+                filter: drop-shadow(5px 0 10px rgba(0, 0, 0, 0.4));
+            }
+            50% {
+                transform: rotateY(-45deg) rotateX(-4deg);
+                filter: drop-shadow(15px 0 30px rgba(0, 0, 0, 0.6));
+            }
+            75% {
+                transform: rotateY(-65deg) rotateX(-2deg);
+                filter: drop-shadow(10px 0 15px rgba(0, 0, 0, 0.4));
+            }
+            100% {
+                transform: rotateY(0deg) rotateX(0deg);
+                filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+            }
+        }
+
+        @keyframes pageFlip {
+            from {
+                transform: rotateY(15deg) scale(0.95);
+                opacity: 0.8;
+            }
+            to {
+                transform: rotateY(0deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .pdf-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: white;
+        }
+
+        .pdf-page-number {
+            position: absolute;
+            bottom: 15px;
+            font-size: 0.85rem;
+            color: #333;
+            font-weight: 600;
+            font-family: Georgia, serif;
+            z-index: 10;
+        }
+
+        .page-left .pdf-page-number {
+            left: 15px;
+        }
+
+        .page-right .pdf-page-number {
+            right: 15px;
+        }
+
+        .pdf-controls {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 1rem;
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background: rgba(0, 20, 40, 0.6);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--secondary);
+            border-top: 1px solid var(--border-light);
             flex-wrap: wrap;
         }
 
-        .nav-btn {
-            padding: 0.75rem 1.5rem;
+        .pdf-btn {
+            padding: 0.7rem 1.5rem;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
             color: var(--primary);
             border: none;
@@ -418,81 +516,37 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-height: 44px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
         }
 
-        .nav-btn:hover:not(:disabled) {
+        .pdf-btn:hover {
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
         }
 
-        .nav-btn:disabled {
-            background: #555;
-            color: #999;
-            cursor: not-allowed;
+        .pdf-btn:disabled {
             opacity: 0.5;
+            cursor: not-allowed;
         }
 
-        .page-info {
-            color: var(--text-secondary);
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            min-width: 140px;
-            text-align: center;
-        }
-
-        /* ==================== MODAL ZOOM FOTO ==================== */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
+        .pdf-info {
             display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
         }
 
-        .modal-content {
-            position: relative;
-            max-width: 90%;
-            max-height: 90vh;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(0, 212, 255, 0.5);
-        }
-
-        .modal-content img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 212, 255, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-
-        .modal-close:hover {
-            background: var(--accent-cyan);
-            transform: scale(1.1);
+        .page-input {
+            width: 60px;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            color: var(--text-main);
+            text-align: center;
+            font-weight: 700;
         }
 
         /* ==================== COMMENTS SECTION ==================== */
@@ -501,60 +555,51 @@
             border: 1px solid var(--border-light);
             border-radius: 15px;
             padding: 2rem;
+            margin-bottom: 3rem;
         }
 
         .comment-form {
-            background: rgba(0, 20, 40, 0.3);
-            padding: 1.5rem;
+            background: var(--secondary);
+            border: 1px solid var(--border-light);
             border-radius: 10px;
+            padding: 1.5rem;
             margin-bottom: 2rem;
-            border: 1px solid rgba(0, 212, 255, 0.2);
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        .form-group label {
+        .form-label {
             display: block;
-            margin-bottom: 0.5rem;
-            color: var(--accent-cyan);
-            font-weight: 600;
             font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-input, .form-textarea {
             width: 100%;
-            padding: 0.75rem;
-            background: rgba(10, 14, 39, 0.8);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
             border-radius: 8px;
             color: var(--text-main);
-            font-family: inherit;
             font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-input:focus, .form-textarea:focus {
             outline: none;
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
         }
 
         .btn-submit {
-            width: 100%;
-            padding: 0.8rem;
-            background: linear-gradient(135deg, var(--accent-green), #00cc66);
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
             color: var(--primary);
             border: none;
             border-radius: 8px;
@@ -562,43 +607,46 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .btn-submit:hover {
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .comment {
-            background: rgba(0, 20, 40, 0.3);
+            background: var(--secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
             padding: 1.5rem;
-            border-left: 4px solid var(--accent-cyan);
-            border-radius: 8px;
-            margin-bottom: 1rem;
         }
 
         .comment-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.8rem;
         }
 
         .comment-author {
-            color: var(--accent-cyan);
             font-weight: 700;
+            color: var(--text-light);
         }
 
         .comment-date {
-            color: var(--text-secondary);
             font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
         .comment-rating {
-            color: #ffd700;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
+            color: var(--accent-yellow, #ffaa00);
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
         }
 
         .comment-text {
@@ -612,356 +660,456 @@
             color: var(--text-secondary);
         }
 
-        /* ==================== LOADING ==================== */
-        .loading {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 500px;
-            gap: 1.5rem;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(0, 212, 255, 0.2);
-            border-top-color: var(--accent-cyan);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
             .book-header {
                 grid-template-columns: 1fr;
             }
 
-            .pdf-viewer-container {
-                min-height: 500px;
-                padding: 1rem;
+            .book-cover-large {
+                height: 300px;
             }
 
             .book-meta {
                 grid-template-columns: 1fr;
             }
 
-            #book {
-                max-width: 100%;
-            }
-
-            .book-controls {
+            .pdf-controls {
                 flex-direction: column;
             }
 
-            .nav-btn {
+            .pdf-btn {
                 width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
+
+    <!-- ==================== HEADER ==================== -->
     <header>
         <div class="header-wrapper">
-            <div class="logo" onclick="goHome()">📚 FONTANA</div>
-            <button class="btn-back" onclick="goBack()">← VOLVER</button>
+            <div class="logo" onclick="goHome()">EDITORIAL FONTANA</div>
+            <button class="btn-back" onclick="goBack()">← Volver</button>
         </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- ==================== CONTAINER ==================== -->
     <div class="container">
-        <!-- Book Info -->
+        <!-- BOOK HEADER -->
         <div class="book-header">
             <div class="book-cover-large">
-                <img id="bookCover" src="" alt="Portada" style="display:none;">
-                <div id="coverPlaceholder">📖</div>
+                <img id="bookCover" src="" alt="Portada del Libro">
             </div>
             <div class="book-details">
-                <h1 id="bookTitle">Cargando...</h1>
-                <p class="book-author">por <span id="bookAuthor"></span></p>
+                <h1 id="bookTitle">Título del Libro</h1>
+                <div class="book-author" id="bookAuthor">Autor</div>
+                
                 <div class="book-meta">
                     <div class="meta-item">
-                        <span class="meta-label">AÑO DE PUBLICACIÓN</span>
-                        <span class="meta-value" id="bookYear">-</span>
+                        <span class="meta-label">Año</span>
+                        <span class="meta-value" id="bookYear">2024</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">GÉNERO</span>
-                        <span class="meta-value" id="bookGenre">-</span>
+                        <span class="meta-label">Género</span>
+                        <span class="meta-value" id="bookGenre">Poesía</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Páginas</span>
+                        <span class="meta-value" id="bookPages">0</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Idioma</span>
+                        <span class="meta-value">Español</span>
                     </div>
                 </div>
-                <div class="book-description" id="bookDescription">Cargando descripción...</div>
+
+                <div class="book-description" id="bookDescription">
+                    Descripción del libro...
+                </div>
             </div>
         </div>
 
-        <!-- Author Section -->
+        <!-- AUTHOR BIO -->
+        <!-- MODAL PARA ZOOM DE FOTO DEL AUTOR -->
+        <div id="photoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 1000; align-items: center; justify-content: center;">
+            <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center;">
+                <button onclick="closePhotoModal()" style="position: absolute; top: 20px; right: 20px; background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 1001; width: 50px; height: 50px;">✕</button>
+                <img id="modalPhotoImg" style="max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 10px; box-shadow: 0 0 50px rgba(0, 212, 255, 0.8);">
+            </div>
+        </div>
+
         <div class="author-section">
-            <div class="section-title">👤 Acerca del Autor</div>
+            <h2 class="section-title">👤 Acerca del Autor</h2>
             <div class="author-container">
-                <div class="author-photo-wrapper" onclick="openPhotoModal()">
-                    <img id="authorPhoto" style="display:none;">
-                    <span id="authorPhotoPlaceholder">🖼️</span>
-                    <button class="zoom-button" title="Ver más grande">🔍</button>
+                <div class="author-photo-wrapper" onclick="openPhotoModal()" style="cursor: pointer; transition: all 0.3s ease;">
+                    <img id="authorPhoto" src="" alt="Foto del Autor" style="display: none; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <span id="authorPhotoPlaceholder" style="transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">📷 Sin foto</span>
                 </div>
                 <div class="author-info">
-                    <div class="author-content" id="authorBio">Cargando información del autor...</div>
+                    <div class="author-content" id="authorBio">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </div>
+                    <p style="margin-top: 1rem; font-size: 0.85rem; color: #00d4ff;">💡 Click en la foto para ampliarla</p>
                 </div>
             </div>
         </div>
 
-        <!-- PDF Viewer (StPageFlip) -->
+        <!-- PDF VIEWER (FLIPBOOK.JS - FLIP BOOK PROFESIONAL) -->
         <div class="pdf-viewer-section">
             <h2 class="section-title">📖 Leer Libro</h2>
             
-            <div id="flipbook-container" class="loading">
-                <div class="spinner"></div>
-                <p style="color: var(--text-secondary);">Preparando libro...</p>
-            </div>
-
-            <div class="pdf-viewer-container" id="viewerContainer" style="display:none;">
-                <div id="book"></div>
-            </div>
-
-            <div class="pdf-zoom-controls" id="zoomControls" style="display:none;">
-                <button class="zoom-btn" onclick="zoomOut()">🔍− Alejarse</button>
-                <span class="zoom-info" id="zoomLevel">100%</span>
-                <button class="zoom-btn" onclick="resetZoom()">↺ Normal</button>
-                <button class="zoom-btn" onclick="zoomIn()">🔍+ Acercar</button>
-            </div>
-
-            <div class="book-controls" id="controls" style="display:none;">
-                <button class="nav-btn" id="btnPrev" onclick="prevPage()">← Página Anterior</button>
-                <div class="page-info">
-                    Página <span id="currentPage">1</span> de <span id="totalPages">0</span>
-                </div>
-                <button class="nav-btn" id="btnNext" onclick="nextPage()">Página Siguiente →</button>
+            <!-- CONTENEDOR PARA FLIPBOOK.JS -->
+            <div id="flipbook-container" style="width: 100%; max-width: 100%; height: 700px; margin: 2rem auto;">
+                <div id="flipbook" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
 
-        <!-- Comments Section -->
+        <!-- COMMENTS SECTION -->
         <div class="comments-section">
             <h2 class="section-title">💬 Comentarios y Reseñas</h2>
 
-            <form class="comment-form" onsubmit="addComment(event)">
-                <div class="form-group">
-                    <label for="commentName">Tu Nombre</label>
-                    <input type="text" id="commentName" required placeholder="Escribe tu nombre">
-                </div>
+            <div class="comment-form">
+                <form onsubmit="addComment(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="commentName">Tu Nombre</label>
+                        <input type="text" id="commentName" class="form-input" placeholder="Tu nombre" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="commentRating">Calificación</label>
-                    <select id="commentRating" required>
-                        <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4">⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3">⭐⭐⭐ Bueno</option>
-                        <option value="2">⭐⭐ Regular</option>
-                        <option value="1">⭐ Malo</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label class="form-label" for="commentRating">Calificación</label>
+                        <select id="commentRating" class="form-input" required>
+                            <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+                            <option value="4">⭐⭐⭐⭐ Muy Bueno</option>
+                            <option value="3">⭐⭐⭐ Bueno</option>
+                            <option value="2">⭐⭐ Regular</option>
+                            <option value="1">⭐ Pobre</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="commentText">Tu Comentario</label>
-                    <textarea id="commentText" required placeholder="Comparte tu opinión sobre este libro..."></textarea>
-                </div>
+                    <div class="form-group">
+                        <label class="form-label" for="commentText">Tu Comentario</label>
+                        <textarea id="commentText" class="form-textarea" rows="4" placeholder="Comparte tu opinión..." required></textarea>
+                    </div>
 
-                <button type="submit" class="btn-submit">📤 PUBLICAR COMENTARIO</button>
-            </form>
-
-            <div id="commentsList">
-                <div class="empty-comments"><p>No hay comentarios aún. ¡Sé el primero en comentar!</p></div>
+                    <button type="submit" class="btn-submit">Publicar Comentario</button>
+                </form>
             </div>
-        </div>
-    </div>
 
-    <!-- Modal Zoom Foto -->
-    <div id="photoModal" class="modal">
-        <div class="modal-content">
-            <img id="modalPhotoImg" src="" alt="Foto del autor">
-            <button class="modal-close" onclick="closePhotoModal()">✕</button>
+            <div class="comments-list" id="commentsList">
+                <div class="empty-comments">
+                    <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        let db = null;
-        let bookId = null;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
         let currentBook = null;
-        let pageImages = [];
-        let pageFlip = null;
-        let currentPageNum = 1;
-        let currentZoom = 100;
 
-        // Obtener ID del libro
+        // Obtener ID del libro desde la URL
         const urlParams = new URLSearchParams(window.location.search);
-        bookId = parseInt(urlParams.get('id'));
+        const bookId = parseInt(urlParams.get('id'));
 
-        // Inicializar IndexedDB
-        async function initDB() {
+        // ==================== IndexedDB ==================== //
+        let db;
+
+        function initIndexedDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open('EditorialFontana', 2);
-                request.onerror = () => reject(request.error);
+                const request = indexedDB.open('EditorialFontana', 1);
+                
+                request.onerror = () => {
+                    console.error('Error abriendo IndexedDB');
+                    reject(request.error);
+                };
+                
                 request.onsuccess = () => {
                     db = request.result;
-                    console.log('✅ IndexedDB inicializado');
-                    resolve();
+                    resolve(db);
                 };
-                request.onupgradeneeded = (e) => {
-                    const database = e.target.result;
-                    if (!database.objectStoreNames.contains('books')) {
-                        database.createObjectStore('books', { keyPath: 'id' });
-                    }
-                    if (!database.objectStoreNames.contains('comments')) {
-                        const commentsStore = database.createObjectStore('comments', { keyPath: 'id' });
-                        commentsStore.createIndex('bookId', 'bookId', { unique: false });
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains('books')) {
+                        db.createObjectStore('books', { keyPath: 'id' });
                     }
                 };
             });
         }
 
-        // Obtener libro de IndexedDB
-        async function getBook(id) {
+        function getBooksFromIndexedDB() {
             return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['books'], 'readonly');
-                const store = transaction.objectStore('books');
-                const request = store.get(id);
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        }
-
-        // Renderizar PDF
-        async function renderPDF(pdfData) {
-            try {
-                const binaryString = atob(pdfData.split(',')[1] || pdfData);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
+                if (!db) {
+                    reject(new Error('IndexedDB no inicializada'));
+                    return;
                 }
 
-                const pdf = await pdfjsLib.getDocument(bytes.buffer).promise;
-                pageImages = [];
+                const transaction = db.transaction(['books'], 'readonly');
+                const objectStore = transaction.objectStore('books');
+                const request = objectStore.getAll();
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    console.log('Libros obtenidos de IndexedDB:', request.result);
+                    resolve(request.result || []);
+                };
+            });
+        }
+
+        window.addEventListener('load', async () => {
+            try {
+                await initIndexedDB();
+                console.log('IndexedDB inicializada');
+                await new Promise(resolve => setTimeout(resolve, 100));
+                loadBook();
+                loadComments();
+            } catch (error) {
+                console.error('Error en carga:', error);
+            }
+        });
+
+        async function loadBook() {
+            try {
+                console.log('Cargando libro con ID:', bookId);
+                const books = await getBooksFromIndexedDB();
+                console.log('Libros encontrados en IndexedDB:', books.length);
+                console.log('Buscando libro con ID:', bookId);
+                
+                const book = books.find(b => b.id === bookId);
+                console.log('Libro encontrado:', book);
+
+                if (!book) {
+                    console.error('Libro con ID ' + bookId + ' no encontrado');
+                    document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Libro no encontrado</h1><p>El libro que buscas no está disponible.</p><p>ID buscado: ' + bookId + '</p><p>Libros disponibles: ' + books.length + '</p></div>';
+                    return;
+                }
+
+                currentBook = book;
+
+                console.log('Llenando información del libro');
+                
+                // Llenar información del libro
+                document.getElementById('bookTitle').textContent = book.title || 'Título no disponible';
+                document.getElementById('bookAuthor').textContent = book.author || 'Autor desconocido';
+                document.getElementById('bookYear').textContent = book.year || 'Sin año';
+                document.getElementById('bookGenre').textContent = capitalizeFirst(book.genre || 'Sin género');
+                document.getElementById('bookDescription').textContent = book.description || 'Sin descripción';
+                document.getElementById('bookPages').textContent = book.pages || 'Varios';
+                
+                // Cargar portada
+                if (book.cover) {
+                    console.log('Cargando portada (', book.cover.substring(0, 50), '...)');
+                    document.getElementById('bookCover').src = book.cover;
+                } else {
+                    console.warn('No hay portada para este libro');
+                }
+                
+                // Biografía del autor (placeholder)
+                document.getElementById('authorBio').textContent = `${book.author} es un autor destacado cuyas obras han dejado huella en la literatura contemporánea. Sus escritos reflejan una profunda comprensión del ser humano y la sociedad.`;
+
+                // Foto del autor
+                console.log('authorPhoto disponible:', !!book.authorPhoto);
+                console.log('authorPhoto length:', book.authorPhoto?.length);
+                
+                if (book.authorPhoto && book.authorPhoto.length > 0) {
+                    console.log('Cargando foto del autor, primeros caracteres:', book.authorPhoto.substring(0, 50));
+                    const photoImg = document.getElementById('authorPhoto');
+                    const photoPlaceholder = document.getElementById('authorPhotoPlaceholder');
+                    
+                    photoImg.onload = function() {
+                        console.log('✅ Foto del autor cargada exitosamente');
+                        photoImg.style.display = 'block';
+                        if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+                    };
+                    
+                    photoImg.onerror = function() {
+                        console.warn('❌ Error cargando foto del autor');
+                        photoImg.style.display = 'none';
+                        if (photoPlaceholder) photoPlaceholder.style.display = 'block';
+                    };
+                    
+                    photoImg.src = book.authorPhoto;
+                } else {
+                    console.warn('No hay foto del autor disponible');
+                    const photoImg = document.getElementById('authorPhoto');
+                    const photoPlaceholder = document.getElementById('authorPhotoPlaceholder');
+                    photoImg.style.display = 'none';
+                    if (photoPlaceholder) photoPlaceholder.style.display = 'block';
+                }
+
+                // Cargar PDF
+                if (book.pdf) {
+                    console.log('Cargando PDF, tamaño base64:', book.pdf.length);
+                    loadPdf(book.pdf);
+                } else {
+                    console.error('No hay PDF para este libro');
+                }
+            } catch (error) {
+                console.error('Error cargando libro:', error);
+                document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Error</h1><p>No se pudo cargar el libro</p><p>' + error.message + '</p></div>';
+            }
+        }
+
+        async function loadPdf(pdfData) {
+            try {
+                console.log('Iniciando carga de PDF con FlipBook.js...');
+                
+                // Convertir base64 de vuelta a ArrayBuffer
+                let pdfArrayBuffer;
+                if (typeof pdfData === 'string') {
+                    const binaryString = atob(pdfData);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    pdfArrayBuffer = bytes.buffer;
+                } else {
+                    pdfArrayBuffer = pdfData;
+                }
+
+                // Cargar PDF con PDF.js
+                const pdf = await pdfjsLib.getDocument(pdfArrayBuffer).promise;
+                pdfDoc = pdf;
+                console.log('PDF cargado:', pdf.numPages, 'páginas');
+
+                // Convertir cada página a imagen
+                const pageImages = [];
+                const renderPromises = [];
 
                 for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: 2 });
+                    renderPromises.push(
+                        (async () => {
+                            try {
+                                const page = await pdf.getPage(pageNum);
+                                const canvas = document.createElement('canvas');
+                                const context = canvas.getContext('2d');
+                                const viewport = page.getViewport({ scale: 2 });
 
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+                                canvas.height = viewport.height;
 
-                    await page.render({
-                        canvasContext: context,
-                        viewport: viewport
-                    }).promise;
+                                await page.render({
+                                    canvasContext: context,
+                                    viewport: viewport
+                                }).promise;
 
-                    pageImages.push(canvas.toDataURL('image/jpeg', 0.95));
+                                const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                                pageImages[pageNum - 1] = imageDataUrl;
+                                console.log('Página', pageNum, 'renderizada');
+                            } catch (error) {
+                                console.error('Error renderizando página', pageNum, ':', error);
+                            }
+                        })()
+                    );
                 }
 
-                initStPageFlip();
+                // Esperar a que se rendericen todas las páginas
+                await Promise.all(renderPromises);
+                console.log('Todas las páginas renderizadas:', pageImages.length);
+
+                // Inicializar FlipBook.js
+                initFlipBook(pageImages);
+
             } catch (error) {
-                console.error('Error renderizando PDF:', error);
-                document.getElementById('flipbook-container').innerHTML = '<p style="color: #ff6b6b;">Error al cargar el libro</p>';
+                console.error('Error cargando PDF:', error);
+                document.querySelector('#flipbook-container').innerHTML = '<div style="padding: 2rem; color: #ff6666; text-align: center;">Error al cargar el libro: ' + error.message + '</div>';
             }
         }
 
-        // Inicializar StPageFlip
-        function initStPageFlip() {
-            const bookDiv = document.getElementById('book');
-            bookDiv.innerHTML = '';
+        function initFlipBook(pageImages) {
+            try {
+                console.log('Inicializando FlipBook con', pageImages.length, 'imágenes');
+                
+                // Crear contenedor HTML con las imágenes
+                const flipbookDiv = document.getElementById('flipbook');
+                flipbookDiv.innerHTML = '';
 
-            // Crear elementos de página
-            pageImages.forEach((imageUrl) => {
-                const page = document.createElement('div');
-                page.className = 'page';
-                const img = document.createElement('img');
-                img.src = imageUrl;
-                page.appendChild(img);
-                bookDiv.appendChild(page);
-            });
+                // Agregar imágenes al contenedor
+                pageImages.forEach((imgUrl, index) => {
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'page';
+                    pageDiv.style.backgroundImage = `url('${imgUrl}')`;
+                    pageDiv.style.backgroundSize = 'cover';
+                    pageDiv.style.backgroundPosition = 'center';
+                    pageDiv.dataset.pageNumber = index + 1;
+                    flipbookDiv.appendChild(pageDiv);
+                });
 
-            // Mostrar contenedor del libro
-            document.getElementById('flipbook-container').style.display = 'none';
-            document.getElementById('viewerContainer').style.display = 'flex';
-            document.getElementById('controls').style.display = 'flex';
-            document.getElementById('zoomControls').style.display = 'flex';
+                // Configuración de FlipBook.js
+                const flipbook = new FlipBook({
+                    container: '#flipbook',
+                    pages: pageImages,
+                    width: 600,
+                    height: 700,
+                    autosize: true,
+                    maxShadowOpacity: 0.5,
+                    showCover: true,
+                    startPage: 1,
+                    acceleration: 0.04,
+                    page_width: 400,
+                    page_height: 500,
+                    hard_cover: true,
+                    hard_cover_top_size: 5,
+                    hard_cover_back_size: 3,
+                    book_binding: 20,
+                    swipe_min_distance: 50,
+                    swipe_max_distance: 400,
+                    elevation: 2
+                });
 
-            // Actualizar información
-            document.getElementById('totalPages').textContent = pageImages.length;
+                console.log('FlipBook inicializado correctamente');
+                return flipbook;
 
-            // Inicializar PageFlip
-            setTimeout(() => {
-                try {
-                    if (typeof PageFlip === 'undefined') {
-                        console.error('PageFlip no está disponible');
-                        return;
-                    }
-
-                    pageFlip = new PageFlip(bookDiv, {
-                        width: 600,
-                        height: 700,
-                        size: 'stretch',
-                        minWidth: 300,
-                        maxWidth: 1000,
-                        minHeight: 400,
-                        maxHeight: 900,
-                        maxShadowOpacity: 0.5,
-                        showCover: true,
-                        flareAngle: 60,
-                        density: 0.6,
-                        startPage: 1,
-                        autoSize: true,
-                        useMouseEvents: true,
-                        swipeDistance: 50,
-                        clickEventForward: true,
-                        useSound: false,
-                        hardCovers: true,
-                        softPages: true,
-                        realisticShadows: true
-                    });
-
-                    pageFlip.on('flip', (object) => {
-                        currentPageNum = object.data;
-                        document.getElementById('currentPage').textContent = currentPageNum;
-                        updateControls();
-                    });
-
-                    pageFlip.loadFromHTML(document.querySelectorAll('.page'));
-                    updateControls();
-                    console.log('✅ StPageFlip inicializado correctamente');
-                } catch (error) {
-                    console.error('Error inicializando PageFlip:', error);
-                }
-            }, 100);
-        }
-
-        // Navegación
-        function nextPage() {
-            if (pageFlip && currentPageNum < pageImages.length) {
-                pageFlip.turnToNextPage();
+            } catch (error) {
+                console.error('Error inicializando FlipBook:', error);
+                // Si FlipBook.js no está disponible, usar fallback
+                console.log('FlipBook.js no disponible, usando visualización alternativa');
+                createFallbackViewer(pageImages);
             }
         }
 
-        function prevPage() {
-            if (pageFlip && currentPageNum > 1) {
-                pageFlip.turnToPrevPage();
+        function createFallbackViewer(pageImages) {
+            // Fallback si FlipBook.js no está disponible
+            const container = document.getElementById('flipbook-container');
+            container.innerHTML = `
+                <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <img id="fallbackImage" src="${pageImages[0]}" style="width: 100%; height: auto; display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f5f5f5;">
+                        <button onclick="prevFallback()" style="padding: 8px 16px; background: #0099ff; color: white; border: none; border-radius: 4px; cursor: pointer;">← Anterior</button>
+                        <span id="fallbackPageInfo">Página 1 de ${pageImages.length}</span>
+                        <button onclick="nextFallback()" style="padding: 8px 16px; background: #0099ff; color: white; border: none; border-radius: 4px; cursor: pointer;">Siguiente →</button>
+                    </div>
+                </div>
+            `;
+            window.fallbackPageIndex = 0;
+            window.fallbackPageImages = pageImages;
+        }
+
+        function prevFallback() {
+            if (window.fallbackPageIndex > 0) {
+                window.fallbackPageIndex--;
+                document.getElementById('fallbackImage').src = window.fallbackPageImages[window.fallbackPageIndex];
+                document.getElementById('fallbackPageInfo').textContent = `Página ${window.fallbackPageIndex + 1} de ${window.fallbackPageImages.length}`;
             }
         }
 
-        function updateControls() {
-            const btnPrev = document.getElementById('btnPrev');
-            const btnNext = document.getElementById('btnNext');
-            btnPrev.disabled = currentPageNum <= 1;
-            btnNext.disabled = currentPageNum >= pageImages.length;
+        function nextFallback() {
+            if (window.fallbackPageIndex < window.fallbackPageImages.length - 1) {
+                window.fallbackPageIndex++;
+                document.getElementById('fallbackImage').src = window.fallbackPageImages[window.fallbackPageIndex];
+                document.getElementById('fallbackPageInfo').textContent = `Página ${window.fallbackPageIndex + 1} de ${window.fallbackPageImages.length}`;
+            }
         }
 
-        // Zoom
+        // ==================== ZOOM CONTROLS ==================== //
+        let currentZoom = 100;
+        let lastFlipDirection = 'forward';
+
         function zoomIn() {
             currentZoom = Math.min(currentZoom + 25, 300);
             applyZoom();
@@ -978,26 +1126,28 @@
         }
 
         function applyZoom() {
-            const bookDiv = document.getElementById('book');
-            bookDiv.style.zoom = (currentZoom / 100);
+            const pdfViewerContainer = document.querySelector('.pdf-viewer-container');
+            const scaleValue = currentZoom / 100;
+            // Usar zoom en lugar de transform para que no interfiera con pointer-events
+            pdfViewerContainer.style.zoom = scaleValue;
             document.getElementById('zoomLevel').textContent = currentZoom + '%';
         }
 
-        // Modal foto autor
+        // ==================== MODAL DE FOTO DEL AUTOR ==================== //
         function openPhotoModal() {
             const photoImg = document.getElementById('authorPhoto');
             if (photoImg.style.display !== 'none' && photoImg.src) {
                 const modal = document.getElementById('photoModal');
                 const modalImg = document.getElementById('modalPhotoImg');
                 modalImg.src = photoImg.src;
-                modal.classList.add('active');
+                modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }
         }
 
         function closePhotoModal() {
             const modal = document.getElementById('photoModal');
-            modal.classList.remove('active');
+            modal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
@@ -1008,41 +1158,37 @@
             }
         });
 
-        // Cerrar modal al hacer click fuera
+        // Cerrar modal al hacer click fuera de la imagen
         document.getElementById('photoModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closePhotoModal();
             }
         });
 
-        // Mostrar información del libro
-        function displayBook(book) {
-            currentBook = book;
-            document.getElementById('bookTitle').textContent = book.title;
-            document.getElementById('bookAuthor').textContent = book.author;
-            document.getElementById('bookYear').textContent = book.year;
-            document.getElementById('bookGenre').textContent = book.genre || '-';
-            document.getElementById('bookDescription').textContent = book.description || 'Sin descripción disponible';
-
-            if (book.cover) {
-                const img = document.getElementById('bookCover');
-                img.src = book.cover;
-                img.style.display = 'block';
-                document.getElementById('coverPlaceholder').style.display = 'none';
+        // ==================== AGREGAR ZOOM BUTTON A FOTO AUTOR ==================== //
+        // Hacer clickeable la foto del autor para zoom
+        document.addEventListener('DOMContentLoaded', function() {
+            const authorPhoto = document.getElementById('authorPhoto');
+            const authorPhotoWrapper = document.querySelector('.author-photo-wrapper');
+            
+            if (authorPhotoWrapper) {
+                authorPhotoWrapper.style.cursor = 'pointer';
+                authorPhotoWrapper.addEventListener('click', function() {
+                    const photoImg = document.getElementById('authorPhoto');
+                    if (photoImg.style.display !== 'none' && photoImg.src) {
+                        openPhotoModal();
+                    }
+                });
             }
+        });
 
-            if (book.authorPhoto) {
-                const img = document.getElementById('authorPhoto');
-                img.src = book.authorPhoto;
-                img.style.display = 'block';
-                document.getElementById('authorPhotoPlaceholder').style.display = 'none';
-            }
+        // FUNCIONES REEMPLAZADAS POR FLIPBOOK.JS (no se necesitan)
+        // - renderPages() → FlipBook.js maneja el renderizado
+        // - nextPage() → FlipBook.js maneja navegación
+        // - previousPage() → FlipBook.js maneja navegación
+        // - goToPage() → FlipBook.js tiene método gotoPage()
+        // - updateButtons() → FlipBook.js no necesita botones
 
-            const bio = `<strong>${book.author}</strong> (${book.year})<br><br>${book.description || 'Autor destacado de Editorial Fontana'}`;
-            document.getElementById('authorBio').innerHTML = bio;
-        }
-
-        // Comentarios
         function addComment(event) {
             event.preventDefault();
 
@@ -1055,47 +1201,28 @@
                 date: new Date().toLocaleDateString('es-ES')
             };
 
-            try {
-                const transaction = db.transaction(['comments'], 'readwrite');
-                const store = transaction.objectStore('comments');
-                store.add(comment);
+            let comments = JSON.parse(localStorage.getItem('bookComments')) || [];
+            comments.push(comment);
+            localStorage.setItem('bookComments', JSON.stringify(comments));
 
-                document.getElementById('commentName').value = '';
-                document.getElementById('commentRating').value = '5';
-                document.getElementById('commentText').value = '';
+            document.getElementById('commentName').value = '';
+            document.getElementById('commentRating').value = '5';
+            document.getElementById('commentText').value = '';
 
-                loadComments();
-            } catch (error) {
-                console.error('Error guardando comentario:', error);
-            }
+            loadComments();
         }
 
         function loadComments() {
-            try {
-                const transaction = db.transaction(['comments'], 'readonly');
-                const store = transaction.objectStore('comments');
-                const index = store.index('bookId');
-                const range = IDBKeyRange.only(bookId);
-                const request = index.getAll(range);
+            const comments = JSON.parse(localStorage.getItem('bookComments')) || [];
+            const bookComments = comments.filter(c => c.bookId === bookId);
+            const commentsList = document.getElementById('commentsList');
 
-                request.onsuccess = () => {
-                    const comments = request.result || [];
-                    displayComments(comments);
-                };
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        function displayComments(comments) {
-            const container = document.getElementById('commentsList');
-
-            if (comments.length === 0) {
-                container.innerHTML = '<div class="empty-comments"><p>No hay comentarios aún. ¡Sé el primero en comentar!</p></div>';
+            if (bookComments.length === 0) {
+                commentsList.innerHTML = '<div class="empty-comments"><p>No hay comentarios aún. ¡Sé el primero en comentar!</p></div>';
                 return;
             }
 
-            container.innerHTML = comments.map(comment => `
+            commentsList.innerHTML = bookComments.map(comment => `
                 <div class="comment">
                     <div class="comment-header">
                         <span class="comment-author">${comment.name}</span>
@@ -1107,7 +1234,6 @@
             `).join('');
         }
 
-        // Navegación
         function goBack() {
             window.history.back();
         }
@@ -1116,36 +1242,8 @@
             window.location.href = 'https://paulaandreacruz.github.io/editorial_fontana/';
         }
 
-        // Iniciar
-        async function init() {
-            try {
-                if (!bookId) {
-                    document.getElementById('flipbook-container').innerHTML = '<p style="color: #ff6b6b;">ID de libro no especificado</p>';
-                    return;
-                }
-
-                await initDB();
-                const book = await getBook(bookId);
-
-                if (!book) {
-                    document.getElementById('flipbook-container').innerHTML = '<p style="color: #ff6b6b;">Libro no encontrado</p>';
-                    return;
-                }
-
-                displayBook(book);
-                await renderPDF(book.pdf);
-                await loadComments();
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('flipbook-container').innerHTML = '<p style="color: #ff6b6b;">Error: ' + error.message + '</p>';
-            }
-        }
-
-        // Cargar cuando el DOM esté listo
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
     </script>
 
