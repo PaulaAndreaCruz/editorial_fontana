@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Panel Administrativo - Gestión de Libros">
-    <title>Panel Administrativo | Editorial Fontana</title>
-    
-    <!-- PDF.js para lectura de PDFs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    
+    <title>Panel de Administración | Editorial Fontana</title>
     <style>
         * {
             margin: 0;
@@ -16,145 +11,104 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #0a0e27;
-            --secondary: #0f1535;
-            --tertiary: #1a1f3a;
-            --accent-cyan: #00d4ff;
-            --accent-blue: #0099ff;
-            --accent-green: #00ff88;
-            --text-light: #ffffff;
-            --text-main: #e0e0e0;
-            --text-secondary: #a0a0a0;
-            --text-muted: #707070;
-            --border-light: rgba(255, 255, 255, 0.08);
-            --glass-bg: rgba(255, 255, 255, 0.02);
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: var(--primary);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 2rem 1rem;
         }
 
-        /* ==================== HEADER ==================== */
-        header {
-            position: sticky;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-light);
-            padding: 1.2rem 2rem;
-        }
-
-        .header-wrapper {
-            max-width: 1400px;
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
+        }
+
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.2);
         }
 
-        .logo {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: 2.5px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 1rem;
+        h1 {
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
         .btn-logout {
-            padding: 0.7rem 1.8rem;
             background: linear-gradient(135deg, #ff6b6b, #ff4444);
             color: white;
             border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .btn-logout:hover {
-            box-shadow: 0 8px 20px rgba(255, 68, 68, 0.4);
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
         }
 
-        /* ==================== MAIN CONTENT ==================== */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        .alert-error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .section {
+            background: rgba(26, 31, 58, 0.8);
+            border-radius: 12px;
             padding: 2rem;
-        }
-
-        .page-title {
-            font-size: 2.2rem;
-            font-weight: 800;
             margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .page-title .accent {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* ==================== UPLOAD SECTION ==================== */
-        .upload-section {
-            background: var(--glass-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 3rem;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            backdrop-filter: blur(10px);
         }
 
         .section-title {
+            color: #00d4ff;
             font-size: 1.5rem;
-            font-weight: 700;
             margin-bottom: 1.5rem;
-            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .upload-zone {
-            border: 2px dashed var(--accent-cyan);
-            border-radius: 10px;
-            padding: 3rem;
+        .upload-area {
+            border: 2px dashed #00d4ff;
+            border-radius: 12px;
+            padding: 2rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             background: rgba(0, 212, 255, 0.05);
-            margin-bottom: 2rem;
         }
 
-        .upload-zone:hover {
+        .upload-area:hover {
             background: rgba(0, 212, 255, 0.1);
-            border-color: var(--accent-green);
+            border-color: #00b8d4;
         }
 
-        .upload-zone.dragover {
+        .upload-area.dragover {
             background: rgba(0, 212, 255, 0.2);
-            border-color: var(--accent-green);
-            transform: scale(1.02);
+            border-color: #00b8d4;
         }
 
         .upload-icon {
@@ -163,14 +117,13 @@
         }
 
         .upload-text {
-            font-size: 1.1rem;
+            color: #a0a0a0;
             margin-bottom: 0.5rem;
-            font-weight: 600;
         }
 
-        .upload-subtext {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+        .upload-hint {
+            font-size: 0.85rem;
+            color: #666;
         }
 
         #pdfInput {
@@ -178,161 +131,113 @@
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 0.9rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .form-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .form-preview {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid var(--border-light);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: none;
-        }
-
-        .form-preview.show {
-            display: block;
-        }
-
-        .preview-cover {
-            width: 150px;
-            height: 200px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-            border-radius: 8px;
             margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
         }
 
-        .preview-cover img {
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .preview-info {
+            padding: 0.75rem;
+            background: rgba(10, 14, 39, 0.8);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-family: inherit;
             font-size: 0.9rem;
-            color: var(--text-secondary);
         }
 
-        .preview-info strong {
-            color: var(--text-light);
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
         }
 
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
             gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 44px;
         }
 
         .btn-primary {
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: var(--primary);
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #0a0e27;
         }
 
-        .btn-primary:hover {
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
         }
 
         .btn-secondary {
-            padding: 1rem;
-            background: transparent;
-            color: var(--accent-cyan);
-            border: 2px solid var(--accent-cyan);
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #0a0e27;
         }
 
-        .btn-secondary:hover {
-            background: var(--accent-cyan);
-            color: var(--primary);
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
         }
 
-        /* ==================== BOOKS LIST ==================== */
-        .books-section {
-            background: var(--glass-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 15px;
-            padding: 2rem;
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .books-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 2rem;
-            margin-top: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
         }
 
         .book-card {
-            background: linear-gradient(135deg, var(--secondary), var(--tertiary));
-            border: 1px solid var(--border-light);
-            border-radius: 10px;
+            background: rgba(10, 14, 39, 0.5);
+            border-radius: 8px;
             overflow: hidden;
+            border: 1px solid rgba(0, 212, 255, 0.2);
             transition: all 0.3s ease;
         }
 
         .book-card:hover {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
             transform: translateY(-5px);
+            border-color: #00d4ff;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
         }
 
         .book-cover {
             width: 100%;
-            height: 220px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            height: 250px;
+            background: linear-gradient(135deg, #0066ff, #00d4ff);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 3rem;
+            color: white;
             overflow: hidden;
         }
 
@@ -347,17 +252,16 @@
         }
 
         .book-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            line-height: 1.2;
-            color: var(--text-light);
+            color: #00d4ff;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
         }
 
-        .book-meta {
+        .book-author {
+            color: #a0a0a0;
             font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .book-actions {
@@ -365,672 +269,408 @@
             gap: 0.5rem;
         }
 
-        .btn-delete {
+        .btn-small {
             flex: 1;
-            padding: 0.6rem;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
+            padding: 0.5rem;
             font-size: 0.8rem;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
         }
 
-        .btn-delete:hover {
-            background: #ff2222;
+        .btn-edit {
+            background: #00d4ff;
+            color: #0a0e27;
+            font-weight: bold;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+            font-weight: bold;
         }
 
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .alert-success {
-            background: rgba(0, 255, 136, 0.15);
-            border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-        }
-
-        .alert-error {
-            background: rgba(255, 68, 68, 0.15);
-            border: 1px solid #ff4444;
-            color: #ff6666;
+        .btn-small:hover {
+            transform: scale(1.05);
         }
 
         @media (max-width: 768px) {
-            .btn-group {
-                grid-template-columns: 1fr;
+            .section {
+                padding: 1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
             }
 
             .books-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 1rem;
             }
         }
     </style>
 </head>
 <body>
-
-    <!-- ==================== HEADER ==================== -->
-    <header>
-        <div class="header-wrapper">
-            <div class="logo">Editorial Fontana</div>
-            <div class="header-actions">
-                <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- ==================== MAIN CONTENT ==================== -->
     <div class="container">
-        <h1 class="page-title">Panel de <span class="accent">Administración</span></h1>
+        <!-- Header -->
+        <div class="header">
+            <h1>🔐 Panel de Administración</h1>
+            <button class="btn-logout" onclick="logout()">CERRAR SESIÓN</button>
+        </div>
 
+        <!-- Alerts -->
         <div id="alertContainer"></div>
 
-        <!-- ==================== UPLOAD SECTION ==================== -->
-        <div class="upload-section">
-            <h2 class="section-title">📚 Subir Nuevo Libro</h2>
-            
-            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('pdfInput').click()">
+        <!-- Upload Section -->
+        <div class="section">
+            <div class="section-title">📤 Subir Nuevo Libro</div>
+
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('pdfInput').click();">
                 <div class="upload-icon">📄</div>
                 <div class="upload-text">Arrastra tu PDF aquí o haz clic para seleccionar</div>
-                <div class="upload-subtext">Formato: PDF | Tamaño máximo: 50MB</div>
+                <div class="upload-hint">Formato: PDF | Tamaño máximo: 50MB</div>
+                <input type="file" id="pdfInput" accept=".pdf" onchange="handleFileUpload(event)">
             </div>
 
-            <input type="file" id="pdfInput" accept=".pdf" onchange="handleFileSelect(event)">
-
-            <!-- Previsualización -->
-            <div class="form-preview" id="formPreview">
-                <div class="preview-cover" id="previewCover">
-                    <div style="text-align: center; color: var(--text-secondary);">Generando portada...</div>
-                </div>
-                <div class="preview-info">
-                    <div><strong>Archivo:</strong> <span id="previewFile"></span></div>
-                    <div><strong>Tamaño:</strong> <span id="previewSize"></span></div>
-                    <div><strong>Páginas:</strong> <span id="previewPages"></span></div>
-                </div>
-            </div>
-
-            <!-- Formulario -->
-            <form id="bookForm" onsubmit="handleSubmit(event)" style="display: none;">
+            <div id="previewContainer" style="display: none; margin-top: 1.5rem;">
                 <div class="form-group">
-                    <label class="form-label" for="bookTitle">Título del Libro</label>
-                    <input 
-                        type="text" 
-                        id="bookTitle" 
-                        class="form-input" 
-                        placeholder="Ingresa el título del libro"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="bookAuthor">Autor</label>
-                    <input 
-                        type="text" 
-                        id="bookAuthor" 
-                        class="form-input" 
-                        placeholder="Nombre del autor"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="bookYear">Año de Publicación</label>
-                    <input 
-                        type="number" 
-                        id="bookYear" 
-                        class="form-input" 
-                        placeholder="Ingresa el año (ej: 2024, 2025, 2026)"
-                        min="1900"
-                        max="2099"
-                        value="2024"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="bookGenre">Género</label>
-                    <select id="bookGenre" class="form-select">
-                        <option value="">-- Selecciona un género --</option>
-                        <option value="poesia">Poesía</option>
-                        <option value="narrativa">Narrativa</option>
-                        <option value="ensayo">Ensayo</option>
-                        <option value="cuento">Cuento</option>
-                        <option value="drama">Drama</option>
-                        <option value="ficcion">Ficción</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">📸 Foto del Autor</label>
-                    <div style="padding: 1rem; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: var(--text-secondary);">
-                        ✅ <strong>Automática:</strong> Se extrae de la última página de tu PDF<br>
-                        <small>Solo asegúrate que la última página tenga la foto del autor/alumno</small>
+                    <label>Portada (Extraída automáticamente)</label>
+                    <div style="width: 150px; height: 200px; background: #1a1f3a; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <img id="coverPreview" style="max-width: 100%; max-height: 100%; border-radius: 8px;">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="bookDescription">Descripción</label>
-                    <textarea 
-                        id="bookDescription" 
-                        class="form-input" 
-                        rows="4"
-                        placeholder="Breve descripción del libro"
-                        style="resize: vertical; font-family: inherit;"
-                    ></textarea>
+                    <label>Foto del Autor (Última página del PDF)</label>
+                    <div style="width: 150px; height: 150px; background: linear-gradient(135deg, #0066ff, #00d4ff); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img id="authorPhotoPreview" style="max-width: 100%; max-height: 100%; object-fit: cover;">
+                        <div id="authorPhotoPlaceholder" style="font-size: 2rem;">👤</div>
+                    </div>
+                    <p style="color: #00ff88; font-size: 0.85rem; margin-top: 0.5rem;">✅ Foto extraída de la última página del PDF</p>
                 </div>
 
-                <div class="btn-group">
-                    <button type="button" class="btn-primary" id="btnGuardarLibro" onclick="handleSubmitClick()">📤 Guardar Libro</button>
-                    <button type="button" class="btn-secondary" onclick="cancelUpload()">Cancelar</button>
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="bookTitle" placeholder="Título del libro">
                 </div>
-            </form>
+
+                <div class="form-group">
+                    <label>Autor</label>
+                    <input type="text" id="bookAuthor" placeholder="Nombre del autor">
+                </div>
+
+                <div class="form-group">
+                    <label>Año</label>
+                    <input type="text" id="bookYear" placeholder="2024">
+                </div>
+
+                <div class="form-group">
+                    <label>Género</label>
+                    <input type="text" id="bookGenre" placeholder="Ejemplo: Ficción, Poesía, etc.">
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="bookDescription" placeholder="Descripción del libro y biografía del autor..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" id="btnSave" onclick="saveBook()">💾 Guardar Libro</button>
+                    <button class="btn btn-primary" onclick="cancelUpload()" style="background: linear-gradient(135deg, #ff6b6b, #ff4444); color: white;">❌ Cancelar</button>
+                </div>
+            </div>
         </div>
 
-        <!-- ==================== BOOKS LIST ==================== -->
-        <div class="books-section">
-            <h2 class="section-title">📖 Libros Publicados</h2>
-            <div class="books-grid" id="booksList">
-                <div class="empty-state">
-                    <div class="empty-icon">📚</div>
-                    <p>No hay libros publicados aún</p>
-                </div>
+        <!-- Books List -->
+        <div class="section">
+            <div class="section-title">📚 Libros Guardados</div>
+            <div class="books-grid" id="booksContainer">
+                <p style="color: #a0a0a0; text-align: center; grid-column: 1/-1;">Cargando libros...</p>
             </div>
         </div>
     </div>
 
     <script>
-        // Verificar si está logueado
-        window.addEventListener('load', async () => {
-            const isLoggedIn = localStorage.getItem('adminLoggedIn');
-            if (!isLoggedIn) {
-                window.location.href = 'login-admin.html';
-            }
-            await initIndexedDB();
+        let db = null;
+        let currentPDF = null;
+        let currentCover = null;
+        let currentAuthorPhoto = null;
+        let totalPages = 0;
+
+        // Inicializar
+        async function init() {
+            await initDB();
             loadBooks();
-        });
-
-        let currentPdfData = null;
-
-        const uploadZone = document.getElementById('uploadZone');
-        const pdfInput = document.getElementById('pdfInput');
-
-        // Drag and drop
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('dragover');
-        });
-
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
-        });
-
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                pdfInput.files = files;
-                handleFileSelect({ target: { files } });
-            }
-        });
-
-        async function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file || file.type !== 'application/pdf') {
-                showAlert('Por favor selecciona un archivo PDF válido', 'error');
-                return;
-            }
-
-            if (file.size > 50 * 1024 * 1024) {
-                showAlert('El archivo es demasiado grande (máximo 50MB)', 'error');
-                return;
-            }
-
-            try {
-                // Primera lectura: Para procesar con PDF.js
-                const fileDataForPdf = await readFileAsDataURL(file);
-                const pdf = await pdfjsLib.getDocument(fileDataForPdf).promise;
-                
-                // Extraer primera página como portada
-                const firstPage = await pdf.getPage(1);
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                const viewport = firstPage.getViewport({ scale: 2 });
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                
-                await firstPage.render({ canvasContext: context, viewport }).promise;
-                const coverImage = canvas.toDataURL('image/jpeg', 0.8);
-
-                // Extraer última página como foto del autor
-                let authorPhotoImage = '';
-                try {
-                    const lastPageNum = pdf.numPages;
-                    if (lastPageNum > 1) {
-                        const lastPage = await pdf.getPage(lastPageNum);
-                        const authorCanvas = document.createElement('canvas');
-                        const authorContext = authorCanvas.getContext('2d');
-                        const authorViewport = lastPage.getViewport({ scale: 1.5 });
-                        authorCanvas.width = authorViewport.width;
-                        authorCanvas.height = authorViewport.height;
-                        
-                        await lastPage.render({ canvasContext: authorContext, viewport: authorViewport }).promise;
-                        authorPhotoImage = authorCanvas.toDataURL('image/jpeg', 0.8);
-                        console.log('Foto del autor extraída de la última página');
-                    }
-                } catch (error) {
-                    console.warn('No se pudo extraer foto del autor:', error.message);
-                }
-
-                // Segunda lectura: Para convertir a base64 y guardar
-                const fileDataForStorage = await readFileAsDataURL(file);
-                const pdfBase64 = arrayBufferToBase64(fileDataForStorage);
-
-                currentPdfData = {
-                    pdf: pdfBase64,  // Guardamos como base64 string
-                    cover: coverImage,
-                    authorPhoto: authorPhotoImage,  // Foto extraída de última página
-                    fileName: file.name,
-                    fileSize: (file.size / 1024 / 1024).toFixed(2),
-                    pageCount: pdf.numPages
-                };
-
-                showPreview();
-            } catch (error) {
-                showAlert('Error al procesar el PDF: ' + error.message, 'error');
-            }
+            setupUploadArea();
         }
 
-        function readFileAsDataURL(file) {
+        // Inicializar IndexedDB
+        async function initDB() {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        function arrayBufferToBase64(buffer) {
-            let binary = '';
-            const bytes = new Uint8Array(buffer);
-            for (let i = 0; i < bytes.byteLength; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            return btoa(binary);
-        }
-
-        function showPreview() {
-            document.getElementById('formPreview').classList.add('show');
-            document.getElementById('previewFile').textContent = currentPdfData.fileName;
-            document.getElementById('previewSize').textContent = currentPdfData.fileSize + ' MB';
-            document.getElementById('previewPages').textContent = currentPdfData.pageCount;
-            
-            const coverImg = new Image();
-            coverImg.onload = () => {
-                document.getElementById('previewCover').innerHTML = '';
-                document.getElementById('previewCover').appendChild(coverImg);
-            };
-            coverImg.src = currentPdfData.cover;
-
-            // Mostrar mensaje si se extrajo foto del autor
-            if (currentPdfData.authorPhoto) {
-                showAlert('✅ Foto del autor extraída de la última página', 'success');
-                console.log('Foto del autor disponible:', currentPdfData.authorPhoto.substring(0, 50) + '...');
-            } else {
-                console.warn('No se pudo extraer foto del autor');
-            }
-
-            document.getElementById('bookForm').style.display = 'block';
-        }
-
-        // ==================== IndexedDB ==================== //
-        let db;
-        
-        function initIndexedDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('EditorialFontana', 1);
-                
+                const request = indexedDB.open('EditorialFontana', 2);
                 request.onerror = () => {
-                    console.error('Error abriendo IndexedDB');
+                    console.error('Error abriendo IndexedDB:', request.error);
                     reject(request.error);
                 };
-                
                 request.onsuccess = () => {
                     db = request.result;
-                    console.log('IndexedDB inicializada');
-                    resolve(db);
+                    console.log('✅ IndexedDB inicializado');
+                    resolve();
                 };
-                
-                request.onupgradeneeded = (event) => {
-                    db = event.target.result;
-                    if (!db.objectStoreNames.contains('books')) {
-                        db.createObjectStore('books', { keyPath: 'id' });
-                        console.log('Object store creado');
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains('books')) {
+                        database.createObjectStore('books', { keyPath: 'id' });
+                        console.log('✅ Tabla books creada');
+                    }
+                    if (!database.objectStoreNames.contains('comments')) {
+                        const commentsStore = database.createObjectStore('comments', { keyPath: 'id' });
+                        commentsStore.createIndex('bookId', 'bookId', { unique: false });
+                        console.log('✅ Tabla comments creada');
                     }
                 };
             });
         }
 
-        function saveBookToIndexedDB(book) {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['books'], 'readwrite');
-                const objectStore = transaction.objectStore('books');
-                const request = objectStore.add(book);
-                
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => resolve(book);
+        // Setup drag & drop
+        function setupUploadArea() {
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
             });
-        }
-
-        function getBooksFromIndexedDB() {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['books'], 'readonly');
-                const objectStore = transaction.objectStore('books');
-                const request = objectStore.getAll();
-                
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => resolve(request.result || []);
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
             });
-        }
-
-        function deleteBookFromIndexedDB(id) {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['books'], 'readwrite');
-                const objectStore = transaction.objectStore('books');
-                const request = objectStore.delete(id);
-                
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => resolve();
-            });
-        }
-
-        async function editBook(id) {
-            try {
-                console.log('Editando libro con ID:', id);
-                const books = await getBooksFromIndexedDB();
-                const book = books.find(b => b.id === id);
-                
-                if (!book) {
-                    showAlert('❌ Libro no encontrado', 'error');
-                    return;
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
                 }
-                
-                console.log('Libro a editar:', book);
-                
-                // Llenar formulario con datos del libro
-                document.getElementById('bookTitle').value = book.title || '';
-                document.getElementById('bookAuthor').value = book.author || '';
-                document.getElementById('bookYear').value = book.year || '';
-                document.getElementById('bookGenre').value = book.genre || '';
-                document.getElementById('bookDescription').value = book.description || '';
-                
-                // Guardar ID para actualizar después
-                window.editingBookId = id;
-                
-                // Cambiar texto del botón
-                const btnGuardar = document.getElementById('btnGuardarLibro');
-                if (btnGuardar) {
-                    btnGuardar.textContent = '💾 Actualizar Libro';
-                }
-                
-                // Mostrar formulario
-                document.getElementById('bookForm').style.display = 'block';
-                
-                // Scroll suave al formulario
-                setTimeout(() => {
-                    document.getElementById('bookForm').scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-                
-                showAlert('✏️ Modo edición: Modifica los datos y haz click en "Actualizar Libro"', 'info');
-            } catch (error) {
-                console.error('Error editando libro:', error);
-                showAlert('❌ Error: ' + error.message, 'error');
+            });
+        }
+
+        // Manejar archivo
+        async function handleFileUpload(event) {
+            if (event.target.files.length > 0) {
+                handleFile(event.target.files[0]);
             }
         }
 
-        async function handleSubmitClick() {
-            console.log('Click en guardar libro detectado');
-            console.log('currentPdfData:', currentPdfData);
-
-            // Validar que hay PDF
-            if (!currentPdfData) {
-                showAlert('❌ Por favor selecciona un PDF primero', 'error');
+        async function handleFile(file) {
+            if (file.type !== 'application/pdf') {
+                showAlert('Por favor selecciona un archivo PDF', 'error');
                 return;
             }
 
-            // Obtener valores del formulario
+            try {
+                showAlert('Procesando PDF...', 'success');
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const pdfData = e.target.result;
+                    currentPDF = pdfData;
+                    await extractPDFInfo(pdfData);
+                    document.getElementById('previewContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } catch (error) {
+                showAlert('Error al procesar PDF: ' + error.message, 'error');
+            }
+        }
+
+        // Extraer info del PDF
+        async function extractPDFInfo(pdfData) {
+            try {
+                const binaryString = atob(pdfData.split(',')[1]);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+
+                const pdf = await pdfjsLib.getDocument(bytes.buffer).promise;
+                totalPages = pdf.numPages;
+
+                // Primera página (portada)
+                const firstPage = await pdf.getPage(1);
+                const canvas1 = document.createElement('canvas');
+                const ctx1 = canvas1.getContext('2d');
+                const viewport1 = firstPage.getViewport({ scale: 1 });
+                canvas1.width = viewport1.width;
+                canvas1.height = viewport1.height;
+                await firstPage.render({ canvasContext: ctx1, viewport: viewport1 }).promise;
+                currentCover = canvas1.toDataURL('image/jpeg', 0.9);
+                document.getElementById('coverPreview').src = currentCover;
+
+                // Última página (foto del autor)
+                const lastPage = await pdf.getPage(totalPages);
+                const canvas2 = document.createElement('canvas');
+                const ctx2 = canvas2.getContext('2d');
+                const viewport2 = lastPage.getViewport({ scale: 1 });
+                canvas2.width = viewport2.width;
+                canvas2.height = viewport2.height;
+                await lastPage.render({ canvasContext: ctx2, viewport: viewport2 }).promise;
+                currentAuthorPhoto = canvas2.toDataURL('image/jpeg', 0.9);
+                document.getElementById('authorPhotoPreview').src = currentAuthorPhoto;
+                document.getElementById('authorPhotoPlaceholder').style.display = 'none';
+
+                showAlert('✅ PDF procesado correctamente', 'success');
+            } catch (error) {
+                showAlert('Error extrayendo info del PDF: ' + error.message, 'error');
+            }
+        }
+
+        // Guardar libro
+        async function saveBook() {
             const title = document.getElementById('bookTitle').value.trim();
             const author = document.getElementById('bookAuthor').value.trim();
             const year = document.getElementById('bookYear').value.trim();
             const genre = document.getElementById('bookGenre').value.trim();
             const description = document.getElementById('bookDescription').value.trim();
-            
-            // La foto del autor se extrae automáticamente de la última página del PDF
-            const authorPhoto = currentPdfData.authorPhoto || '';
 
-            console.log('Datos del formulario:', { title, author, year, genre, description });
-
-            // Validar campos requeridos
-            if (!title) {
-                showAlert('❌ Por favor ingresa el título del libro', 'error');
-                document.getElementById('bookTitle').focus();
-                return;
-            }
-
-            if (!author) {
-                showAlert('❌ Por favor ingresa el nombre del autor', 'error');
-                document.getElementById('bookAuthor').focus();
-                return;
-            }
-
-            if (!year) {
-                showAlert('❌ Por favor ingresa el año de publicación', 'error');
-                document.getElementById('bookYear').focus();
-                return;
-            }
-
-            if (!genre || genre === '') {
-                showAlert('❌ Por favor selecciona un género', 'error');
-                document.getElementById('bookGenre').focus();
-                return;
-            }
-
-            if (!description) {
-                showAlert('❌ Por favor ingresa una descripción', 'error');
-                document.getElementById('bookDescription').focus();
+            if (!title || !author || !currentPDF) {
+                showAlert('Por favor completa los campos obligatorios', 'error');
                 return;
             }
 
             try {
-                // Validar que haya PDF (nuevo o del anterior si estamos editando)
-                if (!currentPdfData && !window.editingBookId) {
-                    showAlert('❌ Por favor selecciona un PDF', 'error');
-                    return;
-                }
-
-                // Si estamos editando sin cambiar PDF, obtener datos anteriores
-                let cover = currentPdfData?.cover;
-                let pdf = currentPdfData?.pdf;
-                let pages = currentPdfData?.pageCount;
-                let authorPhoto = currentPdfData?.authorPhoto;
-
-                if (window.editingBookId && !currentPdfData) {
-                    // Obtener datos anteriores del libro
-                    const books = await getBooksFromIndexedDB();
-                    const oldBook = books.find(b => b.id === window.editingBookId);
-                    if (oldBook) {
-                        cover = oldBook.cover;
-                        pdf = oldBook.pdf;
-                        pages = oldBook.pages;
-                        authorPhoto = oldBook.authorPhoto;
-                    }
-                }
-
                 const book = {
-                    id: window.editingBookId || Date.now(),
-                    title: title,
-                    author: author,
-                    year: year,
-                    genre: genre,
-                    description: description,
-                    authorPhoto: authorPhoto || '',
-                    cover: cover,
-                    pdf: pdf,
-                    pages: pages
+                    id: Date.now(),
+                    title, author, year, genre, description,
+                    pdf: currentPDF,
+                    cover: currentCover,
+                    authorPhoto: currentAuthorPhoto,
+                    pages: totalPages,
+                    createdAt: new Date().toISOString()
                 };
 
-                console.log('Libro a guardar:', book);
+                const transaction = db.transaction(['books'], 'readwrite');
+                const store = transaction.objectStore('books');
+                store.add(book);
 
-                // Si estamos editando, eliminar el anterior primero
-                if (window.editingBookId) {
-                    console.log('Eliminando libro anterior...');
-                    await deleteBookFromIndexedDB(window.editingBookId);
-                }
+                await new Promise((resolve, reject) => {
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error);
+                });
 
-                // Guardar en IndexedDB
-                await saveBookToIndexedDB(book);
-
-                console.log('Libro guardado en IndexedDB');
-
-                if (window.editingBookId) {
-                    showAlert('✅ ¡Libro actualizado exitosamente!', 'success');
-                    window.editingBookId = null;
-                } else {
-                    showAlert('✅ ¡Libro guardado exitosamente!', 'success');
-                }
-                
-                setTimeout(() => {
-                    cancelUpload();
-                    loadBooks();
-                }, 1500);
+                showAlert('✅ Libro guardado correctamente', 'success');
+                cancelUpload();
+                loadBooks();
             } catch (error) {
-                console.error('Error al guardar:', error);
-                showAlert('❌ Error al guardar el libro: ' + error.message, 'error');
+                showAlert('❌ Error al guardar: ' + error.message, 'error');
             }
         }
 
-        function handleSubmit(event) {
-            event.preventDefault();
-            handleSubmitClick();
-        }
-
-        function cancelUpload() {
-            currentPdfData = null;
-            document.getElementById('bookForm').reset();
-            document.getElementById('bookForm').style.display = 'none';
-            document.getElementById('formPreview').classList.remove('show');
-            document.getElementById('pdfInput').value = '';
-            
-            // Restaurar botón a estado original
-            const btnGuardar = document.getElementById('btnGuardarLibro');
-            if (btnGuardar) {
-                btnGuardar.textContent = '📤 Guardar Libro';
-            }
-            
-            // Limpiar ID de edición
-            window.editingBookId = null;
-        }
-
+        // Cargar libros
         async function loadBooks() {
             try {
-                const books = await getBooksFromIndexedDB();
-                const booksList = document.getElementById('booksList');
+                const transaction = db.transaction(['books'], 'readonly');
+                const store = transaction.objectStore('books');
+                const request = store.getAll();
 
-                if (books.length === 0) {
-                    booksList.innerHTML = `
-                        <div class="empty-state" style="grid-column: 1 / -1;">
-                            <div class="empty-icon">📚</div>
-                            <p>No hay libros publicados aún</p>
-                        </div>
-                    `;
-                    return;
-                }
+                request.onsuccess = () => {
+                    const books = request.result;
+                    displayBooks(books);
+                };
 
-                booksList.innerHTML = books.map(book => `
-                    <div class="book-card">
-                        <div class="book-cover">
-                            <img src="${book.cover}" alt="${book.title}">
-                        </div>
-                        <div class="book-info">
-                            <div class="book-title">${book.title}</div>
-                            <div class="book-meta">
-                                <div><strong>${book.author}</strong></div>
-                                <div>${book.year} • ${book.genre}</div>
-                            </div>
-                            <div class="book-actions">
-                                <button class="btn-edit" onclick="editBook(${book.id})" style="background: linear-gradient(135deg, #0099ff, #00d4ff); margin-right: 0.5rem;">✏️ Editar</button>
-                                <button class="btn-delete" onclick="deleteBook(${book.id})">Eliminar</button>
-                            </div>
+                request.onerror = () => {
+                    showAlert('Error al cargar libros', 'error');
+                    document.getElementById('booksContainer').innerHTML = '<p style="color: #ff6b6b;">Error al cargar los libros</p>';
+                };
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Mostrar libros
+        function displayBooks(books) {
+            const container = document.getElementById('booksContainer');
+            if (books.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; grid-column: 1/-1;">No hay libros. ¡Sube uno ahora!</p>';
+                return;
+            }
+
+            container.innerHTML = books.map(book => `
+                <div class="book-card">
+                    <div class="book-cover">
+                        ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : '📖'}
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        <div class="book-actions">
+                            <button class="btn-small btn-edit" onclick="editBook(${book.id})">✏️ Editar</button>
+                            <button class="btn-small btn-delete" onclick="deleteBook(${book.id})">🗑️ Eliminar</button>
                         </div>
                     </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error cargando libros:', error);
-            }
+                </div>
+            `).join('');
         }
 
+        // Editar libro
+        function editBook(id) {
+            alert('Función de editar en desarrollo');
+        }
+
+        // Eliminar libro
         async function deleteBook(id) {
-            if (confirm('¿Estás seguro de que deseas eliminar este libro?')) {
-                try {
-                    await deleteBookFromIndexedDB(id);
-                    showAlert('Libro eliminado correctamente', 'success');
-                    loadBooks();
-                } catch (error) {
-                    console.error('Error eliminando libro:', error);
-                    showAlert('Error al eliminar el libro', 'error');
-                }
+            if (!confirm('¿Estás seguro de que quieres eliminar este libro?')) return;
+
+            try {
+                const transaction = db.transaction(['books'], 'readwrite');
+                const store = transaction.objectStore('books');
+                store.delete(id);
+
+                await new Promise((resolve, reject) => {
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error);
+                });
+
+                showAlert('✅ Libro eliminado', 'success');
+                loadBooks();
+            } catch (error) {
+                showAlert('Error al eliminar: ' + error.message, 'error');
             }
         }
 
+        // Cancelar subida
+        function cancelUpload() {
+            document.getElementById('previewContainer').style.display = 'none';
+            document.getElementById('pdfInput').value = '';
+            currentPDF = null;
+            currentCover = null;
+            currentAuthorPhoto = null;
+        }
+
+        // Mostrar alerta
         function showAlert(message, type) {
-            const alertContainer = document.getElementById('alertContainer');
+            const container = document.getElementById('alertContainer');
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
             alert.textContent = message;
-            alertContainer.appendChild(alert);
-
-            setTimeout(() => {
-                alert.remove();
-            }, 4000);
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
         }
 
+        // Logout
         function logout() {
-            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-                localStorage.removeItem('adminLoggedIn');
-                localStorage.removeItem('adminLoginTime');
-                window.location.href = 'login-admin.html';
-            }
+            localStorage.removeItem('adminLoggedIn');
+            window.location.href = 'login-admin.html';
         }
 
-        // Establecer PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        // Cargar PDF.js
+        if (typeof pdfjsLib === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+            script.onload = () => {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                init();
+            };
+            document.head.appendChild(script);
+        } else {
+            init();
+        }
     </script>
-
 </body>
 </html>
