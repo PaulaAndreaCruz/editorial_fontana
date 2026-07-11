@@ -474,8 +474,8 @@
     <!-- ==================== HEADER ==================== -->
     <header>
         <div class="header-wrapper">
-            <div class="logo" onclick="window.location.href='editorial-fontana-final.html'">EDITORIAL FONTANA</div>
-            <button class="nav-back" onclick="window.location.href='editorial-fontana-final.html'">← Volver</button>
+            <div class="logo" onclick="window.location.href='https://paulaandreacruz.github.io/editorial_fontana/'">EDITORIAL FONTANA</div>
+            <button class="nav-back" onclick="window.location.href='https://paulaandreacruz.github.io/editorial_fontana/'">← Volver</button>
         </div>
     </header>
 
@@ -723,20 +723,31 @@
             books.forEach(book => {
                 const card = document.createElement('div');
                 card.className = 'book-card';
+                card.style.cursor = 'pointer';
+                card.onclick = () => openBook(book.id);
+                
+                const coverHtml = book.cover 
+                    ? `<img src="${book.cover}" alt="${book.title}" style="width: 100%; height: 100%; object-fit: cover;">`
+                    : `${book.id}`;
+                
                 card.innerHTML = `
-                    <div class="book-cover">${book.id}</div>
+                    <div class="book-cover">${coverHtml}</div>
                     <div class="book-info">
                         <div class="book-title">${book.title}</div>
                         <div class="book-author">${book.author}</div>
                         <div class="book-meta">
                             <span>${book.year}</span>
-                            <span>${book.pages} págs</span>
+                            <span>${book.pages || 'Digital'}</span>
                         </div>
-                        <button class="book-btn" onclick="viewBook(${book.id})">Ver Libro</button>
+                        <button class="book-btn" onclick="event.stopPropagation(); openBook(${book.id})">Ver Libro</button>
                     </div>
                 `;
                 grid.appendChild(card);
             });
+        }
+
+        function openBook(id) {
+            window.location.href = `book-viewer.html?id=${id}`;
         }
 
         function filterBooks() {
@@ -760,12 +771,15 @@
         }
 
         function viewBook(bookId) {
-            const book = booksDatabase.find(b => b.id === bookId);
-            alert(`Abriendo: ${book.title}\n\nAutor: ${book.author}\nAño: ${book.year}`);
+            window.location.href = `book-viewer.html?id=${bookId}`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderBooks(booksDatabase);
+            // Cargar libros de ejemplo + libros subidos desde admin panel
+            const adminBooks = JSON.parse(localStorage.getItem('editoralBooks')) || [];
+            const allBooks = [...booksDatabase, ...adminBooks];
+
+            renderBooks(allBooks);
 
             // Inicializar rotación de videos
             const videoElement = document.querySelector('.hero-video');
