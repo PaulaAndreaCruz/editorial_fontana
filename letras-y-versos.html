@@ -555,15 +555,6 @@
                         <option value="cuento">Cuento</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label class="filter-label">Idioma</label>
-                    <select class="filter-select" id="languageFilter" onchange="filterBooks()">
-                        <option value="">Todos los idiomas</option>
-                        <option value="español">Español</option>
-                        <option value="inglés">Inglés</option>
-                        <option value="portugués">Portugués</option>
-                    </select>
-                </div>
             </div>
 
             <div class="books-grid" id="booksGrid">
@@ -586,128 +577,8 @@
 
     <script>
         // ==================== BASE DE DATOS DE LIBROS ====================
-        const booksDatabase = [
-            {
-                id: 1,
-                title: "Poesías Selectas del Siglo XXI",
-                author: "Dr. Juan Pérez García",
-                year: "2024",
-                genre: "poesia",
-                language: "español",
-                pages: 324,
-                keywords: ["poesía", "contemporánea", "lírica"]
-            },
-            {
-                id: 2,
-                title: "Narrativas de Transformación",
-                author: "Dra. María López Martínez",
-                year: "2024",
-                genre: "narrativa",
-                language: "español",
-                pages: 456,
-                keywords: ["narrativa", "ficción", "cambio"]
-            },
-            {
-                id: 3,
-                title: "Versos del Alma",
-                author: "Prof. Carlos Rodríguez",
-                year: "2023",
-                genre: "poesia",
-                language: "español",
-                pages: 298,
-                keywords: ["poesía", "emociones", "sentimientos"]
-            },
-            {
-                id: 4,
-                title: "Historias Olvidadas",
-                author: "Catalina Morales Ruiz",
-                year: "2023",
-                genre: "narrativa",
-                language: "español",
-                pages: 287,
-                keywords: ["narrativa", "historia", "memoria"]
-            },
-            {
-                id: 5,
-                title: "Ensayos Contemporáneos",
-                author: "Dr. Roberto Silva",
-                year: "2024",
-                genre: "ensayo",
-                language: "español",
-                pages: 512,
-                keywords: ["ensayo", "reflexión", "análisis"]
-            },
-            {
-                id: 6,
-                title: "Cuentos de la Fontana",
-                author: "Dra. Ana Martínez López",
-                year: "2023",
-                genre: "cuento",
-                language: "español",
-                pages: 376,
-                keywords: ["cuento", "ficción", "tradición"]
-            },
-            {
-                id: 7,
-                title: "Nuevas Voces Literarias",
-                author: "Prof. David Chen",
-                year: "2024",
-                genre: "narrativa",
-                language: "inglés",
-                pages: 598,
-                keywords: ["narrativa", "contemporáneo", "innovación"]
-            },
-            {
-                id: 8,
-                title: "Poesía en el Paisaje",
-                author: "Dra. Elena González",
-                year: "2022",
-                genre: "poesia",
-                language: "español",
-                pages: 445,
-                keywords: ["poesía", "naturaleza", "ecología"]
-            },
-            {
-                id: 9,
-                title: "Crónicas Latinoamericanas",
-                author: "Prof. Michel Dubois",
-                year: "2023",
-                genre: "ensayo",
-                language: "portugués",
-                pages: 289,
-                keywords: ["crónica", "latinoamérica", "cultura"]
-            },
-            {
-                id: 10,
-                title: "Relatos de Transformación",
-                author: "Dr. Francisco Ruiz",
-                year: "2024",
-                genre: "cuento",
-                language: "español",
-                pages: 401,
-                keywords: ["cuento", "cambio", "transformación"]
-            },
-            {
-                id: 11,
-                title: "Antología Poética Fontana",
-                author: "Prof. Gustavo Moreno",
-                year: "2022",
-                genre: "poesia",
-                language: "español",
-                pages: 523,
-                keywords: ["poesía", "antología", "colección"]
-            },
-            {
-                id: 12,
-                title: "Literatura y Pensamiento",
-                author: "Dr. Hermann Schmidt",
-                year: "2021",
-                genre: "ensayo",
-                language: "inglés",
-                pages: 678,
-                keywords: ["ensayo", "filosofía", "literatura"]
-            }
-        ];
+        // Base de datos vacía - Solo se cargan libros subidos por admin
+        const booksDatabase = [];
 
         function renderBooks(books) {
             const grid = document.getElementById('booksGrid');
@@ -757,17 +628,18 @@
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const yearFilter = document.getElementById('yearFilter').value;
             const genreFilter = document.getElementById('genreFilter').value;
-            const languageFilter = document.getElementById('languageFilter').value;
 
-            const filtered = booksDatabase.filter(book => {
+            // Cargar libros del localStorage
+            const adminBooks = JSON.parse(localStorage.getItem('editoralBooks')) || [];
+
+            const filtered = adminBooks.filter(book => {
                 const matchSearch = book.title.toLowerCase().includes(searchText) ||
                                   book.author.toLowerCase().includes(searchText) ||
-                                  book.keywords.some(kw => kw.toLowerCase().includes(searchText));
-                const matchYear = !yearFilter || book.year === yearFilter;
+                                  (book.description && book.description.toLowerCase().includes(searchText));
+                const matchYear = !yearFilter || String(book.year) === yearFilter;
                 const matchGenre = !genreFilter || book.genre === genreFilter;
-                const matchLanguage = !languageFilter || book.language === languageFilter;
 
-                return matchSearch && matchYear && matchGenre && matchLanguage;
+                return matchSearch && matchYear && matchGenre;
             });
 
             renderBooks(filtered);
@@ -778,11 +650,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Cargar libros de ejemplo + libros subidos desde admin panel
+            // Cargar SOLO libros subidos desde admin panel (sin ejemplos)
             const adminBooks = JSON.parse(localStorage.getItem('editoralBooks')) || [];
-            const allBooks = [...booksDatabase, ...adminBooks];
 
-            renderBooks(allBooks);
+            renderBooks(adminBooks);
 
             // Inicializar rotación de videos
             const videoElement = document.querySelector('.hero-video');
