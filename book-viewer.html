@@ -271,6 +271,73 @@
 
             <button class="btn-control" id="btnNext" onclick="nextPage()">Siguiente →</button>
         </div>
+
+        <!-- SECCIÓN AUTOR -->
+        <div style="width: 100%; max-width: 1000px; margin-top: 3rem; padding: 2rem; background: #1a1f3a; border-radius: 12px;">
+            <h2 style="color: #00d4ff; margin-bottom: 1.5rem; font-size: 1.3rem;">👤 Acerca del Autor</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
+                <!-- Foto Autor -->
+                <div>
+                    <img id="authorPhoto" src="" alt="Foto del Autor" 
+                         style="width: 100%; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3); display: none;">
+                    <div id="authorPhotoPlaceholder" 
+                         style="width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, #0066ff, #00d4ff); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #0099ff; font-size: 3rem;">
+                        🖼️
+                    </div>
+                </div>
+
+                <!-- Bio Autor -->
+                <div>
+                    <p id="authorBio" style="color: #a0a0a0; line-height: 1.8; font-size: 0.95rem; margin-bottom: 1rem;">
+                        Sin información disponible
+                    </p>
+                    <p style="font-size: 0.85rem; color: #00d4ff;">✨ Autor destacado de Editorial Fontana</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN COMENTARIOS -->
+        <div style="width: 100%; max-width: 1000px; margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; background: #1a1f3a; border-radius: 12px;">
+            <h2 style="color: #00d4ff; margin-bottom: 1.5rem; font-size: 1.3rem;">💬 Comentarios y Reseñas</h2>
+
+            <!-- Formulario -->
+            <div style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #0066ff;">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #00d4ff; font-weight: bold;">Tu Nombre</label>
+                    <input type="text" id="commentName" placeholder="Tu nombre" 
+                           style="width: 100%; padding: 0.75rem; background: #0a0e27; border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #00d4ff; font-weight: bold;">Calificación</label>
+                    <select id="commentRating" 
+                            style="width: 100%; padding: 0.75rem; background: #0a0e27; border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0;">
+                        <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+                        <option value="4">⭐⭐⭐⭐ Muy Bueno</option>
+                        <option value="3">⭐⭐⭐ Bueno</option>
+                        <option value="2">⭐⭐ Regular</option>
+                        <option value="1">⭐ Malo</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #00d4ff; font-weight: bold;">Tu Comentario</label>
+                    <textarea id="commentText" placeholder="Comparte tu opinión sobre este libro..."
+                              style="width: 100%; padding: 0.75rem; background: #0a0e27; border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; resize: vertical; min-height: 100px;"></textarea>
+                </div>
+
+                <button onclick="addComment()" 
+                        style="background: #00ff88; color: #0a0e27; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%;">
+                    📤 Publicar Comentario
+                </button>
+            </div>
+
+            <!-- Lista de Comentarios -->
+            <div id="commentsContainer" style="space-y: 1rem;">
+                <p style="color: #a0a0a0; text-align: center;">Sin comentarios aún. ¡Sé el primero!</p>
+            </div>
+        </div>
     </div>
 
     <div id="loading" class="loading" style="display: none;">
@@ -307,6 +374,10 @@
                     if (!database.objectStoreNames.contains('books')) {
                         database.createObjectStore('books', { keyPath: 'id' });
                     }
+                    if (!database.objectStoreNames.contains('comments')) {
+                        const commentsStore = database.createObjectStore('comments', { keyPath: 'id' });
+                        commentsStore.createIndex('bookId', 'bookId', { unique: false });
+                    }
                 };
             });
         }
@@ -320,6 +391,106 @@
                 request.onsuccess = () => resolve(request.result);
                 request.onerror = () => reject(request.error);
             });
+        }
+
+        // Mostrar información del autor
+        function displayAuthorInfo() {
+            if (currentBook) {
+                // Foto del autor
+                if (currentBook.authorPhoto) {
+                    const photoImg = document.getElementById('authorPhoto');
+                    photoImg.src = currentBook.authorPhoto;
+                    photoImg.style.display = 'block';
+                    document.getElementById('authorPhotoPlaceholder').style.display = 'none';
+                } else {
+                    document.getElementById('authorPhoto').style.display = 'none';
+                    document.getElementById('authorPhotoPlaceholder').style.display = 'flex';
+                }
+
+                // Biografía
+                const bioBio = `<strong>${currentBook.author}</strong> (${currentBook.year})<br><br>${currentBook.description || 'Autor destacado de Editorial Fontana'}`;
+                document.getElementById('authorBio').innerHTML = bioBio;
+            }
+        }
+
+        // Guardar comentario
+        async function addComment() {
+            const name = document.getElementById('commentName').value.trim();
+            const rating = document.getElementById('commentRating').value;
+            const text = document.getElementById('commentText').value.trim();
+
+            if (!name || !text) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            const comment = {
+                id: Date.now(),
+                bookId: bookId,
+                name: name,
+                rating: parseInt(rating),
+                text: text,
+                date: new Date().toLocaleDateString('es-CO')
+            };
+
+            // Guardar en IndexedDB
+            const transaction = db.transaction(['comments'], 'readwrite');
+            const store = transaction.objectStore('comments');
+            store.add(comment);
+
+            // Limpiar formulario
+            document.getElementById('commentName').value = '';
+            document.getElementById('commentText').value = '';
+            document.getElementById('commentRating').value = '5';
+
+            // Recargar comentarios
+            loadComments();
+        }
+
+        // Cargar comentarios
+        async function loadComments() {
+            return new Promise((resolve) => {
+                const transaction = db.transaction(['comments'], 'readonly');
+                const store = transaction.objectStore('comments');
+                const index = store.index('bookId');
+                const range = IDBKeyRange.only(bookId);
+                const request = index.getAll(range);
+
+                request.onsuccess = () => {
+                    const comments = request.result || [];
+                    displayComments(comments);
+                    resolve();
+                };
+
+                request.onerror = () => {
+                    document.getElementById('commentsContainer').innerHTML = 
+                        '<p style="color: #a0a0a0; text-align: center;">Sin comentarios aún. ¡Sé el primero!</p>';
+                    resolve();
+                };
+            });
+        }
+
+        // Mostrar comentarios
+        function displayComments(comments) {
+            const container = document.getElementById('commentsContainer');
+
+            if (comments.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center;">Sin comentarios aún. ¡Sé el primero!</p>';
+                return;
+            }
+
+            container.innerHTML = comments.map(comment => `
+                <div style="padding: 1rem; background: #0a0e27; border-left: 4px solid #00d4ff; border-radius: 4px; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong style="color: #00d4ff;">${comment.name}</strong>
+                        <span style="font-size: 0.85rem; color: #a0a0a0;">${comment.date}</span>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        ${['⭐', '⭐⭐', '⭐⭐⭐', '⭐⭐⭐⭐', '⭐⭐⭐⭐⭐'][comment.rating - 1]}
+                    </div>
+                    <p style="color: #e0e0e0; line-height: 1.6;">${comment.text}</p>
+                </div>
+            `).join('');
         }
 
         // Renderizar PDF
@@ -463,7 +634,14 @@
                 document.getElementById('bookAuthor').textContent = book.author;
                 document.getElementById('bookYear').textContent = book.year;
 
+                // Mostrar info del autor
+                displayAuthorInfo();
+
+                // Renderizar PDF
                 await renderPDF(book.pdf);
+
+                // Cargar comentarios
+                await loadComments();
 
             } catch (error) {
                 showError('Error: ' + error.message);
