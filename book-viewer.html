@@ -277,7 +277,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 420px;
+            min-height: 450px;
             perspective: 1200px;
         }
 
@@ -767,8 +767,15 @@
             </div>
             
             <!-- CONTENEDOR PARA FLIPBOOK.JS -->
-            <div id="flipbook-container" style="width: 100%; max-width: 500px; height: 380px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+            <div id="flipbook-container" style="width: 100%; max-width: 700px; height: 380px; margin: 1rem auto; display: flex; align-items: center; justify-content: center; padding: 1rem; background: linear-gradient(to right, #0a0e27 0%, #1a1a2e 50%, #0a0e27 100%); border-radius: 15px;">
                 <div id="flipbook" style="width: 100%; height: 100%;"></div>
+            </div>
+            
+            <!-- CONTROLES DE NAVEGACIÓN DEL FLIPBOOK -->
+            <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; margin-top: 1.5rem; padding: 1rem;">
+                <button onclick="flipbook && flipbook.turnToPrevPage && flipbook.turnToPrevPage()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #0099ff, #00d4ff); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.95rem;">← Anterior</button>
+                <span id="pageInfo" style="color: #a0a0a0; font-weight: bold; min-width: 120px; text-align: center; font-family: monospace;">Página 1</span>
+                <button onclick="flipbook && flipbook.turnToNextPage && flipbook.turnToNextPage()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #0099ff, #00d4ff); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.95rem;">Siguiente →</button>
             </div>
         </div>
 
@@ -819,6 +826,7 @@
         let pageRendering = false;
         let pageNumPending = null;
         let currentBook = null;
+        let flipbook = null;
 
         // Obtener ID del libro desde la URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -1053,18 +1061,19 @@
                 });
 
                 // Configuración de FlipBook.js
-                const flipbook = new FlipBook({
+                flipbook = new FlipBook({
                     container: '#flipbook',
                     pages: pageImages,
-                    width: 320,
-                    height: 400,
+                    width: 600,
+                    height: 350,
                     autosize: true,
                     maxShadowOpacity: 0.5,
                     showCover: true,
-                    startPage: 1,
+                    startPage: 0,
                     acceleration: 0.04,
-                    page_width: 220,
-                    page_height: 320,
+                    page_width: 300,
+                    page_height: 350,
+                    display: 'double',
                     hard_cover: true,
                     hard_cover_top_size: 5,
                     hard_cover_back_size: 3,
