@@ -131,15 +131,19 @@
             position: relative;
             overflow: hidden;
             margin-top: 60px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             align-items: center;
+            justify-content: center;
         }
 
-        .hero-video-section {
-            position: relative;
+        /* VIDEO COMO FONDO ABSOLUTO */
+        .hero-video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            overflow: hidden;
+            z-index: 1;
         }
 
         .hero-video {
@@ -149,29 +153,35 @@
             display: block;
         }
 
-        .video-overlay {
+        /* OVERLAY OSCURO PARA LEGIBILIDAD */
+        .hero-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, rgba(10, 14, 39, 0.7) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(10, 14, 39, 0.4), rgba(10, 14, 39, 0.7));
+            z-index: 2;
         }
 
+        /* CONTENIDO ENCIMA DEL VIDEO */
         .hero-content {
-            padding: 4rem;
+            position: relative;
             z-index: 10;
-            animation: slideInLeft 1s ease-out;
+            text-align: center;
+            max-width: 900px;
+            padding: 2rem;
+            animation: fadeInUp 1.2s ease-out;
         }
 
-        @keyframes slideInLeft {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateX(-50px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateY(0);
             }
         }
 
@@ -205,13 +215,17 @@
             color: var(--text-secondary);
             margin-bottom: 2.5rem;
             line-height: 1.8;
-            max-width: 500px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .hero-buttons {
             display: flex;
             gap: 1.5rem;
             flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 3rem;
         }
 
         .btn-primary {
@@ -263,27 +277,28 @@
 
         .feature {
             display: flex;
-            gap: 1rem;
-            align-items: flex-start;
+            flex-direction: column;
+            gap: 0.8rem;
+            align-items: center;
         }
 
         .feature-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background: rgba(0, 212, 255, 0.1);
             border: 2px solid var(--accent-cyan);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
+            font-size: 1.8rem;
         }
 
         .feature-text h4 {
             font-size: 1rem;
             margin-bottom: 0.3rem;
             color: var(--text-light);
+            font-weight: 600;
         }
 
         .feature-text p {
@@ -305,6 +320,18 @@
             grid-template-columns: 1fr 1fr;
             gap: 4rem;
             align-items: center;
+        }
+
+        .about-image {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, var(--tertiary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            border: 1px solid var(--border-light);
         }
 
         .about-content h2 {
@@ -336,18 +363,6 @@
 
         .about-content .cta-link:hover {
             gap: 1rem;
-        }
-
-        .about-image {
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(135deg, var(--tertiary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            border: 1px solid var(--border-light);
         }
 
         /* ==================== LIBRARY SECTION ==================== */
@@ -441,7 +456,6 @@
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            group: hover;
         }
 
         .book-card:hover {
@@ -543,24 +557,6 @@
 
         /* ==================== RESPONSIVE ==================== */
         @media (max-width: 1024px) {
-            .hero {
-                grid-template-columns: 1fr;
-                min-height: 600px;
-            }
-
-            .hero-video-section {
-                position: absolute;
-                inset: 0;
-                z-index: 0;
-            }
-
-            .hero-content {
-                position: relative;
-                z-index: 10;
-                padding: 2rem;
-                background: linear-gradient(90deg, rgba(10, 14, 39, 0.9), transparent);
-            }
-
             .hero-title {
                 font-size: 2.5rem;
             }
@@ -596,7 +592,7 @@
 
             .hero {
                 margin-top: 50px;
-                min-height: 400px;
+                min-height: 500px;
             }
 
             .hero-content {
@@ -655,6 +651,10 @@
                 font-size: 0.95rem;
             }
 
+            .features {
+                gap: 1rem;
+            }
+
             .books-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 0.8rem;
@@ -681,10 +681,10 @@
         </div>
     </header>
 
-    <!-- ==================== HERO SECTION ==================== -->
+    <!-- ==================== HERO SECTION CON VIDEO DE FONDO ==================== -->
     <section class="hero">
-        <div class="hero-video-section">
-            <!-- INSTRUCCIÓN IMPORTANTE: Reemplaza "video.mp4" con el nombre de tu archivo de video -->
+        <!-- VIDEO COMO FONDO ABSOLUTO -->
+        <div class="hero-video-bg">
             <video 
                 class="hero-video" 
                 autoplay 
@@ -693,11 +693,13 @@
                 playsinline
                 preload="auto">
                 <source src="video1.mp4" type="video/mp4">
-                Tu navegador no soporta videos HTML5.
             </video>
-            <div class="video-overlay"></div>
         </div>
 
+        <!-- OVERLAY OSCURO -->
+        <div class="hero-overlay"></div>
+
+        <!-- CONTENIDO ENCIMA DEL VIDEO -->
         <div class="hero-content">
             <div class="hero-tag">Bienvenido a</div>
             <h1 class="hero-title">
@@ -755,7 +757,7 @@
                     Acerca de <span class="accent">EDITORIAL FONTANA</span>
                 </h2>
                 <p>
-                    Es un hecho establecido hace demasiado tiempo que un lector se distraerá con el contenido legible de una página cuando busca ver su diseño. El punto de usar Lorem Ipsum es que tiene una distribución más o menos normal de letras.
+                    EDITORIAL FONTANA es un repositorio virtual dedicado a la preservación, difusión y acceso de libros y artículos científicos de alto nivel académico.
                 </p>
                 <p>
                     Nuestro compromiso es proporcionar acceso a contenido académico de calidad, preservando el conocimiento y facilitando la investigación en el mundo hispanohablante.
