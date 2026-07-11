@@ -487,7 +487,6 @@
                         id="bookTitle" 
                         class="form-input" 
                         placeholder="Ingresa el título del libro"
-                        required
                     >
                 </div>
 
@@ -498,7 +497,6 @@
                         id="bookAuthor" 
                         class="form-input" 
                         placeholder="Nombre del autor"
-                        required
                     >
                 </div>
 
@@ -512,13 +510,12 @@
                         min="1900"
                         max="2099"
                         value="2024"
-                        required
                     >
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="bookGenre">Género</label>
-                    <select id="bookGenre" class="form-select" required>
+                    <select id="bookGenre" class="form-select">
                         <option value="">-- Selecciona un género --</option>
                         <option value="poesia">Poesía</option>
                         <option value="narrativa">Narrativa</option>
@@ -550,12 +547,11 @@
                         rows="4"
                         placeholder="Breve descripción del libro"
                         style="resize: vertical; font-family: inherit;"
-                        required
                     ></textarea>
                 </div>
 
                 <div class="btn-group">
-                    <button type="submit" class="btn-primary">📤 Guardar Libro</button>
+                    <button type="button" class="btn-primary" onclick="handleSubmitClick()">📤 Guardar Libro</button>
                     <button type="button" class="btn-secondary" onclick="cancelUpload()">Cancelar</button>
                 </div>
             </form>
@@ -688,8 +684,9 @@
             document.getElementById('bookForm').style.display = 'block';
         }
 
-        function handleSubmit(event) {
-            event.preventDefault();
+        function handleSubmitClick() {
+            console.log('Click en guardar libro detectado');
+            console.log('currentPdfData:', currentPdfData);
 
             // Validar que hay PDF
             if (!currentPdfData) {
@@ -704,6 +701,8 @@
             const genre = document.getElementById('bookGenre').value.trim();
             const description = document.getElementById('bookDescription').value.trim();
             const authorPhoto = document.getElementById('authorPhoto').value.trim() || '';
+
+            console.log('Datos del formulario:', { title, author, year, genre, description });
 
             // Validar campos requeridos
             if (!title) {
@@ -750,19 +749,29 @@
                     pages: currentPdfData.pageCount
                 };
 
+                console.log('Libro a guardar:', book);
+
                 let books = JSON.parse(localStorage.getItem('editoralBooks')) || [];
                 books.push(book);
                 localStorage.setItem('editoralBooks', JSON.stringify(books));
 
+                console.log('Libro guardado. Total de libros:', books.length);
+
                 showAlert('✅ ¡Libro guardado exitosamente!', 'success');
+                
                 setTimeout(() => {
                     cancelUpload();
                     loadBooks();
                 }, 1500);
             } catch (error) {
+                console.error('Error al guardar:', error);
                 showAlert('❌ Error al guardar el libro: ' + error.message, 'error');
-                console.error('Error:', error);
             }
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            handleSubmitClick();
         }
 
         function cancelUpload() {
