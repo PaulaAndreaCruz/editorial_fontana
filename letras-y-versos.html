@@ -534,13 +534,16 @@
             <div class="filters">
                 <div class="filter-group">
                     <label class="filter-label">Año</label>
-                    <select class="filter-select" id="yearFilter" onchange="filterBooks()">
-                        <option value="">Todos los años</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
-                        <option value="2021">2021</option>
-                    </select>
+                    <input 
+                        type="number" 
+                        class="filter-select" 
+                        id="yearFilter" 
+                        placeholder="Ingresa un año"
+                        min="1900"
+                        max="2099"
+                        onchange="filterBooks()"
+                        onkeyup="filterBooks()"
+                    >
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">Género</label>
