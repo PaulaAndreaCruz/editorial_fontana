@@ -247,7 +247,7 @@
             }
         }
 
-        /* ==================== PDF VIEWER ==================== */
+        /* ==================== PDF VIEWER (FLIP BOOK) ==================== */
         .pdf-viewer-section {
             background: var(--glass-bg);
             border: 1px solid var(--border-light);
@@ -259,7 +259,7 @@
         .pdf-viewer-container {
             background: linear-gradient(to right, #0a0e27 0%, #1a1a2e 50%, #0a0e27 100%);
             border-radius: 15px;
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: 1.5rem;
             padding: 3rem 2rem 2rem 2rem;
             position: relative;
@@ -270,7 +270,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 600px;
+            min-height: 700px;
+            perspective: 1200px;
         }
 
         .pdf-viewer-container::before {
@@ -279,21 +280,83 @@
             left: 50%;
             top: 0;
             bottom: 0;
-            width: 2px;
-            background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, 0.5), transparent);
-            z-index: 10;
+            width: 3px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, 0.8), transparent);
+            z-index: 20;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .flipbook-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+        }
+
+        .flipbook-spine {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(to right, 
+                rgba(0, 0, 0, 0.8) 0%, 
+                rgba(50, 50, 50, 0.6) 40%,
+                rgba(50, 50, 50, 0.6) 60%,
+                rgba(0, 0, 0, 0.8) 100%);
+            z-index: 15;
+            box-shadow: 
+                inset 2px 0 5px rgba(0, 0, 0, 0.9),
+                inset -2px 0 5px rgba(255, 255, 255, 0.1),
+                0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .pages-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            perspective: 1200px;
+        }
+
+        .page-side {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .page-left {
+            perspective: 1200px;
+            transform-origin: right center;
+        }
+
+        .page-right {
+            perspective: 1200px;
+            transform-origin: left center;
         }
 
         .pdf-canvas-wrapper {
             position: relative;
-            width: 100%;
-            max-width: 700px;
+            width: 95%;
+            height: 100%;
             background: white;
-            border-radius: 8px;
             box-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                0 15px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset -3px 0 8px rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             animation: pageFlip 0.6s ease-out;
         }
 
@@ -310,7 +373,7 @@
 
         .pdf-canvas {
             width: 100%;
-            height: auto;
+            height: 100%;
             display: block;
             background: white;
         }
@@ -318,10 +381,19 @@
         .pdf-page-number {
             position: absolute;
             bottom: 15px;
-            right: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #333;
             font-weight: 600;
+            font-family: Georgia, serif;
+            z-index: 10;
+        }
+
+        .page-left .pdf-page-number {
+            left: 15px;
+        }
+
+        .page-right .pdf-page-number {
+            right: 15px;
         }
 
         .pdf-controls {
@@ -573,14 +645,30 @@
             </div>
         </div>
 
-        <!-- PDF VIEWER -->
+        <!-- PDF VIEWER (FLIP BOOK STYLE) -->
         <div class="pdf-viewer-section">
             <h2 class="section-title">📖 Leer Libro</h2>
             
             <div class="pdf-viewer-container">
-                <div class="pdf-canvas-wrapper">
-                    <canvas id="pdfCanvas" class="pdf-canvas"></canvas>
-                    <div class="pdf-page-number" id="pageNumberDisplay">1</div>
+                <div class="flipbook-wrapper">
+                    <div class="flipbook-spine"></div>
+                    <div class="pages-container">
+                        <!-- PÁGINA IZQUIERDA -->
+                        <div class="page-side page-left">
+                            <div class="pdf-canvas-wrapper">
+                                <canvas id="pdfCanvasLeft" class="pdf-canvas"></canvas>
+                                <div class="pdf-page-number" id="pageNumberLeft">1</div>
+                            </div>
+                        </div>
+
+                        <!-- PÁGINA DERECHA -->
+                        <div class="page-side page-right">
+                            <div class="pdf-canvas-wrapper">
+                                <canvas id="pdfCanvasRight" class="pdf-canvas"></canvas>
+                                <div class="pdf-page-number" id="pageNumberRight">2</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -713,56 +801,93 @@
                 const pdf = await pdfjsLib.getDocument(pdfArrayBuffer).promise;
                 pdfDoc = pdf;
                 document.getElementById('totalPages').textContent = pdf.numPages;
-                renderPage(1);
+                renderPages(1);  // Renderizar páginas 1 y 2 al inicio
             } catch (error) {
                 console.error('Error cargando PDF:', error);
             }
         }
 
-        async function renderPage(num) {
+        async function renderPages(leftPageNum) {
             if (pageRendering) {
-                pageNumPending = num;
+                pageNumPending = leftPageNum;
                 return;
             }
 
             pageRendering = true;
-            const page = await pdfDoc.getPage(num);
-            const viewport = page.getViewport({ scale: 2 });
-            const canvas = document.getElementById('pdfCanvas');
-            const context = canvas.getContext('2d');
+            
+            try {
+                // Renderizar página izquierda
+                if (leftPageNum >= 1 && leftPageNum <= pdfDoc.numPages) {
+                    const leftPage = await pdfDoc.getPage(leftPageNum);
+                    const leftCanvas = document.getElementById('pdfCanvasLeft');
+                    const leftContext = leftCanvas.getContext('2d');
+                    const leftViewport = leftPage.getViewport({ scale: 2 });
 
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
+                    leftCanvas.width = leftViewport.width;
+                    leftCanvas.height = leftViewport.height;
 
-            const renderContext = {
-                canvasContext: context,
-                viewport: viewport
-            };
+                    await leftPage.render({
+                        canvasContext: leftContext,
+                        viewport: leftViewport
+                    }).promise;
 
-            await page.render(renderContext).promise;
-            pageRendering = false;
+                    document.getElementById('pageNumberLeft').textContent = leftPageNum;
+                }
 
-            if (pageNumPending !== null) {
-                renderPage(pageNumPending);
-                pageNumPending = null;
+                // Renderizar página derecha
+                const rightPageNum = leftPageNum + 1;
+                if (rightPageNum >= 1 && rightPageNum <= pdfDoc.numPages) {
+                    const rightPage = await pdfDoc.getPage(rightPageNum);
+                    const rightCanvas = document.getElementById('pdfCanvasRight');
+                    const rightContext = rightCanvas.getContext('2d');
+                    const rightViewport = rightPage.getViewport({ scale: 2 });
+
+                    rightCanvas.width = rightViewport.width;
+                    rightCanvas.height = rightViewport.height;
+
+                    await rightPage.render({
+                        canvasContext: rightContext,
+                        viewport: rightViewport
+                    }).promise;
+
+                    document.getElementById('pageNumberRight').textContent = rightPageNum;
+                } else {
+                    // Limpiar canvas derecho si no hay página
+                    const rightCanvas = document.getElementById('pdfCanvasRight');
+                    const rightContext = rightCanvas.getContext('2d');
+                    rightContext.clearRect(0, 0, rightCanvas.width, rightCanvas.height);
+                    document.getElementById('pageNumberRight').textContent = '';
+                }
+
+                pageRendering = false;
+
+                if (pageNumPending !== null) {
+                    renderPages(pageNumPending);
+                    pageNumPending = null;
+                }
+
+                document.getElementById('pageNum').value = leftPageNum;
+                updateButtons();
+            } catch (error) {
+                console.error('Error renderizando páginas:', error);
+                pageRendering = false;
             }
-
-            document.getElementById('pageNum').value = num;
-            document.getElementById('pageNumberDisplay').textContent = num;
-            updateButtons();
         }
 
         function nextPage() {
-            if (pageNum < pdfDoc.numPages) {
-                pageNum++;
-                renderPage(pageNum);
+            // Avanzar 2 páginas (izquierda + derecha)
+            if (pageNum + 1 < pdfDoc.numPages) {
+                pageNum += 2;
+                renderPages(pageNum);
             }
         }
 
         function previousPage() {
+            // Retroceder 2 páginas
             if (pageNum > 1) {
-                pageNum--;
-                renderPage(pageNum);
+                pageNum -= 2;
+                if (pageNum < 1) pageNum = 1;
+                renderPages(pageNum);
             }
         }
 
@@ -770,13 +895,13 @@
             const num = parseInt(document.getElementById('pageNum').value);
             if (num >= 1 && num <= pdfDoc.numPages) {
                 pageNum = num;
-                renderPage(num);
+                renderPages(num);
             }
         }
 
         function updateButtons() {
             document.getElementById('prevBtn').disabled = pageNum <= 1;
-            document.getElementById('nextBtn').disabled = pageNum >= pdfDoc.numPages;
+            document.getElementById('nextBtn').disabled = pageNum + 1 >= pdfDoc.numPages;
         }
 
         function addComment(event) {
