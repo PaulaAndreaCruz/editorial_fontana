@@ -106,13 +106,40 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--secondary), var(--tertiary));
             border-bottom: 1px solid var(--border-light);
+        }
+
+        .hero-video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(10, 14, 39, 0.4), rgba(10, 14, 39, 0.7));
+            z-index: 2;
         }
 
         .hero-content {
             text-align: center;
             animation: fadeInUp 1s ease-out;
+            position: relative;
+            z-index: 10;
         }
 
         @keyframes fadeInUp {
@@ -449,6 +476,22 @@
 
     <!-- ==================== HERO SECTION ==================== -->
     <section class="hero">
+        <!-- VIDEO COMO FONDO ABSOLUTO -->
+        <div class="hero-video-bg">
+            <video 
+                class="hero-video" 
+                autoplay 
+                muted 
+                playsinline
+                preload="auto">
+                <source src="video3.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <!-- OVERLAY OSCURO -->
+        <div class="hero-overlay"></div>
+
+        <!-- CONTENIDO ENCIMA DEL VIDEO -->
         <div class="hero-content">
             <div class="hero-tag">Sello Editorial</div>
             <h1 class="hero-title">
@@ -718,6 +761,27 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderBooks(booksDatabase);
+
+            // Inicializar rotación de videos
+            const videoElement = document.querySelector('.hero-video');
+            const videos = ['video3.mp4', 'video4.mp4'];
+            let currentVideoIndex = 0;
+
+            // Reproducir el primer video
+            videoElement.src = videos[currentVideoIndex];
+            videoElement.play();
+
+            // Cuando el video termine, cambiar al siguiente
+            videoElement.addEventListener('ended', () => {
+                currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+                videoElement.src = videos[currentVideoIndex];
+                videoElement.play();
+            });
+
+            // También iniciar cuando el DOM esté completamente listo
+            setTimeout(() => {
+                videoElement.play();
+            }, 500);
         });
     </script>
 
