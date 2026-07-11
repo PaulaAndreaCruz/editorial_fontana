@@ -363,7 +363,7 @@
         // Inicializar IndexedDB
         async function initDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open('EditorialFontana', 1);
+                const request = indexedDB.open('EditorialFontana', 2);
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => {
                     db = request.result;
@@ -371,9 +371,13 @@
                 };
                 request.onupgradeneeded = (e) => {
                     const database = e.target.result;
+                    
+                    // Crear tabla de libros si no existe
                     if (!database.objectStoreNames.contains('books')) {
                         database.createObjectStore('books', { keyPath: 'id' });
                     }
+                    
+                    // Crear tabla de comentarios si no existe
                     if (!database.objectStoreNames.contains('comments')) {
                         const commentsStore = database.createObjectStore('comments', { keyPath: 'id' });
                         commentsStore.createIndex('bookId', 'bookId', { unique: false });
@@ -424,49 +428,63 @@
                 return;
             }
 
-            const comment = {
-                id: Date.now(),
-                bookId: bookId,
-                name: name,
-                rating: parseInt(rating),
-                text: text,
-                date: new Date().toLocaleDateString('es-CO')
-            };
+            try {
+                const comment = {
+                    id: Date.now(),
+                    bookId: bookId,
+                    name: name,
+                    rating: parseInt(rating),
+                    text: text,
+                    date: new Date().toLocaleDateString('es-CO')
+                };
 
-            // Guardar en IndexedDB
-            const transaction = db.transaction(['comments'], 'readwrite');
-            const store = transaction.objectStore('comments');
-            store.add(comment);
+                // Guardar en IndexedDB
+                const transaction = db.transaction(['comments'], 'readwrite');
+                const store = transaction.objectStore('comments');
+                store.add(comment);
 
-            // Limpiar formulario
-            document.getElementById('commentName').value = '';
-            document.getElementById('commentText').value = '';
-            document.getElementById('commentRating').value = '5';
+                // Limpiar formulario
+                document.getElementById('commentName').value = '';
+                document.getElementById('commentText').value = '';
+                document.getElementById('commentRating').value = '5';
 
-            // Recargar comentarios
-            loadComments();
+                alert('✅ Comentario publicado correctamente');
+
+                // Recargar comentarios
+                await loadComments();
+            } catch (error) {
+                console.error('Error al guardar comentario:', error);
+                alert('Error al publicar el comentario. Intenta de nuevo.');
+            }
         }
 
         // Cargar comentarios
         async function loadComments() {
             return new Promise((resolve) => {
-                const transaction = db.transaction(['comments'], 'readonly');
-                const store = transaction.objectStore('comments');
-                const index = store.index('bookId');
-                const range = IDBKeyRange.only(bookId);
-                const request = index.getAll(range);
+                try {
+                    const transaction = db.transaction(['comments'], 'readonly');
+                    const store = transaction.objectStore('comments');
+                    const index = store.index('bookId');
+                    const range = IDBKeyRange.only(bookId);
+                    const request = index.getAll(range);
 
-                request.onsuccess = () => {
-                    const comments = request.result || [];
-                    displayComments(comments);
-                    resolve();
-                };
+                    request.onsuccess = () => {
+                        const comments = request.result || [];
+                        displayComments(comments);
+                        resolve();
+                    };
 
-                request.onerror = () => {
+                    request.onerror = () => {
+                        document.getElementById('commentsContainer').innerHTML = 
+                            '<p style="color: #a0a0a0; text-align: center;">Sin comentarios aún. ¡Sé el primero!</p>';
+                        resolve();
+                    };
+                } catch (error) {
+                    console.log('Tabla de comentarios no disponible aún');
                     document.getElementById('commentsContainer').innerHTML = 
                         '<p style="color: #a0a0a0; text-align: center;">Sin comentarios aún. ¡Sé el primero!</p>';
                     resolve();
-                };
+                }
             });
         }
 
