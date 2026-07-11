@@ -923,20 +923,33 @@
                 document.getElementById('authorBio').textContent = `${book.author} es un autor destacado cuyas obras han dejado huella en la literatura contemporánea. Sus escritos reflejan una profunda comprensión del ser humano y la sociedad.`;
 
                 // Foto del autor
-                if (book.authorPhoto) {
-                    console.log('Cargando foto del autor:', book.authorPhoto);
+                console.log('authorPhoto disponible:', !!book.authorPhoto);
+                console.log('authorPhoto length:', book.authorPhoto?.length);
+                
+                if (book.authorPhoto && book.authorPhoto.length > 0) {
+                    console.log('Cargando foto del autor, primeros caracteres:', book.authorPhoto.substring(0, 50));
                     const photoImg = document.getElementById('authorPhoto');
                     const photoPlaceholder = document.getElementById('authorPhotoPlaceholder');
-                    photoImg.src = book.authorPhoto;
-                    photoImg.style.display = 'block';
-                    if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+                    
+                    photoImg.onload = function() {
+                        console.log('✅ Foto del autor cargada exitosamente');
+                        photoImg.style.display = 'block';
+                        if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+                    };
+                    
                     photoImg.onerror = function() {
-                        console.warn('Error cargando foto del autor');
+                        console.warn('❌ Error cargando foto del autor');
                         photoImg.style.display = 'none';
                         if (photoPlaceholder) photoPlaceholder.style.display = 'block';
                     };
+                    
+                    photoImg.src = book.authorPhoto;
                 } else {
-                    console.warn('No hay foto del autor');
+                    console.warn('No hay foto del autor disponible');
+                    const photoImg = document.getElementById('authorPhoto');
+                    const photoPlaceholder = document.getElementById('authorPhotoPlaceholder');
+                    photoImg.style.display = 'none';
+                    if (photoPlaceholder) photoPlaceholder.style.display = 'block';
                 }
 
                 // Cargar PDF
@@ -997,10 +1010,10 @@
         }
 
         function applyZoom() {
-            const flipbookWrapper = document.querySelector('.flipbook-wrapper');
-            flipbookWrapper.style.transform = `scale(${currentZoom / 100})`;
-            flipbookWrapper.style.transformOrigin = 'top center';
-            flipbookWrapper.style.transition = 'transform 0.3s ease-out';
+            const pdfViewerContainer = document.querySelector('.pdf-viewer-container');
+            const scaleValue = currentZoom / 100;
+            // Usar zoom en lugar de transform para que no interfiera con pointer-events
+            pdfViewerContainer.style.zoom = scaleValue;
             document.getElementById('zoomLevel').textContent = currentZoom + '%';
         }
 
@@ -1012,8 +1025,13 @@
 
             pageRendering = true;
             
-            // Aplicar animación de flip
+            // Aplicar animación de flip solo si hay cambio de página
             const pagesContainer = document.querySelector('.pages-container');
+            pagesContainer.style.animation = 'none'; // Reset
+            
+            // Forzar reflow para que la animación se reinicie
+            void pagesContainer.offsetWidth;
+            
             if (lastFlipDirection === 'forward') {
                 pagesContainer.style.animation = 'pageFlipForward 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
             } else if (lastFlipDirection === 'backward') {
