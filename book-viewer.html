@@ -12,11 +12,9 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
 
-    <!-- jQuery (requerido por Turn.js) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Turn.js -->
-    <script src="https://www.turnjs.com/lib/turn.min.js"></script>
+    <!-- StPageFlip CSS + JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip@latest/dist/page-flip.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@latest/dist/page-flip.min.js"></script>
 
     <!-- Three.js (para compatibilidad) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -222,12 +220,49 @@
             font-size: 0.85rem;
             text-align: center;
             padding: 1rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .author-photo-wrapper:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
         }
 
         .author-photo-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .zoom-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 212, 255, 0.9);
+            color: var(--primary);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .author-photo-wrapper:hover .zoom-button {
+            display: flex;
+        }
+
+        .zoom-button:hover {
+            background: var(--accent-cyan);
+            transform: scale(1.1);
         }
 
         .author-info {
@@ -259,7 +294,7 @@
             }
         }
 
-        /* ==================== PDF VIEWER (TURN.JS BOOK) ==================== */
+        /* ==================== PDF VIEWER (STPAGEFLIP) ==================== */
         .pdf-viewer-section {
             background: var(--glass-bg);
             border: 1px solid var(--border-light);
@@ -272,8 +307,8 @@
             background: linear-gradient(to right, #0a0e27 0%, #1a1a2e 50%, #0a0e27 100%);
             border-radius: 15px;
             overflow: hidden;
-            margin-bottom: 2rem;
-            padding: 2rem;
+            margin-bottom: 1.5rem;
+            padding: 3rem 2rem;
             position: relative;
             box-shadow: 
                 inset -30px 0 40px rgba(0, 0, 0, 0.8),
@@ -282,13 +317,26 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 750px;
+            min-height: 700px;
+            perspective: 1200px;
+        }
+
+        .pdf-viewer-container::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, 0.8), transparent);
+            z-index: 20;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
         }
 
         #book {
             width: 100%;
-            max-width: 900px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
         .page {
@@ -298,33 +346,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
 
         .page img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            display: block;
         }
 
-        .page-number {
-            position: absolute;
-            bottom: 10px;
-            right: 15px;
-            font-size: 0.9rem;
-            color: #999;
-            font-family: 'Courier New', monospace;
-        }
-
-        /* CONTROLES DE NAVEGACIÓN */
-        .book-controls {
+        /* CONTROLES DE ZOOM */
+        .pdf-zoom-controls {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
             background: rgba(0, 20, 40, 0.6);
             border: 1px solid rgba(0, 212, 255, 0.3);
             border-radius: 10px;
@@ -332,7 +369,47 @@
             flex-wrap: wrap;
         }
 
-        .book-btn {
+        .zoom-btn {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #0099ff 0%, #00d4ff 100%);
+            color: white;
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .zoom-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        }
+
+        .zoom-info {
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        /* CONTROLES DE NAVEGACIÓN */
+        .book-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
             padding: 0.75rem 1.5rem;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
             color: var(--primary);
@@ -344,12 +421,12 @@
             min-height: 44px;
         }
 
-        .book-btn:hover:not(:disabled) {
+        .nav-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
         }
 
-        .book-btn:disabled {
+        .nav-btn:disabled {
             background: #555;
             color: #999;
             cursor: not-allowed;
@@ -360,8 +437,62 @@
             color: var(--text-secondary);
             font-weight: bold;
             font-family: 'Courier New', monospace;
-            min-width: 120px;
+            min-width: 140px;
             text-align: center;
+        }
+
+        /* ==================== MODAL ZOOM FOTO ==================== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.5);
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 212, 255, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-cyan);
+            transform: scale(1.1);
         }
 
         /* ==================== COMMENTS SECTION ==================== */
@@ -530,7 +661,7 @@
                 flex-direction: column;
             }
 
-            .book-btn {
+            .nav-btn {
                 width: 100%;
             }
         }
@@ -574,9 +705,10 @@
         <div class="author-section">
             <div class="section-title">👤 Acerca del Autor</div>
             <div class="author-container">
-                <div class="author-photo-wrapper">
+                <div class="author-photo-wrapper" onclick="openPhotoModal()">
                     <img id="authorPhoto" style="display:none;">
                     <span id="authorPhotoPlaceholder">🖼️</span>
+                    <button class="zoom-button" title="Ver más grande">🔍</button>
                 </div>
                 <div class="author-info">
                     <div class="author-content" id="authorBio">Cargando información del autor...</div>
@@ -584,7 +716,7 @@
             </div>
         </div>
 
-        <!-- PDF Viewer (Turn.js Book) -->
+        <!-- PDF Viewer (StPageFlip) -->
         <div class="pdf-viewer-section">
             <h2 class="section-title">📖 Leer Libro</h2>
             
@@ -597,12 +729,19 @@
                 <div id="book"></div>
             </div>
 
+            <div class="pdf-zoom-controls" id="zoomControls" style="display:none;">
+                <button class="zoom-btn" onclick="zoomOut()">🔍− Alejarse</button>
+                <span class="zoom-info" id="zoomLevel">100%</span>
+                <button class="zoom-btn" onclick="resetZoom()">↺ Normal</button>
+                <button class="zoom-btn" onclick="zoomIn()">🔍+ Acercar</button>
+            </div>
+
             <div class="book-controls" id="controls" style="display:none;">
-                <button class="book-btn" id="btnPrev" onclick="prevPage()">← Página Anterior</button>
+                <button class="nav-btn" id="btnPrev" onclick="prevPage()">← Página Anterior</button>
                 <div class="page-info">
                     Página <span id="currentPage">1</span> de <span id="totalPages">0</span>
                 </div>
-                <button class="book-btn" id="btnNext" onclick="nextPage()">Página Siguiente →</button>
+                <button class="nav-btn" id="btnNext" onclick="nextPage()">Página Siguiente →</button>
             </div>
         </div>
 
@@ -641,13 +780,22 @@
         </div>
     </div>
 
+    <!-- Modal Zoom Foto -->
+    <div id="photoModal" class="modal">
+        <div class="modal-content">
+            <img id="modalPhotoImg" src="" alt="Foto del autor">
+            <button class="modal-close" onclick="closePhotoModal()">✕</button>
+        </div>
+    </div>
+
     <script>
         let db = null;
         let bookId = null;
         let currentBook = null;
         let pageImages = [];
-        let jBook = null;
+        let pageFlip = null;
         let currentPageNum = 1;
+        let currentZoom = 100;
 
         // Obtener ID del libro
         const urlParams = new URLSearchParams(window.location.search);
@@ -716,89 +864,93 @@
                     pageImages.push(canvas.toDataURL('image/jpeg', 0.95));
                 }
 
-                initTurnBook();
+                initStPageFlip();
             } catch (error) {
                 console.error('Error renderizando PDF:', error);
                 document.getElementById('flipbook-container').innerHTML = '<p style="color: #ff6b6b;">Error al cargar el libro</p>';
             }
         }
 
-        // Inicializar Turn.js
-        function initTurnBook() {
+        // Inicializar StPageFlip
+        function initStPageFlip() {
             const bookDiv = document.getElementById('book');
             bookDiv.innerHTML = '';
 
             // Crear elementos de página
-            pageImages.forEach((imageUrl, index) => {
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'page';
-                pageDiv.dataset.pageNumber = index + 1;
+            pageImages.forEach((imageUrl) => {
+                const page = document.createElement('div');
+                page.className = 'page';
                 const img = document.createElement('img');
                 img.src = imageUrl;
-                pageDiv.appendChild(img);
-                
-                const pageNum = document.createElement('div');
-                pageNum.className = 'page-number';
-                pageNum.textContent = index + 1;
-                pageDiv.appendChild(pageNum);
-                
-                bookDiv.appendChild(pageDiv);
+                page.appendChild(img);
+                bookDiv.appendChild(page);
             });
 
             // Mostrar contenedor del libro
             document.getElementById('flipbook-container').style.display = 'none';
             document.getElementById('viewerContainer').style.display = 'flex';
             document.getElementById('controls').style.display = 'flex';
+            document.getElementById('zoomControls').style.display = 'flex';
 
             // Actualizar información
             document.getElementById('totalPages').textContent = pageImages.length;
 
-            // Inicializar Turn.js
+            // Inicializar PageFlip
             setTimeout(() => {
                 try {
-                    if (typeof $ === 'undefined' || typeof $.fn.turn === 'undefined') {
-                        console.error('Turn.js no está disponible');
+                    if (typeof PageFlip === 'undefined') {
+                        console.error('PageFlip no está disponible');
                         return;
                     }
 
-                    jBook = $('#book').turn({
-                        width: 800,
-                        height: 600,
-                        autoCenter: true,
-                        acceleration: true,
-                        display: 'double',
-                        duration: 800,
-                        pages: pageImages.length,
-                        page: 1,
-                        gradients: true,
-                        elevation: 50,
-                        when: {
-                            turned: function(event, page) {
-                                currentPageNum = page;
-                                document.getElementById('currentPage').textContent = page;
-                                updateControls();
-                            }
-                        }
+                    pageFlip = new PageFlip(bookDiv, {
+                        width: 600,
+                        height: 700,
+                        size: 'stretch',
+                        minWidth: 300,
+                        maxWidth: 1000,
+                        minHeight: 400,
+                        maxHeight: 900,
+                        maxShadowOpacity: 0.5,
+                        showCover: true,
+                        flareAngle: 60,
+                        density: 0.6,
+                        startPage: 1,
+                        autoSize: true,
+                        useMouseEvents: true,
+                        swipeDistance: 50,
+                        clickEventForward: true,
+                        useSound: false,
+                        hardCovers: true,
+                        softPages: true,
+                        realisticShadows: true
                     });
 
+                    pageFlip.on('flip', (object) => {
+                        currentPageNum = object.data;
+                        document.getElementById('currentPage').textContent = currentPageNum;
+                        updateControls();
+                    });
+
+                    pageFlip.loadFromHTML(document.querySelectorAll('.page'));
                     updateControls();
-                    console.log('✅ Turn.js inicializado correctamente');
+                    console.log('✅ StPageFlip inicializado correctamente');
                 } catch (error) {
-                    console.error('Error inicializando Turn.js:', error);
+                    console.error('Error inicializando PageFlip:', error);
                 }
             }, 100);
         }
 
         // Navegación
         function nextPage() {
-            if (jBook && currentPageNum < pageImages.length) {
-                jBook.turn('next');
+            if (pageFlip && currentPageNum < pageImages.length) {
+                pageFlip.turnToNextPage();
             }
         }
 
         function prevPage() {
-            if (jBook && currentPageNum > 1) {
-                jBook.turn('previous');
+            if (pageFlip && currentPageNum > 1) {
+                pageFlip.turnToPrevPage();
             }
         }
 
@@ -808,6 +960,60 @@
             btnPrev.disabled = currentPageNum <= 1;
             btnNext.disabled = currentPageNum >= pageImages.length;
         }
+
+        // Zoom
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 25, 300);
+            applyZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 25, 50);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 100;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const bookDiv = document.getElementById('book');
+            bookDiv.style.zoom = (currentZoom / 100);
+            document.getElementById('zoomLevel').textContent = currentZoom + '%';
+        }
+
+        // Modal foto autor
+        function openPhotoModal() {
+            const photoImg = document.getElementById('authorPhoto');
+            if (photoImg.style.display !== 'none' && photoImg.src) {
+                const modal = document.getElementById('photoModal');
+                const modalImg = document.getElementById('modalPhotoImg');
+                modalImg.src = photoImg.src;
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePhotoModal();
+            }
+        });
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('photoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePhotoModal();
+            }
+        });
 
         // Mostrar información del libro
         function displayBook(book) {
