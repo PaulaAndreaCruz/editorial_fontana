@@ -737,50 +737,92 @@
         const urlParams = new URLSearchParams(window.location.search);
         const bookId = parseInt(urlParams.get('id'));
 
-        window.addEventListener('load', () => {
+        // ==================== IndexedDB ==================== //
+        let db;
+
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('EditorialFontana', 1);
+                
+                request.onerror = () => {
+                    console.error('Error abriendo IndexedDB');
+                    reject(request.error);
+                };
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains('books')) {
+                        db.createObjectStore('books', { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        function getBooksFromIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['books'], 'readonly');
+                const objectStore = transaction.objectStore('books');
+                const request = objectStore.getAll();
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result || []);
+            });
+        }
+
+        window.addEventListener('load', async () => {
+            await initIndexedDB();
             loadBook();
             loadComments();
         });
 
-        function loadBook() {
-            const books = JSON.parse(localStorage.getItem('editoralBooks')) || [];
-            const book = books.find(b => b.id === bookId);
+        async function loadBook() {
+            try {
+                const books = await getBooksFromIndexedDB();
+                const book = books.find(b => b.id === bookId);
 
-            if (!book) {
-                document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Libro no encontrado</h1><p>El libro que buscas no está disponible.</p></div>';
-                return;
+                if (!book) {
+                    document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Libro no encontrado</h1><p>El libro que buscas no está disponible.</p></div>';
+                    return;
+                }
+
+                currentBook = book;
+
+                // Llenar información del libro
+                document.getElementById('bookTitle').textContent = book.title;
+                document.getElementById('bookAuthor').textContent = book.author;
+                document.getElementById('bookYear').textContent = book.year;
+                document.getElementById('bookGenre').textContent = capitalizeFirst(book.genre);
+                document.getElementById('bookDescription').textContent = book.description;
+                document.getElementById('bookPages').textContent = book.pages || 'Varios';
+                document.getElementById('bookCover').src = book.cover;
+                
+                // Biografía del autor (placeholder)
+                document.getElementById('authorBio').textContent = `${book.author} es un autor destacado cuyas obras han dejado huella en la literatura contemporánea. Sus escritos reflejan una profunda comprensión del ser humano y la sociedad.`;
+
+                // Foto del autor
+                if (book.authorPhoto) {
+                    const photoImg = document.getElementById('authorPhoto');
+                    const photoPlaceholder = document.getElementById('authorPhotoPlaceholder');
+                    photoImg.src = book.authorPhoto;
+                    photoImg.style.display = 'block';
+                    if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+                    photoImg.onerror = function() {
+                        photoImg.style.display = 'none';
+                        if (photoPlaceholder) photoPlaceholder.style.display = 'block';
+                    };
+                }
+
+                // Cargar PDF
+                loadPdf(book.pdf);
+            } catch (error) {
+                console.error('Error cargando libro:', error);
+                document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Error</h1><p>No se pudo cargar el libro</p></div>';
             }
-
-            currentBook = book;
-
-            // Llenar información del libro
-            document.getElementById('bookTitle').textContent = book.title;
-            document.getElementById('bookAuthor').textContent = book.author;
-            document.getElementById('bookYear').textContent = book.year;
-            document.getElementById('bookGenre').textContent = capitalizeFirst(book.genre);
-            document.getElementById('bookDescription').textContent = book.description;
-            document.getElementById('bookPages').textContent = book.pages || 'Varios';
-            document.getElementById('bookCover').src = book.cover;
-            
-            // Biografía del autor (placeholder)
-            document.getElementById('authorBio').textContent = `${book.author} es un autor destacado cuyas obras han dejado huella en la literatura contemporánea. Sus escritos reflejan una profunda comprensión del ser humano y la sociedad.`;
-
-            // Foto del autor
-            if (book.authorPhoto) {
-                const photoImg = document.getElementById('authorPhoto');
-                const photoPlaceholder = document.getElementById('authorPhotoPlaceholder');
-                photoImg.src = book.authorPhoto;
-                photoImg.style.display = 'block';
-                if (photoPlaceholder) photoPlaceholder.style.display = 'none';
-                photoImg.onerror = function() {
-                    photoImg.style.display = 'none';
-                    if (photoPlaceholder) photoPlaceholder.style.display = 'block';
-                };
-            }
-
-            // Cargar PDF
-            loadPdf(book.pdf);
-        }
 
         async function loadPdf(pdfData) {
             try {
