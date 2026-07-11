@@ -765,64 +765,103 @@
 
         function getBooksFromIndexedDB() {
             return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('IndexedDB no inicializada'));
+                    return;
+                }
+
                 const transaction = db.transaction(['books'], 'readonly');
                 const objectStore = transaction.objectStore('books');
                 const request = objectStore.getAll();
                 
                 request.onerror = () => reject(request.error);
-                request.onsuccess = () => resolve(request.result || []);
+                request.onsuccess = () => {
+                    console.log('Libros obtenidos de IndexedDB:', request.result);
+                    resolve(request.result || []);
+                };
             });
         }
 
         window.addEventListener('load', async () => {
-            await initIndexedDB();
-            loadBook();
-            loadComments();
+            try {
+                await initIndexedDB();
+                console.log('IndexedDB inicializada');
+                await new Promise(resolve => setTimeout(resolve, 100));
+                loadBook();
+                loadComments();
+            } catch (error) {
+                console.error('Error en carga:', error);
+            }
         });
 
         async function loadBook() {
             try {
+                console.log('Cargando libro con ID:', bookId);
                 const books = await getBooksFromIndexedDB();
+                console.log('Libros encontrados en IndexedDB:', books.length);
+                console.log('Buscando libro con ID:', bookId);
+                
                 const book = books.find(b => b.id === bookId);
+                console.log('Libro encontrado:', book);
 
                 if (!book) {
-                    document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Libro no encontrado</h1><p>El libro que buscas no está disponible.</p></div>';
+                    console.error('Libro con ID ' + bookId + ' no encontrado');
+                    document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Libro no encontrado</h1><p>El libro que buscas no está disponible.</p><p>ID buscado: ' + bookId + '</p><p>Libros disponibles: ' + books.length + '</p></div>';
                     return;
                 }
 
                 currentBook = book;
 
+                console.log('Llenando información del libro');
+                
                 // Llenar información del libro
-                document.getElementById('bookTitle').textContent = book.title;
-                document.getElementById('bookAuthor').textContent = book.author;
-                document.getElementById('bookYear').textContent = book.year;
-                document.getElementById('bookGenre').textContent = capitalizeFirst(book.genre);
-                document.getElementById('bookDescription').textContent = book.description;
+                document.getElementById('bookTitle').textContent = book.title || 'Título no disponible';
+                document.getElementById('bookAuthor').textContent = book.author || 'Autor desconocido';
+                document.getElementById('bookYear').textContent = book.year || 'Sin año';
+                document.getElementById('bookGenre').textContent = capitalizeFirst(book.genre || 'Sin género');
+                document.getElementById('bookDescription').textContent = book.description || 'Sin descripción';
                 document.getElementById('bookPages').textContent = book.pages || 'Varios';
-                document.getElementById('bookCover').src = book.cover;
+                
+                // Cargar portada
+                if (book.cover) {
+                    console.log('Cargando portada (', book.cover.substring(0, 50), '...)');
+                    document.getElementById('bookCover').src = book.cover;
+                } else {
+                    console.warn('No hay portada para este libro');
+                }
                 
                 // Biografía del autor (placeholder)
                 document.getElementById('authorBio').textContent = `${book.author} es un autor destacado cuyas obras han dejado huella en la literatura contemporánea. Sus escritos reflejan una profunda comprensión del ser humano y la sociedad.`;
 
                 // Foto del autor
                 if (book.authorPhoto) {
+                    console.log('Cargando foto del autor:', book.authorPhoto);
                     const photoImg = document.getElementById('authorPhoto');
                     const photoPlaceholder = document.getElementById('authorPhotoPlaceholder');
                     photoImg.src = book.authorPhoto;
                     photoImg.style.display = 'block';
                     if (photoPlaceholder) photoPlaceholder.style.display = 'none';
                     photoImg.onerror = function() {
+                        console.warn('Error cargando foto del autor');
                         photoImg.style.display = 'none';
                         if (photoPlaceholder) photoPlaceholder.style.display = 'block';
                     };
+                } else {
+                    console.warn('No hay foto del autor');
                 }
 
                 // Cargar PDF
-                loadPdf(book.pdf);
+                if (book.pdf) {
+                    console.log('Cargando PDF, tamaño base64:', book.pdf.length);
+                    loadPdf(book.pdf);
+                } else {
+                    console.error('No hay PDF para este libro');
+                }
             } catch (error) {
                 console.error('Error cargando libro:', error);
-                document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Error</h1><p>No se pudo cargar el libro</p></div>';
+                document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Error</h1><p>No se pudo cargar el libro</p><p>' + error.message + '</p></div>';
             }
+        }
 
         async function loadPdf(pdfData) {
             try {
