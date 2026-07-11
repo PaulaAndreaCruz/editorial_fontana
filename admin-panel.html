@@ -323,13 +323,22 @@
 
         <!-- Upload Section -->
         <div class="section">
-            <div class="section-title">📤 Subir Nuevo Libro</div>
+            <div class="section-title">📤 Agregar Libro desde Google Drive</div>
 
-            <div class="upload-area" id="uploadArea" onclick="document.getElementById('pdfInput').click();">
-                <div class="upload-icon">📄</div>
-                <div class="upload-text">Arrastra tu PDF aquí o haz clic para seleccionar</div>
-                <div class="upload-hint">Formato: PDF | Tamaño máximo: 50MB</div>
-                <input type="file" id="pdfInput" accept=".pdf" onchange="handleFileUpload(event)">
+            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label style="color: #00ff88; font-weight: 700; margin-bottom: 0.5rem; display: block;">📎 URL de Google Drive</label>
+                    <input type="text" id="driveUrl" placeholder="Pega aquí: https://drive.google.com/file/d/ABC123xyz/view" style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: #e0e0e0; font-size: 0.95rem;">
+                    <p style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.5rem;">
+                        ℹ️ <strong>Cómo obtener la URL:</strong><br>
+                        1. Abre Google Drive → click derecho en PDF → "Obtener enlace"<br>
+                        2. Asegúrate que sea "Acceso de lectura para todos los que tengan el enlace"<br>
+                        3. Copia el enlace completo y pégalo aquí
+                    </p>
+                </div>
+                <button onclick="loadGoogleDrivePDF()" style="width: 100%; padding: 0.8rem; background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0e27; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 1rem;">
+                    ✅ Cargar PDF desde Google Drive
+                </button>
             </div>
 
             <div id="previewContainer" style="display: none; margin-top: 1.5rem;">
@@ -459,6 +468,51 @@
             }
         }
 
+        // Cargar PDF desde Google Drive
+        async function loadGoogleDrivePDF() {
+            const driveUrl = document.getElementById('driveUrl').value.trim();
+            
+            if (!driveUrl) {
+                showAlert('Por favor pega una URL de Google Drive', 'error');
+                return;
+            }
+            
+            try {
+                // Extraer ID del archivo de la URL
+                let fileId = null;
+                
+                // Formatos soportados:
+                // https://drive.google.com/file/d/FILE_ID/view
+                // https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+                const match = driveUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                if (match) {
+                    fileId = match[1];
+                } else {
+                    throw new Error('URL de Google Drive inválida. Asegúrate de usar el formato correcto.');
+                }
+                
+                // Construir URL de descarga directa
+                const downloadUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
+                currentPDF = downloadUrl;
+                
+                showAlert('⏳ Cargando PDF desde Google Drive...', 'info');
+                
+                // Cargar y validar el PDF
+                const response = await fetch(downloadUrl);
+                if (!response.ok) {
+                    throw new Error('No se pudo descargar el PDF. Verifica que el enlace sea válido y esté compartido.');
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                await extractPDFInfo(arrayBuffer, fileId);
+                document.getElementById('previewContainer').style.display = 'block';
+                
+            } catch (error) {
+                showAlert('❌ Error: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
         async function handleFile(file) {
             if (file.type !== 'application/pdf') {
                 showAlert('Por favor selecciona un archivo PDF', 'error');
@@ -481,15 +535,25 @@
         }
 
         // Extraer info del PDF
-        async function extractPDFInfo(pdfData) {
+        async function extractPDFInfo(pdfData, fileId = null) {
             try {
-                const binaryString = atob(pdfData.split(',')[1]);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
+                let arrayBuffer;
+                
+                // Soportar tanto ArrayBuffer (Google Drive) como base64 string
+                if (pdfData instanceof ArrayBuffer) {
+                    arrayBuffer = pdfData;
+                } else if (typeof pdfData === 'string') {
+                    const binaryString = atob(pdfData.split(',')[1]);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    arrayBuffer = bytes.buffer;
+                } else {
+                    throw new Error('Formato de PDF no soportado');
                 }
 
-                const pdf = await pdfjsLib.getDocument(bytes.buffer).promise;
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
                 totalPages = pdf.numPages;
 
                 // Primera página (portada)
@@ -515,9 +579,10 @@
                 document.getElementById('authorPhotoPreview').src = currentAuthorPhoto;
                 document.getElementById('authorPhotoPlaceholder').style.display = 'none';
 
-                showAlert('✅ PDF procesado correctamente', 'success');
+                showAlert('✅ PDF cargado correctamente desde ' + (fileId ? 'Google Drive' : 'archivo local'), 'success');
             } catch (error) {
                 showAlert('Error extrayendo info del PDF: ' + error.message, 'error');
+                console.error(error);
             }
         }
 
