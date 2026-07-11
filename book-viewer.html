@@ -9,6 +9,13 @@
     <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
+    <!-- FlipBook.js - Visor profesional de flip books -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flipbook-js/dist/flipbook.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flipbook-js/dist/flipbook.min.js"></script>
+    
+    <!-- Three.js (usado por FlipBook.js para 3D) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -1007,7 +1014,6 @@
 
                 // Inicializar FlipBook.js
                 initFlipBook(pageImages);
-                document.getElementById('totalPages').textContent = pdf.numPages;
 
             } catch (error) {
                 console.error('Error cargando PDF:', error);
@@ -1159,117 +1165,12 @@
             }
         });
 
-        async function renderPages(leftPageNum) {
-            if (pageRendering) {
-                pageNumPending = leftPageNum;
-                return;
-            }
-
-            pageRendering = true;
-            
-            // Aplicar animación de flip
-            const pagesContainer = document.querySelector('.pages-container');
-            pagesContainer.style.animation = 'none';
-            
-            // Forzar reflow
-            void pagesContainer.offsetWidth;
-            
-            if (lastFlipDirection === 'forward') {
-                pagesContainer.style.animation = 'pageFlipForward 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            } else if (lastFlipDirection === 'backward') {
-                pagesContainer.style.animation = 'pageFlipBackward 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            }
-            
-            try {
-                // Renderizar página izquierda
-                if (leftPageNum >= 1 && leftPageNum <= pdfDoc.numPages) {
-                    const leftPage = await pdfDoc.getPage(leftPageNum);
-                    const leftCanvas = document.getElementById('pdfCanvasLeft');
-                    const leftContext = leftCanvas.getContext('2d');
-                    const leftViewport = leftPage.getViewport({ scale: 2 });
-
-                    leftCanvas.width = leftViewport.width;
-                    leftCanvas.height = leftViewport.height;
-
-                    await leftPage.render({
-                        canvasContext: leftContext,
-                        viewport: leftViewport
-                    }).promise;
-
-                    document.getElementById('pageNumberLeft').textContent = leftPageNum;
-                }
-
-                // Renderizar página derecha
-                const rightPageNum = leftPageNum + 1;
-                if (rightPageNum >= 1 && rightPageNum <= pdfDoc.numPages) {
-                    const rightPage = await pdfDoc.getPage(rightPageNum);
-                    const rightCanvas = document.getElementById('pdfCanvasRight');
-                    const rightContext = rightCanvas.getContext('2d');
-                    const rightViewport = rightPage.getViewport({ scale: 2 });
-
-                    rightCanvas.width = rightViewport.width;
-                    rightCanvas.height = rightViewport.height;
-
-                    await rightPage.render({
-                        canvasContext: rightContext,
-                        viewport: rightViewport
-                    }).promise;
-
-                    document.getElementById('pageNumberRight').textContent = rightPageNum;
-                } else {
-                    // Limpiar canvas derecho si no hay página
-                    const rightCanvas = document.getElementById('pdfCanvasRight');
-                    const rightContext = rightCanvas.getContext('2d');
-                    rightContext.clearRect(0, 0, rightCanvas.width, rightCanvas.height);
-                    document.getElementById('pageNumberRight').textContent = '';
-                }
-
-                pageRendering = false;
-
-                if (pageNumPending !== null) {
-                    renderPages(pageNumPending);
-                    pageNumPending = null;
-                }
-
-                document.getElementById('pageNum').value = leftPageNum;
-                updateButtons();
-            } catch (error) {
-                console.error('Error renderizando páginas:', error);
-                pageRendering = false;
-            }
-        }
-
-        function nextPage() {
-            // Avanzar 2 páginas (izquierda + derecha)
-            if (pageNum + 1 < pdfDoc.numPages) {
-                lastFlipDirection = 'forward';
-                pageNum += 2;
-                renderPages(pageNum);
-            }
-        }
-
-        function previousPage() {
-            // Retroceder 2 páginas
-            if (pageNum > 1) {
-                lastFlipDirection = 'backward';
-                pageNum -= 2;
-                if (pageNum < 1) pageNum = 1;
-                renderPages(pageNum);
-            }
-        }
-
-        function goToPage() {
-            const num = parseInt(document.getElementById('pageNum').value);
-            if (num >= 1 && num <= pdfDoc.numPages) {
-                pageNum = num;
-                renderPages(num);
-            }
-        }
-
-        function updateButtons() {
-            document.getElementById('prevBtn').disabled = pageNum <= 1;
-            document.getElementById('nextBtn').disabled = pageNum + 1 >= pdfDoc.numPages;
-        }
+        // FUNCIONES REEMPLAZADAS POR FLIPBOOK.JS (no se necesitan)
+        // - renderPages() → FlipBook.js maneja el renderizado
+        // - nextPage() → FlipBook.js maneja navegación
+        // - previousPage() → FlipBook.js maneja navegación
+        // - goToPage() → FlipBook.js tiene método gotoPage()
+        // - updateButtons() → FlipBook.js no necesita botones
 
         function addComment(event) {
             event.preventDefault();
