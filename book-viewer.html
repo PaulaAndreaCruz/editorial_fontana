@@ -295,6 +295,7 @@
             justify-content: center;
             align-items: center;
             transform-style: preserve-3d;
+            perspective: 1500px;
         }
 
         .flipbook-spine {
@@ -322,7 +323,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0;
-            perspective: 1200px;
+            perspective: 1500px;
+            transform-style: preserve-3d;
         }
 
         .page-side {
@@ -404,40 +406,50 @@
             letter-spacing: 1px;
         }
 
-        /* ANIMACIONES DE FLIP REALISTAS */
+        /* ANIMACIONES DE FLIP 3D REALISTAS */
         @keyframes pageFlipForward {
             0% {
-                transform: rotateY(75deg) translateX(-30px);
-                opacity: 0.2;
-                box-shadow: -30px 0 40px rgba(0, 0, 0, 0.9);
+                transform: rotateY(0deg) rotateX(0deg);
+                filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+            }
+            25% {
+                transform: rotateY(25deg) rotateX(2deg);
+                filter: drop-shadow(-5px 0 10px rgba(0, 0, 0, 0.4));
             }
             50% {
-                transform: rotateY(37.5deg);
-                opacity: 0.6;
-                box-shadow: -20px 0 30px rgba(0, 0, 0, 0.7);
+                transform: rotateY(45deg) rotateX(4deg);
+                filter: drop-shadow(-15px 0 30px rgba(0, 0, 0, 0.6));
+            }
+            75% {
+                transform: rotateY(65deg) rotateX(2deg);
+                filter: drop-shadow(-10px 0 15px rgba(0, 0, 0, 0.4));
             }
             100% {
-                transform: rotateY(0deg) translateX(0);
-                opacity: 1;
-                box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+                transform: rotateY(0deg) rotateX(0deg);
+                filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
             }
         }
 
         @keyframes pageFlipBackward {
             0% {
-                transform: rotateY(-75deg) translateX(30px);
-                opacity: 0.2;
-                box-shadow: 30px 0 40px rgba(0, 0, 0, 0.9);
+                transform: rotateY(0deg) rotateX(0deg);
+                filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+            }
+            25% {
+                transform: rotateY(-25deg) rotateX(-2deg);
+                filter: drop-shadow(5px 0 10px rgba(0, 0, 0, 0.4));
             }
             50% {
-                transform: rotateY(-37.5deg);
-                opacity: 0.6;
-                box-shadow: 20px 0 30px rgba(0, 0, 0, 0.7);
+                transform: rotateY(-45deg) rotateX(-4deg);
+                filter: drop-shadow(15px 0 30px rgba(0, 0, 0, 0.6));
+            }
+            75% {
+                transform: rotateY(-65deg) rotateX(-2deg);
+                filter: drop-shadow(10px 0 15px rgba(0, 0, 0, 0.4));
             }
             100% {
-                transform: rotateY(0deg) translateX(0);
-                opacity: 1;
-                box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+                transform: rotateY(0deg) rotateX(0deg);
+                filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
             }
         }
 
@@ -749,13 +761,21 @@
             
             <div class="pdf-viewer-container">
                 <div class="flipbook-wrapper">
-                    <div class="flipbook-spine" style="display: none;"></div>
-                    <div class="pages-container" style="display: flex; justify-content: center; align-items: center;">
-                        <!-- PÁGINA ÚNICA -->
-                        <div class="page-side" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                    <div class="flipbook-spine"></div>
+                    <div class="pages-container">
+                        <!-- PÁGINA IZQUIERDA -->
+                        <div class="page-side page-left">
                             <div class="pdf-canvas-wrapper">
-                                <canvas id="pdfCanvas" class="pdf-canvas"></canvas>
-                                <div class="pdf-page-number" id="pageNumber">1</div>
+                                <canvas id="pdfCanvasLeft" class="pdf-canvas"></canvas>
+                                <div class="pdf-page-number" id="pageNumberLeft">1</div>
+                            </div>
+                        </div>
+
+                        <!-- PÁGINA DERECHA -->
+                        <div class="page-side page-right">
+                            <div class="pdf-canvas-wrapper">
+                                <canvas id="pdfCanvasRight" class="pdf-canvas"></canvas>
+                                <div class="pdf-page-number" id="pageNumberRight">2</div>
                             </div>
                         </div>
                     </div>
@@ -1050,9 +1070,9 @@
             }
         });
 
-        async function renderPages(pageNum) {
+        async function renderPages(leftPageNum) {
             if (pageRendering) {
-                pageNumPending = pageNum;
+                pageNumPending = leftPageNum;
                 return;
             }
 
@@ -1066,28 +1086,53 @@
             void pagesContainer.offsetWidth;
             
             if (lastFlipDirection === 'forward') {
-                pagesContainer.style.animation = 'pageFlipForward 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                pagesContainer.style.animation = 'pageFlipForward 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             } else if (lastFlipDirection === 'backward') {
-                pagesContainer.style.animation = 'pageFlipBackward 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                pagesContainer.style.animation = 'pageFlipBackward 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             }
             
             try {
-                // Renderizar página actual
-                if (pageNum >= 1 && pageNum <= pdfDoc.numPages) {
-                    const page = await pdfDoc.getPage(pageNum);
-                    const canvas = document.getElementById('pdfCanvas');
-                    const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: 2 });
+                // Renderizar página izquierda
+                if (leftPageNum >= 1 && leftPageNum <= pdfDoc.numPages) {
+                    const leftPage = await pdfDoc.getPage(leftPageNum);
+                    const leftCanvas = document.getElementById('pdfCanvasLeft');
+                    const leftContext = leftCanvas.getContext('2d');
+                    const leftViewport = leftPage.getViewport({ scale: 2 });
 
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
+                    leftCanvas.width = leftViewport.width;
+                    leftCanvas.height = leftViewport.height;
 
-                    await page.render({
-                        canvasContext: context,
-                        viewport: viewport
+                    await leftPage.render({
+                        canvasContext: leftContext,
+                        viewport: leftViewport
                     }).promise;
 
-                    document.getElementById('pageNumber').textContent = pageNum;
+                    document.getElementById('pageNumberLeft').textContent = leftPageNum;
+                }
+
+                // Renderizar página derecha
+                const rightPageNum = leftPageNum + 1;
+                if (rightPageNum >= 1 && rightPageNum <= pdfDoc.numPages) {
+                    const rightPage = await pdfDoc.getPage(rightPageNum);
+                    const rightCanvas = document.getElementById('pdfCanvasRight');
+                    const rightContext = rightCanvas.getContext('2d');
+                    const rightViewport = rightPage.getViewport({ scale: 2 });
+
+                    rightCanvas.width = rightViewport.width;
+                    rightCanvas.height = rightViewport.height;
+
+                    await rightPage.render({
+                        canvasContext: rightContext,
+                        viewport: rightViewport
+                    }).promise;
+
+                    document.getElementById('pageNumberRight').textContent = rightPageNum;
+                } else {
+                    // Limpiar canvas derecho si no hay página
+                    const rightCanvas = document.getElementById('pdfCanvasRight');
+                    const rightContext = rightCanvas.getContext('2d');
+                    rightContext.clearRect(0, 0, rightCanvas.width, rightCanvas.height);
+                    document.getElementById('pageNumberRight').textContent = '';
                 }
 
                 pageRendering = false;
@@ -1097,7 +1142,7 @@
                     pageNumPending = null;
                 }
 
-                document.getElementById('pageNum').value = pageNum;
+                document.getElementById('pageNum').value = leftPageNum;
                 updateButtons();
             } catch (error) {
                 console.error('Error renderizando páginas:', error);
@@ -1106,19 +1151,20 @@
         }
 
         function nextPage() {
-            // Avanzar 1 página
-            if (pageNum < pdfDoc.numPages) {
+            // Avanzar 2 páginas (izquierda + derecha)
+            if (pageNum + 1 < pdfDoc.numPages) {
                 lastFlipDirection = 'forward';
-                pageNum += 1;
+                pageNum += 2;
                 renderPages(pageNum);
             }
         }
 
         function previousPage() {
-            // Retroceder 1 página
+            // Retroceder 2 páginas
             if (pageNum > 1) {
                 lastFlipDirection = 'backward';
-                pageNum -= 1;
+                pageNum -= 2;
+                if (pageNum < 1) pageNum = 1;
                 renderPages(pageNum);
             }
         }
