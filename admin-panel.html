@@ -546,7 +546,7 @@
                 </div>
 
                 <div class="btn-group">
-                    <button type="button" class="btn-primary" onclick="handleSubmitClick()">📤 Guardar Libro</button>
+                    <button type="button" class="btn-primary" id="btnGuardarLibro" onclick="handleSubmitClick()">📤 Guardar Libro</button>
                     <button type="button" class="btn-secondary" onclick="cancelUpload()">Cancelar</button>
                 </div>
             </form>
@@ -784,18 +784,28 @@
                 console.log('Libro a editar:', book);
                 
                 // Llenar formulario con datos del libro
-                document.getElementById('bookTitle').value = book.title;
-                document.getElementById('bookAuthor').value = book.author;
-                document.getElementById('bookYear').value = book.year;
-                document.getElementById('bookGenre').value = book.genre;
-                document.getElementById('bookDescription').value = book.description;
-                
-                // Scroll suave al formulario
-                document.getElementById('bookForm').scrollIntoView({ behavior: 'smooth' });
-                document.querySelector('button[onclick="handleSubmitClick()"]').textContent = '💾 Actualizar Libro';
+                document.getElementById('bookTitle').value = book.title || '';
+                document.getElementById('bookAuthor').value = book.author || '';
+                document.getElementById('bookYear').value = book.year || '';
+                document.getElementById('bookGenre').value = book.genre || '';
+                document.getElementById('bookDescription').value = book.description || '';
                 
                 // Guardar ID para actualizar después
                 window.editingBookId = id;
+                
+                // Cambiar texto del botón
+                const btnGuardar = document.getElementById('btnGuardarLibro');
+                if (btnGuardar) {
+                    btnGuardar.textContent = '💾 Actualizar Libro';
+                }
+                
+                // Mostrar formulario
+                document.getElementById('bookForm').style.display = 'block';
+                
+                // Scroll suave al formulario
+                setTimeout(() => {
+                    document.getElementById('bookForm').scrollIntoView({ behavior: 'smooth' });
+                }, 100);
                 
                 showAlert('✏️ Modo edición: Modifica los datos y haz click en "Actualizar Libro"', 'info');
             } catch (error) {
@@ -858,6 +868,30 @@
             }
 
             try {
+                // Validar que haya PDF (nuevo o del anterior si estamos editando)
+                if (!currentPdfData && !window.editingBookId) {
+                    showAlert('❌ Por favor selecciona un PDF', 'error');
+                    return;
+                }
+
+                // Si estamos editando sin cambiar PDF, obtener datos anteriores
+                let cover = currentPdfData?.cover;
+                let pdf = currentPdfData?.pdf;
+                let pages = currentPdfData?.pageCount;
+                let authorPhoto = currentPdfData?.authorPhoto;
+
+                if (window.editingBookId && !currentPdfData) {
+                    // Obtener datos anteriores del libro
+                    const books = await getBooksFromIndexedDB();
+                    const oldBook = books.find(b => b.id === window.editingBookId);
+                    if (oldBook) {
+                        cover = oldBook.cover;
+                        pdf = oldBook.pdf;
+                        pages = oldBook.pages;
+                        authorPhoto = oldBook.authorPhoto;
+                    }
+                }
+
                 const book = {
                     id: window.editingBookId || Date.now(),
                     title: title,
@@ -865,10 +899,10 @@
                     year: year,
                     genre: genre,
                     description: description,
-                    authorPhoto: authorPhoto,
-                    cover: currentPdfData.cover,
-                    pdf: currentPdfData.pdf,
-                    pages: currentPdfData.pageCount
+                    authorPhoto: authorPhoto || '',
+                    cover: cover,
+                    pdf: pdf,
+                    pages: pages
                 };
 
                 console.log('Libro a guardar:', book);
@@ -912,6 +946,15 @@
             document.getElementById('bookForm').style.display = 'none';
             document.getElementById('formPreview').classList.remove('show');
             document.getElementById('pdfInput').value = '';
+            
+            // Restaurar botón a estado original
+            const btnGuardar = document.getElementById('btnGuardarLibro');
+            if (btnGuardar) {
+                btnGuardar.textContent = '📤 Guardar Libro';
+            }
+            
+            // Limpiar ID de edición
+            window.editingBookId = null;
         }
 
         async function loadBooks() {
