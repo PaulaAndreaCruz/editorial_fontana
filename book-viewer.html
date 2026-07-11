@@ -360,6 +360,87 @@
             animation: pageFlip 0.6s ease-out;
         }
 
+        /* CONTROLES DE ZOOM */
+        .pdf-zoom-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .zoom-btn {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #0099ff 0%, #00d4ff 100%);
+            color: white;
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .zoom-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        }
+
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+
+        .zoom-level {
+            min-width: 70px;
+            text-align: center;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        /* ANIMACIONES DE FLIP REALISTAS */
+        @keyframes pageFlipForward {
+            0% {
+                transform: rotateY(75deg) translateX(-30px);
+                opacity: 0.2;
+                box-shadow: -30px 0 40px rgba(0, 0, 0, 0.9);
+            }
+            50% {
+                transform: rotateY(37.5deg);
+                opacity: 0.6;
+                box-shadow: -20px 0 30px rgba(0, 0, 0, 0.7);
+            }
+            100% {
+                transform: rotateY(0deg) translateX(0);
+                opacity: 1;
+                box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        @keyframes pageFlipBackward {
+            0% {
+                transform: rotateY(-75deg) translateX(30px);
+                opacity: 0.2;
+                box-shadow: 30px 0 40px rgba(0, 0, 0, 0.9);
+            }
+            50% {
+                transform: rotateY(-37.5deg);
+                opacity: 0.6;
+                box-shadow: 20px 0 30px rgba(0, 0, 0, 0.7);
+            }
+            100% {
+                transform: rotateY(0deg) translateX(0);
+                opacity: 1;
+                box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            }
+        }
+
         @keyframes pageFlip {
             from {
                 transform: rotateY(15deg) scale(0.95);
@@ -649,6 +730,14 @@
         <div class="pdf-viewer-section">
             <h2 class="section-title">📖 Leer Libro</h2>
             
+            <!-- CONTROLES DE ZOOM -->
+            <div class="pdf-zoom-controls">
+                <button class="zoom-btn" onclick="zoomOut()" title="Alejar (−)">🔍−</button>
+                <span class="zoom-level" id="zoomLevel">100%</span>
+                <button class="zoom-btn" onclick="zoomIn()" title="Acercar (+)">🔍+</button>
+                <button class="zoom-btn" onclick="resetZoom()" title="Restablecer (↺)">↺</button>
+            </div>
+            
             <div class="pdf-viewer-container">
                 <div class="flipbook-wrapper">
                     <div class="flipbook-spine"></div>
@@ -888,6 +977,33 @@
             }
         }
 
+        // ==================== ZOOM CONTROLS ==================== //
+        let currentZoom = 100;
+        let lastFlipDirection = 'forward';
+
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 25, 300);
+            applyZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 25, 50);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 100;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const flipbookWrapper = document.querySelector('.flipbook-wrapper');
+            flipbookWrapper.style.transform = `scale(${currentZoom / 100})`;
+            flipbookWrapper.style.transformOrigin = 'top center';
+            flipbookWrapper.style.transition = 'transform 0.3s ease-out';
+            document.getElementById('zoomLevel').textContent = currentZoom + '%';
+        }
+
         async function renderPages(leftPageNum) {
             if (pageRendering) {
                 pageNumPending = leftPageNum;
@@ -895,6 +1011,14 @@
             }
 
             pageRendering = true;
+            
+            // Aplicar animación de flip
+            const pagesContainer = document.querySelector('.pages-container');
+            if (lastFlipDirection === 'forward') {
+                pagesContainer.style.animation = 'pageFlipForward 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            } else if (lastFlipDirection === 'backward') {
+                pagesContainer.style.animation = 'pageFlipBackward 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            }
             
             try {
                 // Renderizar página izquierda
@@ -958,6 +1082,7 @@
         function nextPage() {
             // Avanzar 2 páginas (izquierda + derecha)
             if (pageNum + 1 < pdfDoc.numPages) {
+                lastFlipDirection = 'forward';
                 pageNum += 2;
                 renderPages(pageNum);
             }
@@ -966,6 +1091,7 @@
         function previousPage() {
             // Retroceder 2 páginas
             if (pageNum > 1) {
+                lastFlipDirection = 'backward';
                 pageNum -= 2;
                 if (pageNum < 1) pageNum = 1;
                 renderPages(pageNum);
