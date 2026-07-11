@@ -1000,15 +1000,37 @@
                 if (typeof pdfData === 'string' && (pdfData.startsWith('http://') || pdfData.startsWith('https://'))) {
                     console.log('Cargando desde URL:', pdfData);
                     try {
-                        const response = await fetch(pdfData);
+                        // Intentar fetch directo
+                        let response = await fetch(pdfData, {
+                            method: 'GET',
+                            headers: {'Accept': 'application/pdf'}
+                        });
+                        
+                        if (!response.ok) {
+                            console.warn('Fetch directo falló, intentando con proxy CORS...');
+                            // Si es Google Drive y falla, usar proxy
+                            if (pdfData.includes('drive.google.com')) {
+                                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(pdfData)}`;
+                                response = await fetch(proxyUrl);
+                            }
+                        }
+                        
                         if (!response.ok) {
                             throw new Error(`Error HTTP ${response.status}: No se pudo descargar el PDF`);
                         }
+                        
                         pdfArrayBuffer = await response.arrayBuffer();
                         console.log('PDF descargado desde URL, tamaño:', pdfArrayBuffer.byteLength);
+                        
+                        // Validar que es un PDF
+                        const view = new Uint8Array(pdfArrayBuffer);
+                        if (view[0] !== 0x25 || view[1] !== 0x50 || view[2] !== 0x44 || view[3] !== 0x46) {
+                            // %PDF en hex = 25 50 44 46
+                            throw new Error('El archivo descargado no es un PDF válido');
+                        }
                     } catch (e) {
                         console.error('Error descargando desde URL:', e);
-                        throw new Error('No se pudo descargar el PDF desde la URL. Verifica que el enlace sea válido.');
+                        throw new Error('No se pudo descargar el PDF. Verifica que:\n1. El enlace sea válido\n2. El PDF esté compartido públicamente en Google Drive\n3. Sea un PDF real');
                     }
                 }
                 // Si es base64 (formato antiguo)
