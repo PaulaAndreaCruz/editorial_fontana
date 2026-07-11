@@ -396,9 +396,66 @@
         .seal-button:hover .seal-overlay {
             background: linear-gradient(180deg, rgba(10, 14, 39, 0.3) 0%, rgba(10, 14, 39, 0.85) 100%);
         }
+
+        /* ==================== ABOUT SECTION ==================== */
+        .about {
             padding: 5rem 2rem;
             background: var(--secondary);
             border-top: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ANIMACIÓN DE ELEMENTOS FLOTANTES */
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .float-item {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.1;
+            animation: float linear infinite;
+        }
+
+        .float-item:nth-child(1) { left: 5%; top: 10%; animation-duration: 6s; animation-delay: 0s; }
+        .float-item:nth-child(2) { left: 10%; top: 60%; animation-duration: 8s; animation-delay: 1s; }
+        .float-item:nth-child(3) { left: 15%; top: 30%; animation-duration: 7s; animation-delay: 2s; }
+        .float-item:nth-child(4) { left: 25%; top: 80%; animation-duration: 9s; animation-delay: 0.5s; }
+        .float-item:nth-child(5) { left: 35%; top: 20%; animation-duration: 7.5s; animation-delay: 1.5s; }
+        .float-item:nth-child(6) { left: 45%; top: 70%; animation-duration: 8.5s; animation-delay: 2.5s; }
+        .float-item:nth-child(7) { left: 55%; top: 15%; animation-duration: 6.5s; animation-delay: 0.8s; }
+        .float-item:nth-child(8) { left: 65%; top: 75%; animation-duration: 9.5s; animation-delay: 1.8s; }
+        .float-item:nth-child(9) { left: 75%; top: 40%; animation-duration: 7s; animation-delay: 2.2s; }
+        .float-item:nth-child(10) { left: 85%; top: 60%; animation-duration: 8s; animation-delay: 0.3s; }
+        .float-item:nth-child(11) { left: 90%; top: 25%; animation-duration: 7.5s; animation-delay: 1.2s; }
+        .float-item:nth-child(12) { left: 20%; top: 50%; animation-duration: 9s; animation-delay: 2.8s; }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.1;
+            }
+            25% {
+                opacity: 0.25;
+            }
+            50% {
+                opacity: 0.1;
+                transform: translateY(-100px) rotate(180deg);
+            }
+            75% {
+                opacity: 0.25;
+            }
+            100% {
+                transform: translateY(-200px) rotate(360deg);
+                opacity: 0.1;
+            }
         }
 
         .about-wrapper {
@@ -408,6 +465,8 @@
             grid-template-columns: 1fr 1fr;
             gap: 4rem;
             align-items: center;
+            position: relative;
+            z-index: 10;
         }
 
         .about-image {
@@ -680,6 +739,22 @@
 
     <!-- ==================== ABOUT SECTION ==================== -->
     <section class="about" id="sobre">
+        <!-- ELEMENTOS FLOTANTES MÁGICOS -->
+        <div class="floating-elements">
+            <div class="float-item">📚</div>
+            <div class="float-item">✍️</div>
+            <div class="float-item">📖</div>
+            <div class="float-item">🖋️</div>
+            <div class="float-item">📝</div>
+            <div class="float-item">📕</div>
+            <div class="float-item">🎭</div>
+            <div class="float-item">✨</div>
+            <div class="float-item">📔</div>
+            <div class="float-item">🎨</div>
+            <div class="float-item">💡</div>
+            <div class="float-item">🌟</div>
+        </div>
+
         <div class="about-wrapper">
             <div class="about-image">
                 📖
