@@ -696,7 +696,21 @@
 
         async function loadPdf(pdfData) {
             try {
-                const pdf = await pdfjsLib.getDocument(pdfData).promise;
+                // Convertir base64 de vuelta a ArrayBuffer
+                let pdfArrayBuffer;
+                if (typeof pdfData === 'string') {
+                    // Es una cadena base64
+                    const binaryString = atob(pdfData);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    pdfArrayBuffer = bytes.buffer;
+                } else {
+                    pdfArrayBuffer = pdfData;
+                }
+
+                const pdf = await pdfjsLib.getDocument(pdfArrayBuffer).promise;
                 pdfDoc = pdf;
                 document.getElementById('totalPages').textContent = pdf.numPages;
                 renderPage(1);
