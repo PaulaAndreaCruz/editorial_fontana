@@ -990,15 +990,45 @@
             try {
                 console.log('Iniciando carga de PDF...');
                 
+                if (!pdfData) {
+                    throw new Error('No hay datos de PDF disponibles');
+                }
+                
                 // Convertir base64 de vuelta a ArrayBuffer
                 let pdfArrayBuffer;
                 if (typeof pdfData === 'string') {
-                    const binaryString = atob(pdfData);
-                    const bytes = new Uint8Array(binaryString.length);
-                    for (let i = 0; i < binaryString.length; i++) {
-                        bytes[i] = binaryString.charCodeAt(i);
+                    // Extraer solo la parte base64 si tiene prefijo data:
+                    let base64String = pdfData.trim();
+                    if (base64String.includes(',')) {
+                        base64String = base64String.split(',')[1];
                     }
-                    pdfArrayBuffer = bytes.buffer;
+                    
+                    // Validar que sea base64 válido
+                    if (!base64String || base64String.length === 0) {
+                        throw new Error('Datos base64 vacíos o inválidos');
+                    }
+                    
+                    try {
+                        // Intentar decodificar
+                        const binaryString = atob(base64String);
+                        if (!binaryString || binaryString.length === 0) {
+                            throw new Error('Decodificación resultó en datos vacíos');
+                        }
+                        
+                        const bytes = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        pdfArrayBuffer = bytes.buffer;
+                        
+                        // Validar que es un PDF válido (comienza con %PDF)
+                        if (binaryString.substring(0, 4) !== '%PDF') {
+                            throw new Error('El archivo no parece ser un PDF válido');
+                        }
+                    } catch (e) {
+                        console.error('Error decodificando base64:', e);
+                        throw new Error('El PDF no está correctamente codificado. Por favor, recarga el libro desde el admin panel.');
+                    }
                 } else {
                     pdfArrayBuffer = pdfData;
                 }
@@ -1049,7 +1079,17 @@
 
             } catch (error) {
                 console.error('Error cargando PDF:', error);
-                alert('Error al cargar el libro: ' + error.message);
+                const message = error.message || 'Error desconocido al procesar el PDF';
+                document.querySelectorAll('.page-wrapper').forEach(el => {
+                    el.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #ff6b6b; text-align: center; padding: 2rem;">
+                        <div>
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+                            <div style="font-weight: 700; margin-bottom: 0.5rem;">Error cargando PDF</div>
+                            <div style="font-size: 0.9rem;">${message}</div>
+                            <div style="font-size: 0.8rem; margin-top: 1rem; color: #a0a0a0;">Solución: Recarga el libro desde el admin panel</div>
+                        </div>
+                    </div>`;
+                });
             }
         }
 
