@@ -689,7 +689,6 @@
                 class="hero-video" 
                 autoplay 
                 muted 
-                loop 
                 playsinline
                 preload="auto">
                 <source src="video1.mp4" type="video/mp4">
@@ -961,8 +960,30 @@
             alert(`Abriendo: ${book.title}\n\nAutor: ${book.author}`);
         }
 
+        // ==================== ROTACIÓN DE VIDEOS ====================
         document.addEventListener('DOMContentLoaded', () => {
             renderBooks(booksDatabase);
+
+            // Inicializar rotación de videos
+            const videoElement = document.querySelector('.hero-video');
+            const videos = ['video1.mp4', 'video2.mp4'];
+            let currentVideoIndex = 0;
+
+            // Reproducir el primer video
+            videoElement.src = videos[currentVideoIndex];
+            videoElement.play();
+
+            // Cuando el video termine, cambiar al siguiente
+            videoElement.addEventListener('ended', () => {
+                currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+                videoElement.src = videos[currentVideoIndex];
+                videoElement.play();
+            });
+
+            // También iniciar cuando el DOM esté completamente listo
+            setTimeout(() => {
+                videoElement.play();
+            }, 500);
         });
     </script>
 
