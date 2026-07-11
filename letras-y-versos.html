@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LETRAS Y VERSOS FONTANA - Biblioteca Digital de Poesía, Narrativa y Literatura">
+    <title>Letras y Versos Fontana | Biblioteca Digital</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0a0e27;
+            --secondary: #0f1535;
+            --tertiary: #1a1f3a;
+            --accent-cyan: #00d4ff;
+            --accent-blue: #0099ff;
+            --accent-green: #00ff88;
+            --text-light: #ffffff;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #707070;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ==================== HEADER ==================== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 1.2rem 2rem;
+        }
+
+        .header-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-back {
+            padding: 0.7rem 1.8rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-back:hover {
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* ==================== HERO SECTION ==================== */
+        .hero {
+            height: 60vh;
+            position: relative;
+            overflow: hidden;
+            margin-top: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--secondary), var(--tertiary));
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .hero-content {
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .hero-title .accent {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        /* ==================== LIBRARY SECTION ==================== */
+        .library {
+            padding: 5rem 2rem;
+            background: var(--primary);
+        }
+
+        .library-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .section-title .accent {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            margin-bottom: 3rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 50px;
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .filter-select {
+            padding: 0.8rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:hover,
+        .filter-select:focus {
+            border-color: var(--accent-cyan);
+            outline: none;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .book-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+
+        .book-info {
+            padding: 1.5rem;
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .book-author {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+            margin-bottom: 1rem;
+        }
+
+        .book-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .book-btn:hover {
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+            transform: scale(1.03);
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            padding: 3rem 2rem;
+            background: var(--tertiary);
+            border-top: 1px solid var(--border-light);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .footer-content {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .footer-text {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            .hero {
+                height: 50vh;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .book-cover {
+                height: 200px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-back {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+
+            .book-info {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header>
+        <div class="header-wrapper">
+            <div class="logo" onclick="window.location.href='editorial-fontana-final.html'">EDITORIAL FONTANA</div>
+            <button class="nav-back" onclick="window.location.href='editorial-fontana-final.html'">← Volver</button>
+        </div>
+    </header>
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-tag">Sello Editorial</div>
+            <h1 class="hero-title">
+                <span class="accent">LETRAS</span> Y <span class="accent">VERSOS</span>
+            </h1>
+            <p class="hero-subtitle">
+                Poesía, narrativa y escritos de índole literario - Biblioteca Digital Fontana
+            </p>
+        </div>
+    </section>
+
+    <!-- ==================== LIBRARY SECTION ==================== -->
+    <section class="library">
+        <div class="library-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Explora</span>
+                <h2 class="section-title">
+                    Nuestra <span class="accent">Colección Literaria</span>
+                </h2>
+                <p class="section-subtitle">
+                    Descubre una selección curada de obras literarias, poesía y narrativa de autores destacados
+                </p>
+            </div>
+
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    placeholder="Busca por título, autor, palabras clave..."
+                    id="searchInput"
+                    onkeyup="filterBooks()"
+                >
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Año</label>
+                    <select class="filter-select" id="yearFilter" onchange="filterBooks()">
+                        <option value="">Todos los años</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Género</label>
+                    <select class="filter-select" id="genreFilter" onchange="filterBooks()">
+                        <option value="">Todos los géneros</option>
+                        <option value="poesia">Poesía</option>
+                        <option value="narrativa">Narrativa</option>
+                        <option value="ensayo">Ensayo</option>
+                        <option value="cuento">Cuento</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Idioma</label>
+                    <select class="filter-select" id="languageFilter" onchange="filterBooks()">
+                        <option value="">Todos los idiomas</option>
+                        <option value="español">Español</option>
+                        <option value="inglés">Inglés</option>
+                        <option value="portugués">Portugués</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="books-grid" id="booksGrid">
+                <!-- Los libros se renderizarán aquí -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">
+                &copy; 2024 EDITORIAL FONTANA - Letras y Versos. Todos los derechos reservados.
+            </p>
+            <p class="footer-text" style="font-size: 0.85rem; color: var(--text-muted);">
+                Plataforma de contenido literario y académico | Villavicencio, Colombia
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // ==================== BASE DE DATOS DE LIBROS ====================
+        const booksDatabase = [
+            {
+                id: 1,
+                title: "Poesías Selectas del Siglo XXI",
+                author: "Dr. Juan Pérez García",
+                year: "2024",
+                genre: "poesia",
+                language: "español",
+                pages: 324,
+                keywords: ["poesía", "contemporánea", "lírica"]
+            },
+            {
+                id: 2,
+                title: "Narrativas de Transformación",
+                author: "Dra. María López Martínez",
+                year: "2024",
+                genre: "narrativa",
+                language: "español",
+                pages: 456,
+                keywords: ["narrativa", "ficción", "cambio"]
+            },
+            {
+                id: 3,
+                title: "Versos del Alma",
+                author: "Prof. Carlos Rodríguez",
+                year: "2023",
+                genre: "poesia",
+                language: "español",
+                pages: 298,
+                keywords: ["poesía", "emociones", "sentimientos"]
+            },
+            {
+                id: 4,
+                title: "Historias Olvidadas",
+                author: "Catalina Morales Ruiz",
+                year: "2023",
+                genre: "narrativa",
+                language: "español",
+                pages: 287,
+                keywords: ["narrativa", "historia", "memoria"]
+            },
+            {
+                id: 5,
+                title: "Ensayos Contemporáneos",
+                author: "Dr. Roberto Silva",
+                year: "2024",
+                genre: "ensayo",
+                language: "español",
+                pages: 512,
+                keywords: ["ensayo", "reflexión", "análisis"]
+            },
+            {
+                id: 6,
+                title: "Cuentos de la Fontana",
+                author: "Dra. Ana Martínez López",
+                year: "2023",
+                genre: "cuento",
+                language: "español",
+                pages: 376,
+                keywords: ["cuento", "ficción", "tradición"]
+            },
+            {
+                id: 7,
+                title: "Nuevas Voces Literarias",
+                author: "Prof. David Chen",
+                year: "2024",
+                genre: "narrativa",
+                language: "inglés",
+                pages: 598,
+                keywords: ["narrativa", "contemporáneo", "innovación"]
+            },
+            {
+                id: 8,
+                title: "Poesía en el Paisaje",
+                author: "Dra. Elena González",
+                year: "2022",
+                genre: "poesia",
+                language: "español",
+                pages: 445,
+                keywords: ["poesía", "naturaleza", "ecología"]
+            },
+            {
+                id: 9,
+                title: "Crónicas Latinoamericanas",
+                author: "Prof. Michel Dubois",
+                year: "2023",
+                genre: "ensayo",
+                language: "portugués",
+                pages: 289,
+                keywords: ["crónica", "latinoamérica", "cultura"]
+            },
+            {
+                id: 10,
+                title: "Relatos de Transformación",
+                author: "Dr. Francisco Ruiz",
+                year: "2024",
+                genre: "cuento",
+                language: "español",
+                pages: 401,
+                keywords: ["cuento", "cambio", "transformación"]
+            },
+            {
+                id: 11,
+                title: "Antología Poética Fontana",
+                author: "Prof. Gustavo Moreno",
+                year: "2022",
+                genre: "poesia",
+                language: "español",
+                pages: 523,
+                keywords: ["poesía", "antología", "colección"]
+            },
+            {
+                id: 12,
+                title: "Literatura y Pensamiento",
+                author: "Dr. Hermann Schmidt",
+                year: "2021",
+                genre: "ensayo",
+                language: "inglés",
+                pages: 678,
+                keywords: ["ensayo", "filosofía", "literatura"]
+            }
+        ];
+
+        function renderBooks(books) {
+            const grid = document.getElementById('booksGrid');
+            grid.innerHTML = '';
+
+            if (books.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <p style="font-size: 1.2rem;">No se encontraron resultados</p>
+                        <p style="font-size: 0.95rem; margin-top: 0.5rem;">Intenta con otros términos de búsqueda o filtros</p>
+                    </div>
+                `;
+                return;
+            }
+
+            books.forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                card.innerHTML = `
+                    <div class="book-cover">${book.id}</div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        <div class="book-meta">
+                            <span>${book.year}</span>
+                            <span>${book.pages} págs</span>
+                        </div>
+                        <button class="book-btn" onclick="viewBook(${book.id})">Ver Libro</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterBooks() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const yearFilter = document.getElementById('yearFilter').value;
+            const genreFilter = document.getElementById('genreFilter').value;
+            const languageFilter = document.getElementById('languageFilter').value;
+
+            const filtered = booksDatabase.filter(book => {
+                const matchSearch = book.title.toLowerCase().includes(searchText) ||
+                                  book.author.toLowerCase().includes(searchText) ||
+                                  book.keywords.some(kw => kw.toLowerCase().includes(searchText));
+                const matchYear = !yearFilter || book.year === yearFilter;
+                const matchGenre = !genreFilter || book.genre === genreFilter;
+                const matchLanguage = !languageFilter || book.language === languageFilter;
+
+                return matchSearch && matchYear && matchGenre && matchLanguage;
+            });
+
+            renderBooks(filtered);
+        }
+
+        function viewBook(bookId) {
+            const book = booksDatabase.find(b => b.id === bookId);
+            alert(`Abriendo: ${book.title}\n\nAutor: ${book.author}\nAño: ${book.year}`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBooks(booksDatabase);
+        });
+    </script>
+
+</body>
+</html>
