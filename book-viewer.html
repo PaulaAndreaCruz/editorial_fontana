@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Visualizador de Libro - Editorial Fontana">
+    <title>Libro | Editorial Fontana</title>
+    
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0a0e27;
+            --secondary: #0f1535;
+            --tertiary: #1a1f3a;
+            --accent-cyan: #00d4ff;
+            --accent-blue: #0099ff;
+            --accent-green: #00ff88;
+            --text-light: #ffffff;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--primary);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* ==================== HEADER ==================== */
+        header {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 1.2rem 2rem;
+        }
+
+        .header-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-back {
+            padding: 0.7rem 1.8rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-back:hover {
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ==================== CONTAINER ==================== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ==================== BOOK INFO SECTION ==================== */
+        .book-header {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .book-cover-large {
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+        }
+
+        .book-cover-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-details h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .book-author {
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .book-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .book-description {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        /* ==================== AUTHOR BIO ==================== */
+        .author-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .author-content {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        /* ==================== PDF VIEWER ==================== */
+        .pdf-viewer-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .pdf-viewer-container {
+            background: #1a1a2e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .pdf-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .pdf-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--secondary);
+            border-top: 1px solid var(--border-light);
+            flex-wrap: wrap;
+        }
+
+        .pdf-btn {
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .pdf-btn:hover {
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .pdf-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pdf-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .page-input {
+            width: 60px;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            color: var(--text-main);
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* ==================== COMMENTS SECTION ==================== */
+        .comments-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .comment-form {
+            background: var(--secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .btn-submit {
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .comment {
+            background: var(--secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-author {
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .comment-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .comment-rating {
+            color: var(--accent-yellow, #ffaa00);
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .empty-comments {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .book-header {
+                grid-template-columns: 1fr;
+            }
+
+            .book-cover-large {
+                height: 300px;
+            }
+
+            .book-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .pdf-controls {
+                flex-direction: column;
+            }
+
+            .pdf-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header>
+        <div class="header-wrapper">
+            <div class="logo" onclick="goHome()">EDITORIAL FONTANA</div>
+            <button class="btn-back" onclick="goBack()">← Volver</button>
+        </div>
+    </header>
+
+    <!-- ==================== CONTAINER ==================== -->
+    <div class="container">
+        <!-- BOOK HEADER -->
+        <div class="book-header">
+            <div class="book-cover-large">
+                <img id="bookCover" src="" alt="Portada del Libro">
+            </div>
+            <div class="book-details">
+                <h1 id="bookTitle">Título del Libro</h1>
+                <div class="book-author" id="bookAuthor">Autor</div>
+                
+                <div class="book-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Año</span>
+                        <span class="meta-value" id="bookYear">2024</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Género</span>
+                        <span class="meta-value" id="bookGenre">Poesía</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Páginas</span>
+                        <span class="meta-value" id="bookPages">0</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Idioma</span>
+                        <span class="meta-value">Español</span>
+                    </div>
+                </div>
+
+                <div class="book-description" id="bookDescription">
+                    Descripción del libro...
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTHOR BIO -->
+        <div class="author-section">
+            <h2 class="section-title">👤 Acerca del Autor</h2>
+            <div class="author-content" id="authorBio">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </div>
+        </div>
+
+        <!-- PDF VIEWER -->
+        <div class="pdf-viewer-section">
+            <h2 class="section-title">📖 Leer Libro</h2>
+            
+            <div class="pdf-viewer-container">
+                <canvas id="pdfCanvas" class="pdf-canvas"></canvas>
+            </div>
+
+            <div class="pdf-controls">
+                <button class="pdf-btn" id="prevBtn" onclick="previousPage()">← Página Anterior</button>
+                
+                <div class="pdf-info">
+                    <span>Página</span>
+                    <input type="number" id="pageNum" class="page-input" value="1" onchange="goToPage()">
+                    <span>de <span id="totalPages">0</span></span>
+                </div>
+
+                <button class="pdf-btn" id="nextBtn" onclick="nextPage()">Página Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- COMMENTS SECTION -->
+        <div class="comments-section">
+            <h2 class="section-title">💬 Comentarios y Reseñas</h2>
+
+            <div class="comment-form">
+                <form onsubmit="addComment(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="commentName">Tu Nombre</label>
+                        <input type="text" id="commentName" class="form-input" placeholder="Tu nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="commentRating">Calificación</label>
+                        <select id="commentRating" class="form-input" required>
+                            <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+                            <option value="4">⭐⭐⭐⭐ Muy Bueno</option>
+                            <option value="3">⭐⭐⭐ Bueno</option>
+                            <option value="2">⭐⭐ Regular</option>
+                            <option value="1">⭐ Pobre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="commentText">Tu Comentario</label>
+                        <textarea id="commentText" class="form-textarea" rows="4" placeholder="Comparte tu opinión..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Publicar Comentario</button>
+                </form>
+            </div>
+
+            <div class="comments-list" id="commentsList">
+                <div class="empty-comments">
+                    <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let currentBook = null;
+
+        // Obtener ID del libro desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = parseInt(urlParams.get('id'));
+
+        window.addEventListener('load', () => {
+            loadBook();
+            loadComments();
+        });
+
+        function loadBook() {
+            const books = JSON.parse(localStorage.getItem('editoralBooks')) || [];
+            const book = books.find(b => b.id === bookId);
+
+            if (!book) {
+                document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: #a0a0a0;"><h1>Libro no encontrado</h1><p>El libro que buscas no está disponible.</p></div>';
+                return;
+            }
+
+            currentBook = book;
+
+            // Llenar información del libro
+            document.getElementById('bookTitle').textContent = book.title;
+            document.getElementById('bookAuthor').textContent = book.author;
+            document.getElementById('bookYear').textContent = book.year;
+            document.getElementById('bookGenre').textContent = capitalizeFirst(book.genre);
+            document.getElementById('bookDescription').textContent = book.description;
+            document.getElementById('bookPages').textContent = book.pages || 'Varios';
+            document.getElementById('bookCover').src = book.cover;
+            
+            // Biografía del autor (placeholder)
+            document.getElementById('authorBio').textContent = `${book.author} es un autor destacado cuyas obras han dejado huella en la literatura contemporánea. Sus escritos reflejan una profunda comprensión del ser humano y la sociedad.`;
+
+            // Cargar PDF
+            loadPdf(book.pdf);
+        }
+
+        async function loadPdf(pdfData) {
+            try {
+                const pdf = await pdfjsLib.getDocument(pdfData).promise;
+                pdfDoc = pdf;
+                document.getElementById('totalPages').textContent = pdf.numPages;
+                renderPage(1);
+            } catch (error) {
+                console.error('Error cargando PDF:', error);
+            }
+        }
+
+        async function renderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+                return;
+            }
+
+            pageRendering = true;
+            const page = await pdfDoc.getPage(num);
+            const viewport = page.getViewport({ scale: 2 });
+            const canvas = document.getElementById('pdfCanvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+
+            await page.render(renderContext).promise;
+            pageRendering = false;
+
+            if (pageNumPending !== null) {
+                renderPage(pageNumPending);
+                pageNumPending = null;
+            }
+
+            document.getElementById('pageNum').value = num;
+            updateButtons();
+        }
+
+        function nextPage() {
+            if (pageNum < pdfDoc.numPages) {
+                pageNum++;
+                renderPage(pageNum);
+            }
+        }
+
+        function previousPage() {
+            if (pageNum > 1) {
+                pageNum--;
+                renderPage(pageNum);
+            }
+        }
+
+        function goToPage() {
+            const num = parseInt(document.getElementById('pageNum').value);
+            if (num >= 1 && num <= pdfDoc.numPages) {
+                pageNum = num;
+                renderPage(num);
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = pageNum <= 1;
+            document.getElementById('nextBtn').disabled = pageNum >= pdfDoc.numPages;
+        }
+
+        function addComment(event) {
+            event.preventDefault();
+
+            const comment = {
+                id: Date.now(),
+                bookId: bookId,
+                name: document.getElementById('commentName').value,
+                rating: parseInt(document.getElementById('commentRating').value),
+                text: document.getElementById('commentText').value,
+                date: new Date().toLocaleDateString('es-ES')
+            };
+
+            let comments = JSON.parse(localStorage.getItem('bookComments')) || [];
+            comments.push(comment);
+            localStorage.setItem('bookComments', JSON.stringify(comments));
+
+            document.getElementById('commentName').value = '';
+            document.getElementById('commentRating').value = '5';
+            document.getElementById('commentText').value = '';
+
+            loadComments();
+        }
+
+        function loadComments() {
+            const comments = JSON.parse(localStorage.getItem('bookComments')) || [];
+            const bookComments = comments.filter(c => c.bookId === bookId);
+            const commentsList = document.getElementById('commentsList');
+
+            if (bookComments.length === 0) {
+                commentsList.innerHTML = '<div class="empty-comments"><p>No hay comentarios aún. ¡Sé el primero en comentar!</p></div>';
+                return;
+            }
+
+            commentsList.innerHTML = bookComments.map(comment => `
+                <div class="comment">
+                    <div class="comment-header">
+                        <span class="comment-author">${comment.name}</span>
+                        <span class="comment-date">${comment.date}</span>
+                    </div>
+                    <div class="comment-rating">${'⭐'.repeat(comment.rating)}</div>
+                    <div class="comment-text">${comment.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function goHome() {
+            window.location.href = 'https://paulaandreacruz.github.io/editorial_fontana/';
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+
+</body>
+</html>
