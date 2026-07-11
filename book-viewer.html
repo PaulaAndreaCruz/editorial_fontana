@@ -747,51 +747,13 @@
             </div>
         </div>
 
-        <!-- PDF VIEWER (FLIP BOOK STYLE) -->
+        <!-- PDF VIEWER (FLIPBOOK.JS - FLIP BOOK PROFESIONAL) -->
         <div class="pdf-viewer-section">
             <h2 class="section-title">📖 Leer Libro</h2>
             
-            <!-- CONTROLES DE ZOOM -->
-            <div class="pdf-zoom-controls">
-                <button class="zoom-btn" onclick="zoomOut()" title="Alejar (−)">🔍−</button>
-                <span class="zoom-level" id="zoomLevel">100%</span>
-                <button class="zoom-btn" onclick="zoomIn()" title="Acercar (+)">🔍+</button>
-                <button class="zoom-btn" onclick="resetZoom()" title="Restablecer (↺)">↺</button>
-            </div>
-            
-            <div class="pdf-viewer-container">
-                <div class="flipbook-wrapper">
-                    <div class="flipbook-spine"></div>
-                    <div class="pages-container">
-                        <!-- PÁGINA IZQUIERDA -->
-                        <div class="page-side page-left">
-                            <div class="pdf-canvas-wrapper">
-                                <canvas id="pdfCanvasLeft" class="pdf-canvas"></canvas>
-                                <div class="pdf-page-number" id="pageNumberLeft">1</div>
-                            </div>
-                        </div>
-
-                        <!-- PÁGINA DERECHA -->
-                        <div class="page-side page-right">
-                            <div class="pdf-canvas-wrapper">
-                                <canvas id="pdfCanvasRight" class="pdf-canvas"></canvas>
-                                <div class="pdf-page-number" id="pageNumberRight">2</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pdf-controls">
-                <button class="pdf-btn" id="prevBtn" onclick="previousPage()">← Página Anterior</button>
-                
-                <div class="pdf-info">
-                    <span>Página</span>
-                    <input type="number" id="pageNum" class="page-input" value="1" onchange="goToPage()">
-                    <span>de <span id="totalPages">0</span></span>
-                </div>
-
-                <button class="pdf-btn" id="nextBtn" onclick="nextPage()">Página Siguiente →</button>
+            <!-- CONTENEDOR PARA FLIPBOOK.JS -->
+            <div id="flipbook-container" style="width: 100%; max-width: 100%; height: 700px; margin: 2rem auto;">
+                <div id="flipbook" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
 
@@ -988,10 +950,11 @@
 
         async function loadPdf(pdfData) {
             try {
+                console.log('Iniciando carga de PDF con FlipBook.js...');
+                
                 // Convertir base64 de vuelta a ArrayBuffer
                 let pdfArrayBuffer;
                 if (typeof pdfData === 'string') {
-                    // Es una cadena base64
                     const binaryString = atob(pdfData);
                     const bytes = new Uint8Array(binaryString.length);
                     for (let i = 0; i < binaryString.length; i++) {
@@ -1002,12 +965,138 @@
                     pdfArrayBuffer = pdfData;
                 }
 
+                // Cargar PDF con PDF.js
                 const pdf = await pdfjsLib.getDocument(pdfArrayBuffer).promise;
                 pdfDoc = pdf;
+                console.log('PDF cargado:', pdf.numPages, 'páginas');
+
+                // Convertir cada página a imagen
+                const pageImages = [];
+                const renderPromises = [];
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    renderPromises.push(
+                        (async () => {
+                            try {
+                                const page = await pdf.getPage(pageNum);
+                                const canvas = document.createElement('canvas');
+                                const context = canvas.getContext('2d');
+                                const viewport = page.getViewport({ scale: 2 });
+
+                                canvas.width = viewport.width;
+                                canvas.height = viewport.height;
+
+                                await page.render({
+                                    canvasContext: context,
+                                    viewport: viewport
+                                }).promise;
+
+                                const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                                pageImages[pageNum - 1] = imageDataUrl;
+                                console.log('Página', pageNum, 'renderizada');
+                            } catch (error) {
+                                console.error('Error renderizando página', pageNum, ':', error);
+                            }
+                        })()
+                    );
+                }
+
+                // Esperar a que se rendericen todas las páginas
+                await Promise.all(renderPromises);
+                console.log('Todas las páginas renderizadas:', pageImages.length);
+
+                // Inicializar FlipBook.js
+                initFlipBook(pageImages);
                 document.getElementById('totalPages').textContent = pdf.numPages;
-                renderPages(1);  // Renderizar páginas 1 y 2 al inicio
+
             } catch (error) {
                 console.error('Error cargando PDF:', error);
+                document.querySelector('#flipbook-container').innerHTML = '<div style="padding: 2rem; color: #ff6666; text-align: center;">Error al cargar el libro: ' + error.message + '</div>';
+            }
+        }
+
+        function initFlipBook(pageImages) {
+            try {
+                console.log('Inicializando FlipBook con', pageImages.length, 'imágenes');
+                
+                // Crear contenedor HTML con las imágenes
+                const flipbookDiv = document.getElementById('flipbook');
+                flipbookDiv.innerHTML = '';
+
+                // Agregar imágenes al contenedor
+                pageImages.forEach((imgUrl, index) => {
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'page';
+                    pageDiv.style.backgroundImage = `url('${imgUrl}')`;
+                    pageDiv.style.backgroundSize = 'cover';
+                    pageDiv.style.backgroundPosition = 'center';
+                    pageDiv.dataset.pageNumber = index + 1;
+                    flipbookDiv.appendChild(pageDiv);
+                });
+
+                // Configuración de FlipBook.js
+                const flipbook = new FlipBook({
+                    container: '#flipbook',
+                    pages: pageImages,
+                    width: 600,
+                    height: 700,
+                    autosize: true,
+                    maxShadowOpacity: 0.5,
+                    showCover: true,
+                    startPage: 1,
+                    acceleration: 0.04,
+                    page_width: 400,
+                    page_height: 500,
+                    hard_cover: true,
+                    hard_cover_top_size: 5,
+                    hard_cover_back_size: 3,
+                    book_binding: 20,
+                    swipe_min_distance: 50,
+                    swipe_max_distance: 400,
+                    elevation: 2
+                });
+
+                console.log('FlipBook inicializado correctamente');
+                return flipbook;
+
+            } catch (error) {
+                console.error('Error inicializando FlipBook:', error);
+                // Si FlipBook.js no está disponible, usar fallback
+                console.log('FlipBook.js no disponible, usando visualización alternativa');
+                createFallbackViewer(pageImages);
+            }
+        }
+
+        function createFallbackViewer(pageImages) {
+            // Fallback si FlipBook.js no está disponible
+            const container = document.getElementById('flipbook-container');
+            container.innerHTML = `
+                <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <img id="fallbackImage" src="${pageImages[0]}" style="width: 100%; height: auto; display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f5f5f5;">
+                        <button onclick="prevFallback()" style="padding: 8px 16px; background: #0099ff; color: white; border: none; border-radius: 4px; cursor: pointer;">← Anterior</button>
+                        <span id="fallbackPageInfo">Página 1 de ${pageImages.length}</span>
+                        <button onclick="nextFallback()" style="padding: 8px 16px; background: #0099ff; color: white; border: none; border-radius: 4px; cursor: pointer;">Siguiente →</button>
+                    </div>
+                </div>
+            `;
+            window.fallbackPageIndex = 0;
+            window.fallbackPageImages = pageImages;
+        }
+
+        function prevFallback() {
+            if (window.fallbackPageIndex > 0) {
+                window.fallbackPageIndex--;
+                document.getElementById('fallbackImage').src = window.fallbackPageImages[window.fallbackPageIndex];
+                document.getElementById('fallbackPageInfo').textContent = `Página ${window.fallbackPageIndex + 1} de ${window.fallbackPageImages.length}`;
+            }
+        }
+
+        function nextFallback() {
+            if (window.fallbackPageIndex < window.fallbackPageImages.length - 1) {
+                window.fallbackPageIndex++;
+                document.getElementById('fallbackImage').src = window.fallbackPageImages[window.fallbackPageIndex];
+                document.getElementById('fallbackPageInfo').textContent = `Página ${window.fallbackPageIndex + 1} de ${window.fallbackPageImages.length}`;
             }
         }
 
