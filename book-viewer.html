@@ -711,17 +711,26 @@
         </div>
 
         <!-- AUTHOR BIO -->
+        <!-- MODAL PARA ZOOM DE FOTO DEL AUTOR -->
+        <div id="photoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 1000; align-items: center; justify-content: center;">
+            <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center;">
+                <button onclick="closePhotoModal()" style="position: absolute; top: 20px; right: 20px; background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 1001; width: 50px; height: 50px;">✕</button>
+                <img id="modalPhotoImg" style="max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 10px; box-shadow: 0 0 50px rgba(0, 212, 255, 0.8);">
+            </div>
+        </div>
+
         <div class="author-section">
             <h2 class="section-title">👤 Acerca del Autor</h2>
             <div class="author-container">
-                <div class="author-photo-wrapper">
-                    <img id="authorPhoto" src="" alt="Foto del Autor" style="display: none;">
-                    <span id="authorPhotoPlaceholder">📷 Sin foto</span>
+                <div class="author-photo-wrapper" onclick="openPhotoModal()" style="cursor: pointer; transition: all 0.3s ease;">
+                    <img id="authorPhoto" src="" alt="Foto del Autor" style="display: none; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <span id="authorPhotoPlaceholder" style="transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">📷 Sin foto</span>
                 </div>
                 <div class="author-info">
                     <div class="author-content" id="authorBio">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                     </div>
+                    <p style="margin-top: 1rem; font-size: 0.85rem; color: #00d4ff;">💡 Click en la foto para ampliarla</p>
                 </div>
             </div>
         </div>
@@ -740,21 +749,13 @@
             
             <div class="pdf-viewer-container">
                 <div class="flipbook-wrapper">
-                    <div class="flipbook-spine"></div>
-                    <div class="pages-container">
-                        <!-- PÁGINA IZQUIERDA -->
-                        <div class="page-side page-left">
+                    <div class="flipbook-spine" style="display: none;"></div>
+                    <div class="pages-container" style="display: flex; justify-content: center; align-items: center;">
+                        <!-- PÁGINA ÚNICA -->
+                        <div class="page-side" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
                             <div class="pdf-canvas-wrapper">
-                                <canvas id="pdfCanvasLeft" class="pdf-canvas"></canvas>
-                                <div class="pdf-page-number" id="pageNumberLeft">1</div>
-                            </div>
-                        </div>
-
-                        <!-- PÁGINA DERECHA -->
-                        <div class="page-side page-right">
-                            <div class="pdf-canvas-wrapper">
-                                <canvas id="pdfCanvasRight" class="pdf-canvas"></canvas>
-                                <div class="pdf-page-number" id="pageNumberRight">2</div>
+                                <canvas id="pdfCanvas" class="pdf-canvas"></canvas>
+                                <div class="pdf-page-number" id="pageNumber">1</div>
                             </div>
                         </div>
                     </div>
@@ -1017,69 +1018,76 @@
             document.getElementById('zoomLevel').textContent = currentZoom + '%';
         }
 
-        async function renderPages(leftPageNum) {
+        // ==================== MODAL DE FOTO DEL AUTOR ==================== //
+        function openPhotoModal() {
+            const photoImg = document.getElementById('authorPhoto');
+            if (photoImg.style.display !== 'none' && photoImg.src) {
+                const modal = document.getElementById('photoModal');
+                const modalImg = document.getElementById('modalPhotoImg');
+                modalImg.src = photoImg.src;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePhotoModal();
+            }
+        });
+
+        // Cerrar modal al hacer click fuera de la imagen
+        document.getElementById('photoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePhotoModal();
+            }
+        });
+
+        async function renderPages(pageNum) {
             if (pageRendering) {
-                pageNumPending = leftPageNum;
+                pageNumPending = pageNum;
                 return;
             }
 
             pageRendering = true;
             
-            // Aplicar animación de flip solo si hay cambio de página
+            // Aplicar animación de flip
             const pagesContainer = document.querySelector('.pages-container');
-            pagesContainer.style.animation = 'none'; // Reset
+            pagesContainer.style.animation = 'none';
             
-            // Forzar reflow para que la animación se reinicie
+            // Forzar reflow
             void pagesContainer.offsetWidth;
             
             if (lastFlipDirection === 'forward') {
-                pagesContainer.style.animation = 'pageFlipForward 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                pagesContainer.style.animation = 'pageFlipForward 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
             } else if (lastFlipDirection === 'backward') {
-                pagesContainer.style.animation = 'pageFlipBackward 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                pagesContainer.style.animation = 'pageFlipBackward 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
             }
             
             try {
-                // Renderizar página izquierda
-                if (leftPageNum >= 1 && leftPageNum <= pdfDoc.numPages) {
-                    const leftPage = await pdfDoc.getPage(leftPageNum);
-                    const leftCanvas = document.getElementById('pdfCanvasLeft');
-                    const leftContext = leftCanvas.getContext('2d');
-                    const leftViewport = leftPage.getViewport({ scale: 2 });
+                // Renderizar página actual
+                if (pageNum >= 1 && pageNum <= pdfDoc.numPages) {
+                    const page = await pdfDoc.getPage(pageNum);
+                    const canvas = document.getElementById('pdfCanvas');
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 2 });
 
-                    leftCanvas.width = leftViewport.width;
-                    leftCanvas.height = leftViewport.height;
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
 
-                    await leftPage.render({
-                        canvasContext: leftContext,
-                        viewport: leftViewport
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
                     }).promise;
 
-                    document.getElementById('pageNumberLeft').textContent = leftPageNum;
-                }
-
-                // Renderizar página derecha
-                const rightPageNum = leftPageNum + 1;
-                if (rightPageNum >= 1 && rightPageNum <= pdfDoc.numPages) {
-                    const rightPage = await pdfDoc.getPage(rightPageNum);
-                    const rightCanvas = document.getElementById('pdfCanvasRight');
-                    const rightContext = rightCanvas.getContext('2d');
-                    const rightViewport = rightPage.getViewport({ scale: 2 });
-
-                    rightCanvas.width = rightViewport.width;
-                    rightCanvas.height = rightViewport.height;
-
-                    await rightPage.render({
-                        canvasContext: rightContext,
-                        viewport: rightViewport
-                    }).promise;
-
-                    document.getElementById('pageNumberRight').textContent = rightPageNum;
-                } else {
-                    // Limpiar canvas derecho si no hay página
-                    const rightCanvas = document.getElementById('pdfCanvasRight');
-                    const rightContext = rightCanvas.getContext('2d');
-                    rightContext.clearRect(0, 0, rightCanvas.width, rightCanvas.height);
-                    document.getElementById('pageNumberRight').textContent = '';
+                    document.getElementById('pageNumber').textContent = pageNum;
                 }
 
                 pageRendering = false;
@@ -1089,7 +1097,7 @@
                     pageNumPending = null;
                 }
 
-                document.getElementById('pageNum').value = leftPageNum;
+                document.getElementById('pageNum').value = pageNum;
                 updateButtons();
             } catch (error) {
                 console.error('Error renderizando páginas:', error);
@@ -1098,20 +1106,19 @@
         }
 
         function nextPage() {
-            // Avanzar 2 páginas (izquierda + derecha)
-            if (pageNum + 1 < pdfDoc.numPages) {
+            // Avanzar 1 página
+            if (pageNum < pdfDoc.numPages) {
                 lastFlipDirection = 'forward';
-                pageNum += 2;
+                pageNum += 1;
                 renderPages(pageNum);
             }
         }
 
         function previousPage() {
-            // Retroceder 2 páginas
+            // Retroceder 1 página
             if (pageNum > 1) {
                 lastFlipDirection = 'backward';
-                pageNum -= 2;
-                if (pageNum < 1) pageNum = 1;
+                pageNum -= 1;
                 renderPages(pageNum);
             }
         }
