@@ -621,8 +621,9 @@
             }
 
             try {
-                const fileData = await readFileAsDataURL(file);
-                const pdf = await pdfjsLib.getDocument(fileData).promise;
+                // Primera lectura: Para procesar con PDF.js
+                const fileDataForPdf = await readFileAsDataURL(file);
+                const pdf = await pdfjsLib.getDocument(fileDataForPdf).promise;
                 
                 // Extraer primera página como portada
                 const firstPage = await pdf.getPage(1);
@@ -635,8 +636,9 @@
                 await firstPage.render({ canvasContext: context, viewport }).promise;
                 const coverImage = canvas.toDataURL('image/jpeg', 0.8);
 
-                // Convertir ArrayBuffer a base64 para guardar en localStorage
-                const pdfBase64 = arrayBufferToBase64(fileData);
+                // Segunda lectura: Para convertir a base64 y guardar
+                const fileDataForStorage = await readFileAsDataURL(file);
+                const pdfBase64 = arrayBufferToBase64(fileDataForStorage);
 
                 currentPdfData = {
                     pdf: pdfBase64,  // Guardamos como base64 string
