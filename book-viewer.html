@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editorial Fontana - Lector Premium</title>
 
-    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
-
-    <!-- StPageFlip -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip@latest/dist/page-flip.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/page-flip@latest/dist/page-flip.min.js"></script>
 
     <style>
         * {
@@ -31,12 +26,11 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 100%);
             color: #e0e0e0;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* ============ CONTROL BAR ============ */
         .control-bar {
             background: rgba(10, 14, 39, 0.95);
             backdrop-filter: blur(20px);
@@ -56,8 +50,8 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: 0.5px;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .controls-group {
@@ -74,7 +68,7 @@
             color: #00d4ff;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
@@ -87,7 +81,6 @@
             box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
         }
 
-        /* ============ READER CONTAINER ============ */
         .reader-wrapper {
             flex: 1;
             display: flex;
@@ -99,24 +92,25 @@
             overflow: hidden;
         }
 
-        .book-viewer-container {
+        .book-container {
             position: relative;
             width: 100%;
             height: 100%;
             max-width: 1000px;
             max-height: 700px;
             perspective: 1500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* BOOK SHADOW & LIGHTING */
         .book-wrapper {
             position: relative;
             width: 100%;
             height: 100%;
             filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6))
                     drop-shadow(0 0 40px rgba(0, 212, 255, 0.1));
-            transform-style: preserve-3d;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.3s ease;
         }
 
         .book-wrapper:hover {
@@ -124,7 +118,6 @@
                     drop-shadow(0 0 60px rgba(0, 212, 255, 0.15));
         }
 
-        /* BOOK SPINE GLOW */
         .book-wrapper::before {
             content: '';
             position: absolute;
@@ -132,15 +125,11 @@
             top: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(to bottom, 
-                transparent 0%, 
-                rgba(0, 212, 255, 0.6) 50%, 
-                transparent 100%);
+            background: linear-gradient(to bottom, transparent 0%, rgba(0, 212, 255, 0.6) 50%, transparent 100%);
             z-index: 10;
             box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
         }
 
-        /* BOOK CONTENT */
         .book-content {
             width: 100%;
             height: 100%;
@@ -148,35 +137,24 @@
             border-radius: 4px;
             overflow: hidden;
             display: flex;
-            box-shadow: 
-                inset 0 1px 3px rgba(255, 255, 255, 0.3),
-                inset 0 -1px 3px rgba(0, 0, 0, 0.2);
+            gap: 0;
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.3);
         }
 
-        #book {
-            width: 100%;
+        .page-wrapper {
+            flex: 1;
             height: 100%;
-        }
-
-        .page {
-            width: 100%;
-            height: 100%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
             overflow: hidden;
+            background: white;
         }
 
-        .page canvas,
-        .page img {
+        .page-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: contain;
         }
 
-        /* ============ NAVIGATION BAR (SINGLE) ============ */
         .nav-bar {
             background: rgba(10, 14, 39, 0.95);
             backdrop-filter: blur(20px);
@@ -205,7 +183,7 @@
             min-width: 160px;
         }
 
-        .nav-btn:hover {
+        .nav-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
         }
@@ -217,12 +195,12 @@
             opacity: 0.5;
         }
 
-        .page-indicator {
+        .page-info {
             text-align: center;
-            min-width: 250px;
+            min-width: 280px;
         }
 
-        .page-indicator .current-page {
+        .page-info .current {
             font-size: 1.3rem;
             font-weight: 700;
             background: linear-gradient(135deg, #00d4ff, #00ff88);
@@ -231,106 +209,28 @@
             background-clip: text;
         }
 
-        .page-indicator .page-total {
+        .page-info .total {
             font-size: 0.9rem;
             color: #a0a0a0;
             margin-top: 0.3rem;
         }
 
-        /* ============ RESPONSIVE ============ */
-        @media (max-width: 1024px) {
-            .reader-wrapper {
-                padding: 1.5rem;
-            }
-
-            .control-bar,
-            .nav-bar {
-                padding: 0.8rem 1.5rem;
-            }
-
-            .control-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 1rem;
-            }
-
-            .nav-btn {
-                padding: 0.7rem 1.5rem;
-                min-width: 140px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .reader-wrapper {
-                padding: 1rem;
-            }
-
-            .book-viewer-container {
-                max-width: 90vw;
-                max-height: 60vh;
-            }
-
-            .control-bar {
-                flex-wrap: wrap;
-                gap: 1rem;
-                height: auto;
-                padding: 0.8rem 1rem;
-            }
-
-            .book-title {
-                font-size: 1rem;
-                order: -1;
-                width: 100%;
-            }
-
-            .controls-group {
-                justify-content: center;
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
-
-            .control-btn {
-                width: 36px;
-                height: 36px;
-            }
-
-            .nav-bar {
-                padding: 1rem;
-                gap: 1rem;
-                flex-wrap: wrap;
-                height: auto;
-            }
-
-            .nav-btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.85rem;
-                min-width: 120px;
-            }
-
-            .page-indicator {
-                min-width: 100%;
-                order: -1;
-            }
-        }
-
-        /* ============ LOADING ============ */
-        .loading-overlay {
+        .loading {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(10, 14, 39, 0.9);
-            backdrop-filter: blur(10px);
+            background: rgba(10, 14, 39, 0.95);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
-            flex-direction: column;
             gap: 2rem;
+            z-index: 2000;
         }
 
-        .loading-spinner {
+        .spinner {
             width: 60px;
             height: 60px;
             border: 4px solid rgba(0, 212, 255, 0.2);
@@ -343,86 +243,114 @@
             to { transform: rotate(360deg); }
         }
 
-        .loading-text {
-            font-size: 1.2rem;
-            color: #00d4ff;
-            font-weight: 700;
-            letter-spacing: 2px;
+        @media (max-width: 768px) {
+            .control-bar {
+                flex-wrap: wrap;
+                gap: 1rem;
+                height: auto;
+                padding: 0.8rem 1rem;
+            }
+
+            .book-title {
+                font-size: 1rem;
+                width: 100%;
+                order: -1;
+            }
+
+            .controls-group {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .reader-wrapper {
+                padding: 1rem;
+            }
+
+            .book-container {
+                max-width: 90vw;
+                max-height: 50vh;
+            }
+
+            .book-content {
+                flex-direction: column;
+            }
+
+            .page-wrapper:last-child {
+                display: none;
+            }
+
+            .nav-bar {
+                flex-wrap: wrap;
+                gap: 1rem;
+                height: auto;
+                padding: 1rem;
+            }
+
+            .nav-btn {
+                padding: 0.6rem 1.2rem;
+                min-width: 120px;
+                font-size: 0.9rem;
+            }
+
+            .page-info {
+                min-width: 100%;
+                order: -1;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- LOADING OVERLAY -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Preparando libro...</div>
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div style="color: #00d4ff; font-weight: 700; font-size: 1.1rem;">Preparando libro...</div>
     </div>
 
-    <!-- CONTROL BAR -->
     <div class="control-bar">
         <div class="book-title" id="bookTitle">Cargando...</div>
         <div class="controls-group">
             <button class="control-btn" onclick="zoomOut()" title="Alejar">🔍−</button>
-            <span id="zoomPercent" style="color: #a0a0a0; font-weight: 700; min-width: 60px; text-align: center;">100%</span>
-            <button class="control-btn" onclick="zoomReset()" title="Zoom normal">⟳</button>
+            <span id="zoomLevel" style="color: #a0a0a0; font-weight: 700; min-width: 60px; text-align: center;">100%</span>
+            <button class="control-btn" onclick="zoomReset()" title="Normal">↺</button>
             <button class="control-btn" onclick="zoomIn()" title="Acercar">🔍+</button>
             <button class="control-btn" onclick="toggleFullscreen()" title="Pantalla completa">⛶</button>
-            <button class="control-btn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
+            <button class="control-btn" onclick="toggleDarkMode()" title="Tema">🌙</button>
         </div>
     </div>
 
-    <!-- READER -->
     <div class="reader-wrapper">
-        <div class="book-viewer-container">
+        <div class="book-container">
             <div class="book-wrapper">
                 <div class="book-content">
-                    <div id="book"></div>
+                    <div class="page-wrapper" id="leftPage"></div>
+                    <div class="page-wrapper" id="rightPage"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- NAVIGATION BAR (SINGLE) -->
     <div class="nav-bar">
         <button class="nav-btn" id="prevBtn" onclick="previousPage()">← Anterior</button>
-        <div class="page-indicator">
-            <div class="current-page">
-                Página <span id="currentPageNum">1</span> − <span id="totalPageNum">0</span>
-            </div>
-            <div class="page-total" id="pageRange">Página 1 - 2 de 20</div>
+        <div class="page-info">
+            <div class="current">Página <span id="pageNum">1</span> − <span id="pageTotal">0</span></div>
+            <div class="total" id="pageRange">Página 1 - 2 de 20</div>
         </div>
         <button class="nav-btn" id="nextBtn" onclick="nextPage()">Siguiente →</button>
     </div>
 
     <script>
-        // ==================== GLOBAL STATE ====================
-        let pdfDoc = null;
-        let pageFlip = null;
-        let db = null;
-        let currentBook = null;
-        let currentZoom = 100;
-        let pageImages = [];
-        let isDarkMode = true;
-
+        let pdfDoc = null, db = null, currentBook = null, pageImages = [], currentPage = 0, currentZoom = 100;
         const urlParams = new URLSearchParams(window.location.search);
         const bookId = parseInt(urlParams.get('id'));
 
-        // ==================== INDEXEDDB ====================
         async function initDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open('EditorialFontana', 2);
-                
                 request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    const database = event.target.result;
-                    if (!database.objectStoreNames.contains('books')) {
-                        database.createObjectStore('books', { keyPath: 'id' });
-                    }
+                request.onsuccess = () => { db = request.result; resolve(db); };
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains('books')) database.createObjectStore('books', { keyPath: 'id' });
                     if (!database.objectStoreNames.contains('comments')) {
                         const commentsStore = database.createObjectStore('comments', { keyPath: 'id' });
                         commentsStore.createIndex('bookId', 'bookId', { unique: false });
@@ -431,219 +359,88 @@
             });
         }
 
-        async function getBookFromDB(id) {
+        async function getBook(id) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['books'], 'readonly');
-                const store = transaction.objectStore('books');
-                const request = store.get(id);
-                
+                const request = transaction.objectStore('books').get(id);
                 request.onsuccess = () => resolve(request.result);
                 request.onerror = () => reject(request.error);
             });
         }
 
-        // ==================== PDF RENDERING ====================
-        async function renderPDFPages(pdfData) {
+        async function renderPDF(pdfData) {
             try {
                 const binaryString = atob(pdfData.split(',')[1] || pdfData);
                 const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-
+                for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
                 pdfDoc = await pdfjsLib.getDocument(bytes.buffer).promise;
                 pageImages = [];
-
-                // Renderizar cada página a imagen
-                const renderPromises = [];
                 for (let i = 1; i <= pdfDoc.numPages; i++) {
-                    renderPromises.push(
-                        (async () => {
-                            const page = await pdfDoc.getPage(i);
-                            const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('2d');
-                            const viewport = page.getViewport({ scale: 2 });
-
-                            canvas.width = viewport.width;
-                            canvas.height = viewport.height;
-
-                            await page.render({
-                                canvasContext: context,
-                                viewport: viewport
-                            }).promise;
-
-                            pageImages[i - 1] = canvas.toDataURL('image/jpeg', 0.95);
-                        })()
-                    );
+                    const page = await pdfDoc.getPage(i);
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 2 });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+                    pageImages.push(canvas.toDataURL('image/jpeg', 0.95));
                 }
-
-                await Promise.all(renderPromises);
-                initPageFlip();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('pageTotal').textContent = pageImages.length;
+                updatePages();
             } catch (error) {
-                console.error('Error renderizando PDF:', error);
-                showError('Error al cargar el PDF');
+                document.getElementById('loading').innerHTML = '<div style="color: #ff6b6b; font-size: 1.5rem;">Error cargando PDF</div>';
             }
         }
 
-        // ==================== PAGEFLIP INITIALIZATION ====================
-        function initPageFlip() {
-            const bookDiv = document.getElementById('book');
-            bookDiv.innerHTML = '';
-
-            // Crear divs de página
-            pageImages.forEach((imgUrl, index) => {
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'page';
-                pageDiv.dataset.pageNumber = index + 1;
-                
-                const img = document.createElement('img');
-                img.src = imgUrl;
-                pageDiv.appendChild(img);
-                bookDiv.appendChild(pageDiv);
-            });
-
-            // Configurar PageFlip
-            setTimeout(() => {
-                try {
-                    pageFlip = new PageFlip(bookDiv, {
-                        width: 600,
-                        height: 700,
-                        size: 'stretch',
-                        minWidth: 300,
-                        maxWidth: 1000,
-                        minHeight: 400,
-                        maxHeight: 900,
-                        maxShadowOpacity: 0.5,
-                        showCover: true,
-                        autoSize: true,
-                        useMouseEvents: true,
-                        swipeDistance: 50,
-                        clickEventForward: true,
-                        hardCovers: true,
-                        softPages: true,
-                        realisticShadows: true
-                    });
-
-                    pageFlip.on('flip', (object) => {
-                        updatePageIndicator(object.data);
-                    });
-
-                    document.getElementById('loadingOverlay').style.display = 'none';
-                    updatePageIndicator(0);
-                } catch (error) {
-                    console.error('Error PageFlip:', error);
-                    showError('Error al inicializar el visor');
-                }
-            }, 100);
+        function updatePages() {
+            const leftIdx = currentPage;
+            const rightIdx = currentPage + 1;
+            document.getElementById('leftPage').innerHTML = leftIdx < pageImages.length ? `<img src="${pageImages[leftIdx]}">` : '';
+            document.getElementById('rightPage').innerHTML = rightIdx < pageImages.length ? `<img src="${pageImages[rightIdx]}">` : '';
+            document.getElementById('pageNum').textContent = (leftIdx + 1);
+            document.getElementById('pageRange').textContent = `Página ${leftIdx + 1}${rightIdx < pageImages.length ? ' - ' + (rightIdx + 1) : ''} de ${pageImages.length}`;
+            document.getElementById('prevBtn').disabled = leftIdx === 0;
+            document.getElementById('nextBtn').disabled = rightIdx >= pageImages.length;
         }
 
-        // ==================== PAGE NAVIGATION ====================
-        function previousPage() {
-            if (pageFlip) {
-                pageFlip.turnToPrevPage();
-            }
-        }
-
-        function nextPage() {
-            if (pageFlip) {
-                pageFlip.turnToNextPage();
-            }
-        }
-
-        function updatePageIndicator(pageNum) {
-            if (!pageFlip) return;
-
-            const currentPage = pageNum + 1;
-            const totalPages = pageImages.length;
-            const leftPage = currentPage;
-            const rightPage = currentPage + 1;
-
-            document.getElementById('currentPageNum').textContent = leftPage;
-            document.getElementById('totalPageNum').textContent = totalPages;
-            document.getElementById('pageRange').textContent = 
-                `Página ${leftPage}${rightPage <= totalPages ? ' − ' + rightPage : ''} de ${totalPages}`;
-
-            document.getElementById('prevBtn').disabled = currentPage <= 1;
-            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
-        }
-
-        // ==================== ZOOM ====================
-        function zoomIn() {
-            currentZoom = Math.min(currentZoom + 25, 300);
-            applyZoom();
-        }
-
-        function zoomOut() {
-            currentZoom = Math.max(currentZoom - 25, 50);
-            applyZoom();
-        }
-
-        function zoomReset() {
-            currentZoom = 100;
-            applyZoom();
-        }
-
+        function previousPage() { if (currentPage > 0) { currentPage -= 2; if (currentPage < 0) currentPage = 0; updatePages(); } }
+        function nextPage() { if (currentPage + 2 < pageImages.length) { currentPage += 2; updatePages(); } }
+        function zoomIn() { currentZoom = Math.min(currentZoom + 25, 300); applyZoom(); }
+        function zoomOut() { currentZoom = Math.max(currentZoom - 25, 50); applyZoom(); }
+        function zoomReset() { currentZoom = 100; applyZoom(); }
         function applyZoom() {
-            const container = document.querySelector('.book-viewer-container');
+            const container = document.querySelector('.book-container');
             container.style.transform = `scale(${currentZoom / 100})`;
-            document.getElementById('zoomPercent').textContent = currentZoom + '%';
+            document.getElementById('zoomLevel').textContent = currentZoom + '%';
         }
-
-        // ==================== FULLSCREEN ====================
         function toggleFullscreen() {
-            const readerWrapper = document.querySelector('.reader-wrapper');
             if (!document.fullscreenElement) {
-                readerWrapper.requestFullscreen().catch(err => {
-                    console.error('Error fullscreen:', err);
-                });
+                document.querySelector('.reader-wrapper').requestFullscreen().catch(err => {});
             } else {
                 document.exitFullscreen();
             }
         }
-
-        // ==================== DARK MODE ====================
         function toggleDarkMode() {
-            isDarkMode = !isDarkMode;
-            document.body.style.background = isDarkMode 
-                ? 'linear-gradient(135deg, #0a0e27 0%, #1a1a2e 100%)' 
+            document.body.style.background = document.body.style.background.includes('#f5f5f5')
+                ? 'linear-gradient(135deg, #0a0e27 0%, #1a1a2e 100%)'
                 : 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)';
         }
 
-        // ==================== ERROR ====================
-        function showError(message) {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.innerHTML = `<div style="color: #ff6b6b; font-size: 1.5rem; font-weight: 700;">${message}</div>`;
-        }
-
-        // ==================== LOAD BOOK ====================
-        async function loadBook() {
+        async function init() {
             try {
                 await initDB();
-                const book = await getBookFromDB(bookId);
-
-                if (!book) {
-                    showError('Libro no encontrado');
-                    return;
-                }
-
+                const book = await getBook(bookId);
+                if (!book) throw new Error('Libro no encontrado');
                 currentBook = book;
-                document.getElementById('bookTitle').textContent = book.title || 'Sin Título';
-                
-                if (book.pdf) {
-                    await renderPDFPages(book.pdf);
-                } else {
-                    showError('PDF no disponible');
-                }
+                document.getElementById('bookTitle').textContent = book.title;
+                if (book.pdf) await renderPDF(book.pdf);
             } catch (error) {
-                console.error('Error:', error);
-                showError('Error cargando el libro: ' + error.message);
+                document.getElementById('loading').innerHTML = `<div style="color: #ff6b6b;">${error.message}</div>`;
             }
         }
 
-        // ==================== INIT ====================
-        window.addEventListener('load', loadBook);
-
-        // Teclado
+        window.addEventListener('load', init);
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') previousPage();
             if (e.key === 'ArrowRight') nextPage();
