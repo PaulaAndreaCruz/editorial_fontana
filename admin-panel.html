@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editorial Fontana - Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -35,9 +36,6 @@
         }
 
         .header h1 {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
             color: #00ff88;
             font-size: 2rem;
         }
@@ -50,7 +48,6 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.9rem;
         }
 
         .section {
@@ -66,9 +63,6 @@
             color: #00d4ff;
             font-size: 1.3rem;
             margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
         .upload-area {
@@ -95,17 +89,6 @@
         .upload-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
-        }
-
-        .upload-text {
-            font-size: 1.1rem;
-            color: #e0e0e0;
-            margin-bottom: 0.5rem;
-        }
-
-        .upload-hint {
-            font-size: 0.85rem;
-            color: #a0a0a0;
         }
 
         #pdfInput {
@@ -201,6 +184,29 @@
             margin-bottom: 1.5rem;
         }
 
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-item {
+            text-align: center;
+        }
+
+        .preview-item h4 {
+            color: #00d4ff;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-item img {
+            max-width: 100%;
+            border-radius: 8px;
+            max-height: 200px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -227,7 +233,16 @@
             background: rgba(0, 212, 255, 0.05);
         }
 
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
         @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
             .header {
                 flex-direction: column;
                 gap: 1rem;
@@ -249,45 +264,59 @@
 
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('pdfInput').click();">
                 <div class="upload-icon">📄</div>
-                <div class="upload-text">Arrastra tu PDF aquí o haz clic para seleccionar</div>
-                <div class="upload-hint">Formato: PDF | Tamaño máximo: 100MB</div>
+                <div>Arrastra tu PDF aquí o haz clic para seleccionar</div>
+                <div style="font-size: 0.85rem; color: #a0a0a0;">Formato: PDF | Los datos se extraen automáticamente</div>
                 <input type="file" id="pdfInput" accept=".pdf" onchange="handleFileUpload(event)">
             </div>
 
             <div id="previewContainer">
-                <div class="form-group">
-                    <label>📚 Título del Libro *</label>
-                    <input type="text" id="bookTitle" placeholder="Ej: La Voz del Silencio">
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <h4>Portada (1ª página)</h4>
+                        <canvas id="coverPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px;"></canvas>
+                    </div>
+                    <div class="preview-item">
+                        <h4>Última página (Autor)</h4>
+                        <canvas id="authorPagePreview" style="max-width: 100%; max-height: 200px; border-radius: 8px;"></canvas>
+                    </div>
+                </div>
+
+                <div class="two-columns">
+                    <div class="form-group">
+                        <label>📚 Título del Libro *</label>
+                        <input type="text" id="bookTitle" placeholder="Extraído del PDF o editar">
+                    </div>
+
+                    <div class="form-group">
+                        <label>✍️ Autor *</label>
+                        <input type="text" id="bookAuthor" placeholder="Extraído de última página o editar">
+                    </div>
+                </div>
+
+                <div class="two-columns">
+                    <div class="form-group">
+                        <label>📅 Año de Publicación *</label>
+                        <input type="number" id="bookYear" placeholder="2024">
+                    </div>
+
+                    <div class="form-group">
+                        <label>🏷️ Género Literario *</label>
+                        <select id="bookGenre">
+                            <option value="">Seleccionar género...</option>
+                            <option value="poesia">Poesía</option>
+                            <option value="narrativa">Narrativa</option>
+                            <option value="ensayo">Ensayo</option>
+                            <option value="cuento">Cuento</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label>✍️ Autor *</label>
-                    <input type="text" id="bookAuthor" placeholder="Ej: María Fernández">
-                </div>
-
-                <div class="form-group">
-                    <label>📅 Año de Publicación</label>
-                    <input type="number" id="bookYear" placeholder="2024">
-                </div>
-
-                <div class="form-group">
-                    <label>🏷️ Género</label>
-                    <select id="bookGenre">
-                        <option value="">Seleccionar género...</option>
-                        <option value="Poesía">Poesía</option>
-                        <option value="Narrativa">Narrativa</option>
-                        <option value="Ensayo">Ensayo</option>
-                        <option value="Investigación">Investigación</option>
-                        <option value="Otro">Otro</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>📝 Descripción</label>
+                    <label>📝 Descripción (Opcional)</label>
                     <textarea id="bookDescription" placeholder="Breve descripción del libro..."></textarea>
                 </div>
 
-                <button id="saveBtn" onclick="saveBook()">✅ Guardar Libro</button>
+                <button id="saveBtn" onclick="saveBook()" style="width: 100%;">✅ Guardar Libro en Supabase</button>
             </div>
         </div>
 
@@ -316,14 +345,19 @@
     </div>
 
     <script>
+        // ⚙️ CONFIGURACIÓN SUPABASE
         const SUPABASE_URL = 'https://dkvadgydaiaxvtzjblpd.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ';
 
         const { createClient } = window.supabase;
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // Configurar worker de PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
         let currentPDF = null;
         let currentFileName = null;
+        let currentCoverImage = null;
 
         async function init() {
             setupUploadArea();
@@ -361,28 +395,61 @@
             }
 
             try {
-                showAlert('⏳ Preparando PDF...', 'info');
-                const fileName = `${Date.now()}_${file.name}`;
-                currentFileName = fileName;
+                showAlert('⏳ Analizando PDF y extrayendo datos...', 'info');
+                
                 currentPDF = file;
+                currentFileName = `${Date.now()}_${file.name}`;
+
+                // Extraer datos del PDF
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+
+                // Extraer portada (primera página)
+                const firstPage = await pdf.getPage(1);
+                const coverCanvas = document.getElementById('coverPreview');
+                const context = coverCanvas.getContext('2d');
+                const viewport = firstPage.getViewport({ scale: 1 });
+                coverCanvas.width = viewport.width;
+                coverCanvas.height = viewport.height;
+                await firstPage.render({ canvasContext: context, viewport: viewport }).promise;
+                currentCoverImage = coverCanvas.toDataURL('image/png');
+
+                // Extraer última página (autor)
+                const lastPage = await pdf.getPage(pdf.numPages);
+                const authorCanvas = document.getElementById('authorPagePreview');
+                const authorContext = authorCanvas.getContext('2d');
+                const authorViewport = lastPage.getViewport({ scale: 1 });
+                authorCanvas.width = authorViewport.width;
+                authorCanvas.height = authorViewport.height;
+                await lastPage.render({ canvasContext: authorContext, viewport: authorViewport }).promise;
+
+                // Extraer texto de última página
+                const textContent = await lastPage.getTextContent();
+                const text = textContent.items.map(item => item.str).join(' ');
+                const authorMatch = text.match(/(?:autor|author|por):\s*([^\n]+)/i) || text.split('\n').slice(-3);
+                const extractedAuthor = authorMatch ? (typeof authorMatch === 'string' ? authorMatch : authorMatch[1] || authorMatch[0]).trim() : 'Autor desconocido';
+                
+                document.getElementById('bookAuthor').value = extractedAuthor.substring(0, 100);
+                document.getElementById('bookTitle').value = file.name.replace('.pdf', '').substring(0, 100);
+
+                // Mostrar formulario
                 document.getElementById('previewContainer').style.display = 'block';
-                showAlert('✅ PDF cargado. Completa los datos y guarda.', 'success');
+                showAlert('✅ PDF analizado. Completa los datos faltantes.', 'success');
+                
             } catch (error) {
-                showAlert('❌ Error: ' + error.message, 'error');
+                showAlert('❌ Error analizando PDF: ' + error.message, 'error');
+                console.error(error);
             }
         }
 
         async function saveBook() {
-            if (!currentPDF) {
-                showAlert('Por favor sube un PDF primero', 'error');
-                return;
-            }
-
             const title = document.getElementById('bookTitle').value.trim();
             const author = document.getElementById('bookAuthor').value.trim();
+            const year = document.getElementById('bookYear').value;
+            const genre = document.getElementById('bookGenre').value;
             
-            if (!title || !author) {
-                showAlert('Por favor completa título y autor', 'error');
+            if (!title || !author || !year || !genre) {
+                showAlert('Por favor completa todos los campos requeridos (*)', 'error');
                 return;
             }
 
@@ -392,32 +459,36 @@
             try {
                 showAlert('⏳ Subiendo PDF a Supabase...', 'info');
 
+                // Subir PDF a Storage
                 const { data: uploadData, error: uploadError } = await supabase.storage
                     .from('pdfs')
                     .upload(`public/${currentFileName}`, currentPDF);
 
                 if (uploadError) throw uploadError;
 
+                // Obtener URL pública del PDF
                 const { data: publicUrlData } = supabase.storage
                     .from('pdfs')
                     .getPublicUrl(`public/${currentFileName}`);
 
                 const pdfUrl = publicUrlData.publicUrl;
 
+                // Guardar metadatos en tabla
                 const { data, error } = await supabase.from('libros').insert([{
                     titulo: title,
                     autor: author,
-                    año: document.getElementById('bookYear').value || null,
-                    genero: document.getElementById('bookGenre').value || '',
+                    año: parseInt(year),
+                    genero: genre,
                     descripcion: document.getElementById('bookDescription').value || '',
                     pdf_url: pdfUrl,
-                    portada_url: 'https://via.placeholder.com/200x300.png?text=Portada'
+                    portada_url: currentCoverImage
                 }]);
 
                 if (error) throw error;
 
                 showAlert('✅ Libro guardado exitosamente en Supabase', 'success');
                 
+                // Resetear formulario
                 document.getElementById('pdfInput').value = '';
                 document.getElementById('previewContainer').style.display = 'none';
                 document.getElementById('bookTitle').value = '';
@@ -427,10 +498,12 @@
                 document.getElementById('bookDescription').value = '';
                 currentPDF = null;
                 currentFileName = null;
+                currentCoverImage = null;
 
                 loadBooks();
             } catch (error) {
                 showAlert('❌ Error: ' + error.message, 'error');
+                console.error(error);
             } finally {
                 saveBtn.disabled = false;
             }
@@ -459,7 +532,7 @@
                         <td>${book.año || '-'}</td>
                         <td>${book.genero || '-'}</td>
                         <td>
-                            <button onclick="deleteBook('${book.id}')" style="background: linear-gradient(135deg, #ff6b6b, #ff8787); padding: 0.5rem 1rem; font-size: 0.8rem;">🗑️ Eliminar</button>
+                            <button onclick="deleteBook('${book.id}')" style="background: linear-gradient(135deg, #ff6b6b, #ff8787); padding: 0.5rem 1rem; font-size: 0.8rem;">🗑️</button>
                         </td>
                     </tr>
                 `).join('');
@@ -473,13 +546,8 @@
             if (!confirm('¿Eliminar este libro?')) return;
 
             try {
-                const { error } = await supabase
-                    .from('libros')
-                    .delete()
-                    .eq('id', id);
-
+                const { error } = await supabase.from('libros').delete().eq('id', id);
                 if (error) throw error;
-
                 showAlert('✅ Libro eliminado', 'success');
                 loadBooks();
             } catch (error) {
@@ -493,7 +561,6 @@
             alert.className = `alert ${type}`;
             alert.textContent = message;
             container.appendChild(alert);
-
             setTimeout(() => alert.remove(), 4000);
         }
 
