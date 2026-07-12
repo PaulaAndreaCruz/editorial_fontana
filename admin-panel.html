@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración | Editorial Fontana</title>
+    <title>Editorial Fontana - Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -12,11 +13,11 @@
         }
 
         body {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
             color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            padding: 2rem 1rem;
+            padding: 2rem;
         }
 
         .container {
@@ -29,62 +30,41 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.2);
         }
 
-        h1 {
-            color: #00d4ff;
-            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        .header h1 {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: #00ff88;
+            font-size: 2rem;
         }
 
-        .btn-logout {
-            background: linear-gradient(135deg, #ff6b6b, #ff4444);
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ff8787);
             color: white;
             border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-logout:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-        }
-
-        .alert {
-            padding: 1rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 8px;
-            margin-bottom: 1.5rem;
-            font-weight: bold;
-        }
-
-        .alert-error {
-            background: rgba(255, 107, 107, 0.2);
-            border: 1px solid #ff6b6b;
-            color: #ff6b6b;
-        }
-
-        .alert-success {
-            background: rgba(0, 255, 136, 0.2);
-            border: 1px solid #00ff88;
-            color: #00ff88;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
         }
 
         .section {
-            background: rgba(26, 31, 58, 0.8);
+            background: rgba(30, 41, 82, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.2);
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 2rem;
-            border: 1px solid rgba(0, 212, 255, 0.2);
             backdrop-filter: blur(10px);
         }
 
         .section-title {
             color: #00d4ff;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
@@ -94,21 +74,22 @@
         .upload-area {
             border: 2px dashed #00d4ff;
             border-radius: 12px;
-            padding: 2rem;
+            padding: 3rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
             background: rgba(0, 212, 255, 0.05);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
         }
 
         .upload-area:hover {
-            background: rgba(0, 212, 255, 0.1);
-            border-color: #00b8d4;
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
         }
 
         .upload-area.dragover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: #00b8d4;
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.2);
         }
 
         .upload-icon {
@@ -117,13 +98,14 @@
         }
 
         .upload-text {
-            color: #a0a0a0;
+            font-size: 1.1rem;
+            color: #e0e0e0;
             margin-bottom: 0.5rem;
         }
 
         .upload-hint {
             font-size: 0.85rem;
-            color: #666;
+            color: #a0a0a0;
         }
 
         #pdfInput {
@@ -136,30 +118,27 @@
 
         label {
             display: block;
+            color: #00ff88;
+            font-weight: 700;
             margin-bottom: 0.5rem;
-            color: #00d4ff;
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 0.75rem;
-            background: rgba(10, 14, 39, 0.8);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 6px;
-            color: #e0e0e0;
-            font-family: inherit;
             font-size: 0.9rem;
         }
 
-        input[type="text"]:focus,
-        textarea:focus,
-        select:focus {
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: #00d4ff;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.1);
         }
 
         textarea {
@@ -167,281 +146,190 @@
             min-height: 100px;
         }
 
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.75rem;
+        button {
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            color: #0a0e27;
             border: none;
-            border-radius: 6px;
-            font-weight: bold;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 700;
             cursor: pointer;
+            font-size: 1rem;
             transition: all 0.3s ease;
-            min-height: 44px;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #0a0e27;
-        }
-
-        .btn-primary:hover:not(:disabled) {
+        button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
         }
 
-        .btn-secondary {
-            background: linear-gradient(135deg, #00ff88, #00cc66);
-            color: #0a0e27;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
-        }
-
-        .btn:disabled {
+        button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .books-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .book-card {
-            background: rgba(10, 14, 39, 0.5);
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .book-card:hover {
-            transform: translateY(-5px);
-            border-color: #00d4ff;
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
-        }
-
-        .book-cover {
-            width: 100%;
-            height: 250px;
-            background: linear-gradient(135deg, #0066ff, #00d4ff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: white;
-            overflow: hidden;
-        }
-
-        .book-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .book-info {
+        .alert {
             padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
         }
 
-        .book-title {
+        .alert.success {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .alert.error {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .alert.info {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
             color: #00d4ff;
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-            font-size: 0.9rem;
         }
 
-        .book-author {
-            color: #a0a0a0;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
+        #previewContainer {
+            display: none;
+            background: rgba(0, 212, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
         }
 
-        .book-actions {
-            display: flex;
-            gap: 0.5rem;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
         }
 
-        .btn-small {
-            flex: 1;
-            padding: 0.5rem;
-            font-size: 0.8rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        table thead {
+            background: rgba(0, 212, 255, 0.1);
         }
 
-        .btn-edit {
-            background: #00d4ff;
-            color: #0a0e27;
-            font-weight: bold;
+        table th {
+            padding: 1rem;
+            text-align: left;
+            color: #00d4ff;
+            font-weight: 700;
         }
 
-        .btn-delete {
-            background: #ff6b6b;
-            color: white;
-            font-weight: bold;
+        table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
         }
 
-        .btn-small:hover {
-            transform: scale(1.05);
+        table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
         }
 
         @media (max-width: 768px) {
-            .section {
-                padding: 1rem;
-            }
-
-            .button-group {
+            .header {
                 flex-direction: column;
-            }
-
-            .books-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <h1>🔐 Panel de Administración</h1>
-            <button class="btn-logout" onclick="logout()">CERRAR SESIÓN</button>
+            <button class="logout-btn" onclick="logout()">CERRAR SESIÓN</button>
         </div>
 
-        <!-- Alerts -->
         <div id="alertContainer"></div>
 
-        <!-- Upload Section -->
         <div class="section">
-            <div class="section-title">📤 Agregar Libro desde Google Drive</div>
+            <div class="section-title">📤 Subir Libro PDF desde tu PC</div>
 
-            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <div class="form-group">
-                    <label style="color: #00ff88; font-weight: 700; margin-bottom: 0.5rem; display: block;">📎 URL de Google Drive</label>
-                    <input type="text" id="driveUrl" placeholder="Pega aquí: https://drive.google.com/file/d/ABC123xyz/view" style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: #e0e0e0; font-size: 0.95rem;">
-                    <p style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.5rem;">
-                        ℹ️ <strong>Cómo obtener la URL:</strong><br>
-                        1. Abre Google Drive → click derecho en PDF → "Obtener enlace"<br>
-                        2. Asegúrate que sea "Acceso de lectura para todos los que tengan el enlace"<br>
-                        3. Copia el enlace completo y pégalo aquí
-                    </p>
-                </div>
-                <button onclick="loadGoogleDrivePDF()" style="width: 100%; padding: 0.8rem; background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0e27; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 1rem;">
-                    ✅ Cargar PDF desde Google Drive
-                </button>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('pdfInput').click();">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Arrastra tu PDF aquí o haz clic para seleccionar</div>
+                <div class="upload-hint">Formato: PDF | Tamaño máximo: 100MB</div>
+                <input type="file" id="pdfInput" accept=".pdf" onchange="handleFileUpload(event)">
             </div>
 
-            <div id="previewContainer" style="display: none; margin-top: 1.5rem;">
+            <div id="previewContainer">
                 <div class="form-group">
-                    <label>Portada (Extraída automáticamente)</label>
-                    <div style="width: 150px; height: 200px; background: #1a1f3a; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                        <img id="coverPreview" style="max-width: 100%; max-height: 100%; border-radius: 8px;">
-                    </div>
+                    <label>📚 Título del Libro *</label>
+                    <input type="text" id="bookTitle" placeholder="Ej: La Voz del Silencio">
                 </div>
 
                 <div class="form-group">
-                    <label>Foto del Autor (Última página del PDF)</label>
-                    <div style="width: 150px; height: 150px; background: linear-gradient(135deg, #0066ff, #00d4ff); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                        <img id="authorPhotoPreview" style="max-width: 100%; max-height: 100%; object-fit: cover;">
-                        <div id="authorPhotoPlaceholder" style="font-size: 2rem;">👤</div>
-                    </div>
-                    <p style="color: #00ff88; font-size: 0.85rem; margin-top: 0.5rem;">✅ Foto extraída de la última página del PDF</p>
+                    <label>✍️ Autor *</label>
+                    <input type="text" id="bookAuthor" placeholder="Ej: María Fernández">
                 </div>
 
                 <div class="form-group">
-                    <label>Título</label>
-                    <input type="text" id="bookTitle" placeholder="Título del libro">
+                    <label>📅 Año de Publicación</label>
+                    <input type="number" id="bookYear" placeholder="2024">
                 </div>
 
                 <div class="form-group">
-                    <label>Autor</label>
-                    <input type="text" id="bookAuthor" placeholder="Nombre del autor">
+                    <label>🏷️ Género</label>
+                    <select id="bookGenre">
+                        <option value="">Seleccionar género...</option>
+                        <option value="Poesía">Poesía</option>
+                        <option value="Narrativa">Narrativa</option>
+                        <option value="Ensayo">Ensayo</option>
+                        <option value="Investigación">Investigación</option>
+                        <option value="Otro">Otro</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Año</label>
-                    <input type="text" id="bookYear" placeholder="2024">
+                    <label>📝 Descripción</label>
+                    <textarea id="bookDescription" placeholder="Breve descripción del libro..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label>Género</label>
-                    <input type="text" id="bookGenre" placeholder="Ejemplo: Ficción, Poesía, etc.">
-                </div>
-
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <textarea id="bookDescription" placeholder="Descripción del libro y biografía del autor..."></textarea>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn btn-primary" id="btnSave" onclick="saveBook()">💾 Guardar Libro</button>
-                    <button class="btn btn-primary" onclick="cancelUpload()" style="background: linear-gradient(135deg, #ff6b6b, #ff4444); color: white;">❌ Cancelar</button>
-                </div>
+                <button id="saveBtn" onclick="saveBook()">✅ Guardar Libro</button>
             </div>
         </div>
 
-        <!-- Books List -->
         <div class="section">
             <div class="section-title">📚 Libros Guardados</div>
-            <div class="books-grid" id="booksContainer">
-                <p style="color: #a0a0a0; text-align: center; grid-column: 1/-1;">Cargando libros...</p>
+            
+            <div id="booksContainer" style="overflow-x: auto;">
+                <table id="booksTable">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Autor</th>
+                            <th>Año</th>
+                            <th>Género</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="booksBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #a0a0a0;">Cargando libros...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        let db = null;
+        const SUPABASE_URL = 'https://dkvadgydaiaxvtzjblpd.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ';
+
+        const { createClient } = window.supabase;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let currentPDF = null;
-        let currentCover = null;
-        let currentAuthorPhoto = null;
-        let totalPages = 0;
+        let currentFileName = null;
 
-        // Inicializar
         async function init() {
-            await initDB();
-            loadBooks();
             setupUploadArea();
+            loadBooks();
         }
 
-        // Inicializar IndexedDB
-        async function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('EditorialFontana', 2);
-                request.onerror = () => {
-                    console.error('Error abriendo IndexedDB:', request.error);
-                    reject(request.error);
-                };
-                request.onsuccess = () => {
-                    db = request.result;
-                    console.log('✅ IndexedDB inicializado');
-                    resolve();
-                };
-                request.onupgradeneeded = (e) => {
-                    const database = e.target.result;
-                    if (!database.objectStoreNames.contains('books')) {
-                        database.createObjectStore('books', { keyPath: 'id' });
-                        console.log('✅ Tabla books creada');
-                    }
-                    if (!database.objectStoreNames.contains('comments')) {
-                        const commentsStore = database.createObjectStore('comments', { keyPath: 'id' });
-                        commentsStore.createIndex('bookId', 'bookId', { unique: false });
-                        console.log('✅ Tabla comments creada');
-                    }
-                };
-            });
-        }
-
-        // Setup drag & drop
         function setupUploadArea() {
             const uploadArea = document.getElementById('uploadArea');
             uploadArea.addEventListener('dragover', (e) => {
@@ -454,93 +342,15 @@
             uploadArea.addEventListener('drop', (e) => {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleFile(files[0]);
+                if (e.dataTransfer.files.length > 0) {
+                    handleFile(e.dataTransfer.files[0]);
                 }
             });
         }
 
-        // Manejar archivo
         async function handleFileUpload(event) {
             if (event.target.files.length > 0) {
                 handleFile(event.target.files[0]);
-            }
-        }
-
-        // Cargar PDF desde Google Drive
-        async function loadGoogleDrivePDF() {
-            const driveUrl = document.getElementById('driveUrl').value.trim();
-            
-            if (!driveUrl) {
-                showAlert('Por favor pega una URL de Google Drive', 'error');
-                return;
-            }
-            
-            try {
-                // Extraer ID del archivo de la URL
-                let fileId = null;
-                const match = driveUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-                if (match) {
-                    fileId = match[1];
-                } else {
-                    throw new Error('URL de Google Drive inválida. Asegúrate de usar el formato correcto.');
-                }
-                
-                showAlert('⏳ Cargando PDF desde Google Drive...', 'info');
-                
-                // URL de descarga directa de Google Drive
-                const googleDriveUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
-                
-                // Lista de proxies CORS para intentar
-                const proxies = [
-                    `https://corsproxy.io/?${encodeURIComponent(googleDriveUrl)}`,
-                    `https://api.allorigins.win/raw?url=${encodeURIComponent(googleDriveUrl)}`,
-                    googleDriveUrl  // Intentar directo también
-                ];
-                
-                let arrayBuffer = null;
-                let lastError = null;
-                
-                // Intentar con cada proxy
-                for (let i = 0; i < proxies.length; i++) {
-                    try {
-                        console.log(`Intento ${i + 1}: ${proxies[i].substring(0, 50)}...`);
-                        
-                        const response = await fetch(proxies[i], {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/pdf',
-                                'Cache-Control': 'no-cache'
-                            },
-                            timeout: 30000
-                        });
-                        
-                        if (response.ok) {
-                            arrayBuffer = await response.arrayBuffer();
-                            console.log('✅ Descarga exitosa en intento', i + 1);
-                            break;
-                        }
-                    } catch (e) {
-                        lastError = e;
-                        console.warn(`Proxy ${i + 1} falló:`, e.message);
-                        if (i < proxies.length - 1) {
-                            showAlert(`⏳ Intento ${i + 1} falló, reintenando...`, 'info');
-                        }
-                    }
-                }
-                
-                if (!arrayBuffer) {
-                    throw new Error(`No se pudo descargar el PDF después de ${proxies.length} intentos. Verifica que:\n1. El enlace sea correcto\n2. El PDF esté compartido públicamente\n3. Sea un PDF real`);
-                }
-                
-                currentPDF = googleDriveUrl;
-                await extractPDFInfo(arrayBuffer, fileId);
-                document.getElementById('previewContainer').style.display = 'block';
-                
-            } catch (error) {
-                showAlert('❌ Error: ' + error.message, 'error');
-                console.error(error);
             }
         }
 
@@ -551,222 +361,148 @@
             }
 
             try {
-                showAlert('Procesando PDF...', 'success');
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const pdfData = e.target.result;
-                    currentPDF = pdfData;
-                    await extractPDFInfo(pdfData);
-                    document.getElementById('previewContainer').style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+                showAlert('⏳ Preparando PDF...', 'info');
+                const fileName = `${Date.now()}_${file.name}`;
+                currentFileName = fileName;
+                currentPDF = file;
+                document.getElementById('previewContainer').style.display = 'block';
+                showAlert('✅ PDF cargado. Completa los datos y guarda.', 'success');
             } catch (error) {
-                showAlert('Error al procesar PDF: ' + error.message, 'error');
+                showAlert('❌ Error: ' + error.message, 'error');
             }
         }
 
-        // Extraer info del PDF
-        async function extractPDFInfo(pdfData, fileId = null) {
-            try {
-                let arrayBuffer;
-                
-                // Soportar tanto ArrayBuffer (Google Drive) como base64 string
-                if (pdfData instanceof ArrayBuffer) {
-                    arrayBuffer = pdfData;
-                } else if (typeof pdfData === 'string') {
-                    const binaryString = atob(pdfData.split(',')[1]);
-                    const bytes = new Uint8Array(binaryString.length);
-                    for (let i = 0; i < binaryString.length; i++) {
-                        bytes[i] = binaryString.charCodeAt(i);
-                    }
-                    arrayBuffer = bytes.buffer;
-                } else {
-                    throw new Error('Formato de PDF no soportado');
-                }
-
-                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-                totalPages = pdf.numPages;
-
-                // Primera página (portada)
-                const firstPage = await pdf.getPage(1);
-                const canvas1 = document.createElement('canvas');
-                const ctx1 = canvas1.getContext('2d');
-                const viewport1 = firstPage.getViewport({ scale: 1 });
-                canvas1.width = viewport1.width;
-                canvas1.height = viewport1.height;
-                await firstPage.render({ canvasContext: ctx1, viewport: viewport1 }).promise;
-                currentCover = canvas1.toDataURL('image/jpeg', 0.9);
-                document.getElementById('coverPreview').src = currentCover;
-
-                // Última página (foto del autor)
-                const lastPage = await pdf.getPage(totalPages);
-                const canvas2 = document.createElement('canvas');
-                const ctx2 = canvas2.getContext('2d');
-                const viewport2 = lastPage.getViewport({ scale: 1 });
-                canvas2.width = viewport2.width;
-                canvas2.height = viewport2.height;
-                await lastPage.render({ canvasContext: ctx2, viewport: viewport2 }).promise;
-                currentAuthorPhoto = canvas2.toDataURL('image/jpeg', 0.9);
-                document.getElementById('authorPhotoPreview').src = currentAuthorPhoto;
-                document.getElementById('authorPhotoPlaceholder').style.display = 'none';
-
-                showAlert('✅ PDF cargado correctamente desde ' + (fileId ? 'Google Drive' : 'archivo local'), 'success');
-            } catch (error) {
-                showAlert('Error extrayendo info del PDF: ' + error.message, 'error');
-                console.error(error);
-            }
-        }
-
-        // Guardar libro
         async function saveBook() {
+            if (!currentPDF) {
+                showAlert('Por favor sube un PDF primero', 'error');
+                return;
+            }
+
             const title = document.getElementById('bookTitle').value.trim();
             const author = document.getElementById('bookAuthor').value.trim();
-            const year = document.getElementById('bookYear').value.trim();
-            const genre = document.getElementById('bookGenre').value.trim();
-            const description = document.getElementById('bookDescription').value.trim();
-
-            if (!title || !author || !currentPDF) {
-                showAlert('Por favor completa los campos obligatorios', 'error');
+            
+            if (!title || !author) {
+                showAlert('Por favor completa título y autor', 'error');
                 return;
             }
 
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+
             try {
-                const book = {
-                    id: Date.now(),
-                    title, author, year, genre, description,
-                    pdf: currentPDF,
-                    cover: currentCover,
-                    authorPhoto: currentAuthorPhoto,
-                    pages: totalPages,
-                    createdAt: new Date().toISOString()
-                };
+                showAlert('⏳ Subiendo PDF a Supabase...', 'info');
 
-                const transaction = db.transaction(['books'], 'readwrite');
-                const store = transaction.objectStore('books');
-                store.add(book);
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('pdfs')
+                    .upload(`public/${currentFileName}`, currentPDF);
 
-                await new Promise((resolve, reject) => {
-                    transaction.oncomplete = () => resolve();
-                    transaction.onerror = () => reject(transaction.error);
-                });
+                if (uploadError) throw uploadError;
 
-                showAlert('✅ Libro guardado correctamente', 'success');
-                cancelUpload();
+                const { data: publicUrlData } = supabase.storage
+                    .from('pdfs')
+                    .getPublicUrl(`public/${currentFileName}`);
+
+                const pdfUrl = publicUrlData.publicUrl;
+
+                const { data, error } = await supabase.from('libros').insert([{
+                    titulo: title,
+                    autor: author,
+                    año: document.getElementById('bookYear').value || null,
+                    genero: document.getElementById('bookGenre').value || '',
+                    descripcion: document.getElementById('bookDescription').value || '',
+                    pdf_url: pdfUrl,
+                    portada_url: 'https://via.placeholder.com/200x300.png?text=Portada'
+                }]);
+
+                if (error) throw error;
+
+                showAlert('✅ Libro guardado exitosamente en Supabase', 'success');
+                
+                document.getElementById('pdfInput').value = '';
+                document.getElementById('previewContainer').style.display = 'none';
+                document.getElementById('bookTitle').value = '';
+                document.getElementById('bookAuthor').value = '';
+                document.getElementById('bookYear').value = '';
+                document.getElementById('bookGenre').value = '';
+                document.getElementById('bookDescription').value = '';
+                currentPDF = null;
+                currentFileName = null;
+
                 loadBooks();
             } catch (error) {
-                showAlert('❌ Error al guardar: ' + error.message, 'error');
+                showAlert('❌ Error: ' + error.message, 'error');
+            } finally {
+                saveBtn.disabled = false;
             }
         }
 
-        // Cargar libros
         async function loadBooks() {
             try {
-                const transaction = db.transaction(['books'], 'readonly');
-                const store = transaction.objectStore('books');
-                const request = store.getAll();
+                const { data: books, error } = await supabase
+                    .from('libros')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-                request.onsuccess = () => {
-                    const books = request.result;
-                    displayBooks(books);
-                };
+                if (error) throw error;
 
-                request.onerror = () => {
-                    showAlert('Error al cargar libros', 'error');
-                    document.getElementById('booksContainer').innerHTML = '<p style="color: #ff6b6b;">Error al cargar los libros</p>';
-                };
+                const tbody = document.getElementById('booksBody');
+                
+                if (!books || books.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No hay libros. ¡Sube uno ahora!</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = books.map(book => `
+                    <tr>
+                        <td>${book.titulo}</td>
+                        <td>${book.autor}</td>
+                        <td>${book.año || '-'}</td>
+                        <td>${book.genero || '-'}</td>
+                        <td>
+                            <button onclick="deleteBook('${book.id}')" style="background: linear-gradient(135deg, #ff6b6b, #ff8787); padding: 0.5rem 1rem; font-size: 0.8rem;">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `).join('');
             } catch (error) {
-                showAlert('Error: ' + error.message, 'error');
+                console.error('Error cargando libros:', error);
+                document.getElementById('booksBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff6b6b;">Error cargando libros</td></tr>';
             }
         }
 
-        // Mostrar libros
-        function displayBooks(books) {
-            const container = document.getElementById('booksContainer');
-            if (books.length === 0) {
-                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; grid-column: 1/-1;">No hay libros. ¡Sube uno ahora!</p>';
-                return;
-            }
-
-            container.innerHTML = books.map(book => `
-                <div class="book-card">
-                    <div class="book-cover">
-                        ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : '📖'}
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">${book.title}</div>
-                        <div class="book-author">${book.author}</div>
-                        <div class="book-actions">
-                            <button class="btn-small btn-edit" onclick="editBook(${book.id})">✏️ Editar</button>
-                            <button class="btn-small btn-delete" onclick="deleteBook(${book.id})">🗑️ Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Editar libro
-        function editBook(id) {
-            alert('Función de editar en desarrollo');
-        }
-
-        // Eliminar libro
         async function deleteBook(id) {
-            if (!confirm('¿Estás seguro de que quieres eliminar este libro?')) return;
+            if (!confirm('¿Eliminar este libro?')) return;
 
             try {
-                const transaction = db.transaction(['books'], 'readwrite');
-                const store = transaction.objectStore('books');
-                store.delete(id);
+                const { error } = await supabase
+                    .from('libros')
+                    .delete()
+                    .eq('id', id);
 
-                await new Promise((resolve, reject) => {
-                    transaction.oncomplete = () => resolve();
-                    transaction.onerror = () => reject(transaction.error);
-                });
+                if (error) throw error;
 
                 showAlert('✅ Libro eliminado', 'success');
                 loadBooks();
             } catch (error) {
-                showAlert('Error al eliminar: ' + error.message, 'error');
+                showAlert('❌ Error: ' + error.message, 'error');
             }
         }
 
-        // Cancelar subida
-        function cancelUpload() {
-            document.getElementById('previewContainer').style.display = 'none';
-            document.getElementById('pdfInput').value = '';
-            currentPDF = null;
-            currentCover = null;
-            currentAuthorPhoto = null;
-        }
-
-        // Mostrar alerta
         function showAlert(message, type) {
             const container = document.getElementById('alertContainer');
             const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
+            alert.className = `alert ${type}`;
             alert.textContent = message;
             container.appendChild(alert);
-            setTimeout(() => alert.remove(), 5000);
+
+            setTimeout(() => alert.remove(), 4000);
         }
 
-        // Logout
         function logout() {
             localStorage.removeItem('adminLoggedIn');
             window.location.href = 'login-admin.html';
         }
 
-        // Cargar PDF.js
-        if (typeof pdfjsLib === 'undefined') {
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-            script.onload = () => {
-                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                init();
-            };
-            document.head.appendChild(script);
-        } else {
-            init();
-        }
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
