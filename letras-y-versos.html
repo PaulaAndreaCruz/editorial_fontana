@@ -3,479 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="LETRAS Y VERSOS FONTANA - Biblioteca Digital de Poesía, Narrativa y Literatura">
     <title>Letras y Versos Fontana | Biblioteca Digital</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #0a0e27;
-            --secondary: #0f1535;
-            --tertiary: #1a1f3a;
             --accent-cyan: #00d4ff;
-            --accent-blue: #0099ff;
             --accent-green: #00ff88;
-            --text-light: #ffffff;
             --text-main: #e0e0e0;
             --text-secondary: #a0a0a0;
-            --text-muted: #707070;
-            --border-light: rgba(255, 255, 255, 0.08);
-            --glass-bg: rgba(255, 255, 255, 0.02);
         }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: var(--primary);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* ==================== HEADER ==================== */
-        header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            background: rgba(10, 14, 39, 0.85);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-light);
-            padding: 1.2rem 2rem;
-        }
-
-        .header-wrapper {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: 2.5px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-        }
-
-        .nav-back {
-            padding: 0.7rem 1.8rem;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: var(--primary);
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .nav-back:hover {
-            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        /* ==================== HERO SECTION ==================== */
-        .hero {
-            height: 75vh;
-            position: relative;
-            overflow: hidden;
-            margin-top: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .hero-video-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        .hero-video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: #000;
-            display: block;
-        }
-
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, rgba(10, 14, 39, 0.3), rgba(10, 14, 39, 0.6));
-            z-index: 2;
-        }
-
-        .hero-content {
-            text-align: center;
-            animation: fadeInUp 1s ease-out;
-            position: relative;
-            z-index: 10;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hero-tag {
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-        }
-
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1rem;
-            letter-spacing: -1px;
-        }
-
-        .hero-title .accent {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-        }
-
-        /* ==================== LIBRARY SECTION ==================== */
-        .library {
-            padding: 5rem 2rem;
-            background: var(--primary);
-        }
-
-        .library-wrapper {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-tag {
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .section-title .accent {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .section-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .search-box {
-            margin-bottom: 3rem;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 1rem 1.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-light);
-            border-radius: 50px;
-            color: var(--text-main);
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-            background: rgba(0, 212, 255, 0.05);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
-        }
-
-        .filters {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .filter-label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--accent-cyan);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .filter-select {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .filter-select:hover,
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-            background: rgba(0, 212, 255, 0.05);
-        }
-
-        .books-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .book-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-
-        .book-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15);
-            background: rgba(0, 212, 255, 0.02);
-        }
-
-        .book-cover {
-            width: 100%;
-            height: 280px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .book-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .book-info {
-            padding: 1.5rem;
-        }
-
-        .book-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--text-light);
-            line-height: 1.4;
-            min-height: 2.4em;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .book-author {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.8rem;
-        }
-
-        .book-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
-
-        .book-btn {
-            width: 100%;
-            padding: 0.8rem;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: var(--primary);
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .book-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
-        }
-
-        /* ==================== FOOTER ==================== */
-        footer {
-            background: var(--secondary);
-            padding: 3rem 2rem;
-            border-top: 1px solid var(--border-light);
-        }
-
-        .footer-content {
-            max-width: 1600px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .footer-text {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.8;
-        }
-
-        /* ==================== RESPONSIVE ==================== */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: var(--primary); color: var(--text-main); overflow-x: hidden; }
+        header { position: fixed; top: 0; width: 100%; z-index: 1000; background: rgba(10, 14, 39, 0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 1.2rem 2rem; }
+        .header-wrapper { max-width: 1600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: 2.5px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-transform: uppercase; cursor: pointer; }
+        .nav-back { padding: 0.7rem 1.8rem; background: linear-gradient(135deg, var(--accent-cyan), #0099ff); color: var(--primary); border: none; border-radius: 30px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+        .nav-back:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5); }
+        .hero { height: 75vh; position: relative; overflow: hidden; margin-top: 60px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .hero-video-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .hero-video { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(10, 14, 39, 0.3), rgba(10, 14, 39, 0.6)); z-index: 2; }
+        .hero-content { text-align: center; position: relative; z-index: 10; animation: fadeInUp 1s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .hero-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 1rem; }
+        .hero-title { font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 1rem; letter-spacing: -1px; }
+        .hero-title .accent { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; }
+        .library { padding: 5rem 2rem; background: var(--primary); }
+        .library-wrapper { max-width: 1600px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 3rem; }
+        .section-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .section-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
+        .section-title .accent { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .section-subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+        .search-box { margin-bottom: 3rem; }
+        .search-input { width: 100%; padding: 1rem 1.5rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 50px; color: var(--text-main); font-size: 1rem; transition: all 0.3s ease; }
+        .search-input:focus { outline: none; border-color: var(--accent-cyan); background: rgba(0, 212, 255, 0.05); box-shadow: 0 0 20px rgba(0, 212, 255, 0.1); }
+        .filters { display: flex; gap: 1.5rem; margin-bottom: 3rem; flex-wrap: wrap; }
+        .filter-group { flex: 1; min-width: 200px; }
+        .filter-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--accent-cyan); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+        .filter-select { width: 100%; padding: 0.8rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; color: var(--text-main); font-size: 0.95rem; transition: all 0.3s ease; cursor: pointer; }
+        .filter-select:hover, .filter-select:focus { outline: none; border-color: var(--accent-cyan); background: rgba(0, 212, 255, 0.05); }
+        .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+        .book-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.4s; cursor: pointer; backdrop-filter: blur(10px); }
+        .book-card:hover { transform: translateY(-10px); border-color: var(--accent-cyan); box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15); background: rgba(0, 212, 255, 0.02); }
+        .book-cover { width: 100%; height: 280px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: white; overflow: hidden; }
+        .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .book-info { padding: 1.5rem; }
+        .book-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: white; line-height: 1.4; min-height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .book-author { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.8rem; }
+        .book-meta { display: flex; gap: 1rem; font-size: 0.8rem; color: #707070; margin-bottom: 1rem; }
+        .book-btn { width: 100%; padding: 0.8rem; background: linear-gradient(135deg, var(--accent-cyan), #0099ff); color: var(--primary); border: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; }
+        .book-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3); }
+        footer { background: #0f1535; padding: 3rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .footer-content { max-width: 1600px; margin: 0 auto; text-align: center; }
+        .footer-text { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
         @media (max-width: 768px) {
-            .logo {
-                font-size: 1.1rem;
-            }
-
-            .hero-title {
-                font-size: 1.8rem;
-            }
-
-            .hero-subtitle {
-                font-size: 0.95rem;
-            }
-
-            .section-title {
-                font-size: 1.8rem;
-            }
-
-            .books-grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-                gap: 1.5rem;
-            }
-
-            .book-cover {
-                height: 220px;
-            }
-
-            .filters {
-                flex-direction: column;
-            }
-
-            .filter-group {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            header {
-                padding: 1rem;
-            }
-
-            .hero {
-                height: 50vh;
-                margin-top: 50px;
-            }
-
-            .hero-title {
-                font-size: 1.3rem;
-            }
-
-            .library {
-                padding: 2rem 1rem;
-            }
-
-            .section-title {
-                font-size: 1.5rem;
-            }
-
-            .books-grid {
-                grid-template-columns: 1fr;
-            }
+            .hero-title { font-size: 1.8rem; }
+            .section-title { font-size: 1.8rem; }
+            .books-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+            .book-cover { height: 220px; }
+            .filters { flex-direction: column; }
+            .filter-group { width: 100%; }
         }
     </style>
 </head>
 <body>
-
-    <!-- ==================== HEADER ==================== -->
     <header>
         <div class="header-wrapper">
             <div class="logo" onclick="window.location.href='index.html'">EDITORIAL FONTANA</div>
@@ -483,24 +77,13 @@
         </div>
     </header>
 
-    <!-- ==================== HERO SECTION CON VIDEO DE FONDO ==================== -->
     <section class="hero">
-        <!-- VIDEO COMO FONDO ABSOLUTO -->
         <div class="hero-video-bg">
-            <video 
-                class="hero-video" 
-                autoplay 
-                muted 
-                playsinline
-                preload="auto">
+            <video class="hero-video" autoplay muted playsinline preload="auto">
                 <source src="video3.mp4" type="video/mp4">
             </video>
         </div>
-
-        <!-- OVERLAY OSCURO -->
         <div class="hero-overlay"></div>
-
-        <!-- CONTENIDO ENCIMA DEL VIDEO -->
         <div class="hero-content">
             <div class="hero-tag">Sello Editorial</div>
             <h1 class="hero-title">
@@ -512,7 +95,6 @@
         </div>
     </section>
 
-    <!-- ==================== LIBRARY SECTION ==================== -->
     <section class="library">
         <div class="library-wrapper">
             <div class="section-header">
@@ -526,32 +108,17 @@
             </div>
 
             <div class="search-box">
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    placeholder="Busca por título, autor, palabras clave..."
-                    id="searchInput"
-                    onkeyup="filterBooks()"
-                >
+                <input type="text" class="search-input" placeholder="Busca por título, autor..." id="searchInput" onkeyup="filtrar()">
             </div>
 
             <div class="filters">
                 <div class="filter-group">
                     <label class="filter-label">Año</label>
-                    <input 
-                        type="number" 
-                        class="filter-select" 
-                        id="yearFilter" 
-                        placeholder="Ingresa un año"
-                        min="1900"
-                        max="2099"
-                        onchange="filterBooks()"
-                        onkeyup="filterBooks()"
-                    >
+                    <input type="number" class="filter-select" id="yearFilter" placeholder="Año" onchange="filtrar()" onkeyup="filtrar()">
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">Género</label>
-                    <select class="filter-select" id="genreFilter" onchange="filterBooks()">
+                    <select class="filter-select" id="genreFilter" onchange="filtrar()">
                         <option value="">Todos los géneros</option>
                         <option value="poesia">Poesía</option>
                         <option value="narrativa">Narrativa</option>
@@ -569,141 +136,100 @@
         </div>
     </section>
 
-    <!-- ==================== FOOTER ==================== -->
     <footer>
         <div class="footer-content">
             <p class="footer-text">
                 &copy; 2024 EDITORIAL FONTANA - Letras y Versos. Todos los derechos reservados.
             </p>
-            <p class="footer-text" style="font-size: 0.85rem; color: var(--text-muted);">
+            <p class="footer-text" style="font-size: 0.85rem; color: #707070;">
                 Plataforma de contenido literario y académico | Villavicencio, Colombia
             </p>
         </div>
     </footer>
 
     <script>
-        // ==================== SUPABASE ==================== 
-        const SUPABASE_URL = 'https://dkvadgydaiaxvtzjblpd.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ';
+        const supa = window.supabase.createClient(
+            'https://dkvadgydaiaxvtzjblpd.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ'
+        );
 
-        const { createClient } = window.supabase;
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        let todosLibros = [];
 
-        let allBooks = [];
+        async function cargar() {
+            try {
+                const { data: libros, error } = await supa.from('libros').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                todosLibros = libros || [];
+                mostrar(todosLibros);
+            } catch (e) {
+                console.error('Error:', e);
+                document.getElementById('booksGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">Error cargando libros</div>';
+            }
+        }
 
-        function renderBooks(books) {
+        function mostrar(libros) {
             const grid = document.getElementById('booksGrid');
-            grid.innerHTML = '';
-
-            if (books.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">
-                        <p style="font-size: 1.2rem;">No se encontraron resultados</p>
-                        <p style="font-size: 0.95rem; margin-top: 0.5rem;">Intenta con otros términos de búsqueda o filtros</p>
-                    </div>
-                `;
+            if (!libros || libros.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">No hay libros</div>';
                 return;
             }
 
-            books.forEach(book => {
-                const card = document.createElement('div');
-                card.className = 'book-card';
-                card.style.cursor = 'pointer';
-                card.onclick = () => openBook(book.id);
-                
-                const coverHtml = book.portada_url 
-                    ? `<img src="${book.portada_url}" alt="${book.titulo}" style="width: 100%; height: 100%; object-fit: cover;">`
-                    : book.titulo.substring(0, 1);
-                
-                card.innerHTML = `
-                    <div class="book-cover">${coverHtml}</div>
-                    <div class="book-info">
-                        <div class="book-title">${book.titulo}</div>
-                        <div class="book-author">${book.autor}</div>
-                        <div class="book-meta">
-                            <span>📅 ${book.año || 'N/A'}</span>
-                            <span>🏷️ ${book.genero || 'Digital'}</span>
-                        </div>
-                        <button class="book-btn" onclick="event.stopPropagation(); openBook('${book.id}')">Ver Libro</button>
+            grid.innerHTML = libros.map(libro => `
+                <div class="book-card" onclick="abrirLibro('${libro.id}')">
+                    <div class="book-cover">
+                        ${libro.portada_url ? `<img src="${libro.portada_url}" alt="${libro.titulo}">` : libro.titulo.substring(0, 1)}
                     </div>
-                `;
-                grid.appendChild(card);
-            });
+                    <div class="book-info">
+                        <div class="book-title">${libro.titulo}</div>
+                        <div class="book-author">${libro.autor}</div>
+                        <div class="book-meta">
+                            <span>📅 ${libro.año || 'N/A'}</span>
+                            <span>🏷️ ${libro.genero || 'Digital'}</span>
+                        </div>
+                        <button class="book-btn" onclick="event.stopPropagation(); abrirLibro('${libro.id}')">Ver Libro</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function openBook(id) {
-            const book = allBooks.find(b => b.id === id);
-            if (book) {
-                sessionStorage.setItem('currentBook', JSON.stringify(book));
+        function filtrar() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const year = document.getElementById('yearFilter').value;
+            const genre = document.getElementById('genreFilter').value;
+
+            const filtrados = todosLibros.filter(libro => {
+                const matchSearch = libro.titulo.toLowerCase().includes(search) || libro.autor.toLowerCase().includes(search);
+                const matchYear = !year || String(libro.año) === year;
+                const matchGenre = !genre || libro.genero === genre;
+                return matchSearch && matchYear && matchGenre;
+            });
+
+            mostrar(filtrados);
+        }
+
+        function abrirLibro(id) {
+            const libro = todosLibros.find(l => l.id === id);
+            if (libro) {
+                sessionStorage.setItem('currentBook', JSON.stringify(libro));
                 window.location.href = `book-viewer.html?id=${id}`;
             }
         }
 
-        async function loadBooksFromSupabase() {
-            try {
-                const { data: books, error } = await supabase
-                    .from('libros')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                allBooks = books || [];
-                renderBooks(allBooks);
-            } catch (error) {
-                console.error('Error cargando libros:', error);
-                document.getElementById('booksGrid').innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">
-                        <p>Error cargando libros de Supabase</p>
-                    </div>
-                `;
-            }
-        }
-
-        function filterBooks() {
-            const searchText = document.getElementById('searchInput').value.toLowerCase();
-            const yearFilter = document.getElementById('yearFilter').value;
-            const genreFilter = document.getElementById('genreFilter').value;
-
-            const filtered = allBooks.filter(book => {
-                const matchSearch = book.titulo.toLowerCase().includes(searchText) ||
-                                  book.autor.toLowerCase().includes(searchText) ||
-                                  (book.descripcion && book.descripcion.toLowerCase().includes(searchText));
-                const matchYear = !yearFilter || String(book.año) === yearFilter;
-                const matchGenre = !genreFilter || book.genero === genreFilter;
-
-                return matchSearch && matchYear && matchGenre;
-            });
-
-            renderBooks(filtered);
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Cargar libros desde Supabase
-            await loadBooksFromSupabase();
-
-            // Inicializar rotación de videos
+        // Video rotación
+        window.addEventListener('load', () => {
+            cargar();
             const videoElement = document.querySelector('.hero-video');
             const videos = ['video3.mp4', 'video4.mp4'];
             let currentVideoIndex = 0;
-
-            // Reproducir el primer video
             videoElement.src = videos[currentVideoIndex];
             videoElement.play();
-
-            // Cuando el video termine, cambiar al siguiente
             videoElement.addEventListener('ended', () => {
                 currentVideoIndex = (currentVideoIndex + 1) % videos.length;
                 videoElement.src = videos[currentVideoIndex];
                 videoElement.play();
             });
-
-            // También iniciar cuando el DOM esté completamente listo
-            setTimeout(() => {
-                videoElement.play();
-            }, 500);
+            setTimeout(() => videoElement.play(), 500);
         });
     </script>
-
 </body>
 </html>
