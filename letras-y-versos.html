@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="LETRAS Y VERSOS FONTANA - Biblioteca Digital de Poesía, Narrativa y Literatura">
     <title>Letras y Versos Fontana | Biblioteca Digital</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         * {
@@ -237,8 +238,8 @@
 
         .search-input {
             width: 100%;
-            padding: 1.2rem 1.5rem;
-            background: var(--glass-bg);
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-light);
             border-radius: 50px;
             color: var(--text-main);
@@ -249,61 +250,56 @@
         .search-input:focus {
             outline: none;
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .search-input::placeholder {
-            color: var(--text-muted);
+            background: rgba(0, 212, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
         }
 
         .filters {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            display: flex;
+            gap: 1.5rem;
             margin-bottom: 3rem;
+            flex-wrap: wrap;
         }
 
         .filter-group {
-            display: flex;
-            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
         }
 
         .filter-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
             margin-bottom: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: 600;
         }
 
         .filter-select {
-            padding: 0.8rem;
-            background: var(--glass-bg);
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-light);
             border-radius: 8px;
             color: var(--text-main);
-            cursor: pointer;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .filter-select:hover,
         .filter-select:focus {
-            border-color: var(--accent-cyan);
             outline: none;
+            border-color: var(--accent-cyan);
+            background: rgba(0, 212, 255, 0.05);
         }
 
         .books-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 2rem;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            margin-bottom: 3rem;
         }
 
         .book-card {
@@ -311,39 +307,36 @@
             border: 1px solid var(--border-light);
             border-radius: 12px;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            backdrop-filter: blur(10px);
         }
 
         .book-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-10px);
             border-color: var(--accent-cyan);
             box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15);
+            background: rgba(0, 212, 255, 0.02);
         }
 
         .book-cover {
             width: 100%;
             height: 280px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            position: relative;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
             overflow: hidden;
+            position: relative;
         }
 
-        .book-cover::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) translateY(-100%); }
-            100% { transform: translateX(100%) translateY(100%); }
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .book-info {
@@ -354,28 +347,32 @@
             font-size: 1.1rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            line-height: 1.3;
+            color: var(--text-light);
+            line-height: 1.4;
+            min-height: 2.4em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .book-author {
             font-size: 0.9rem;
             color: var(--text-secondary);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .book-meta {
             display: flex;
-            justify-content: space-between;
+            gap: 1rem;
             font-size: 0.8rem;
-            color: var(--text-secondary);
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-light);
+            color: var(--text-muted);
             margin-bottom: 1rem;
         }
 
         .book-btn {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.8rem;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
             color: var(--primary);
             border: none;
@@ -389,82 +386,89 @@
         }
 
         .book-btn:hover {
+            transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
-            transform: scale(1.03);
         }
 
         /* ==================== FOOTER ==================== */
         footer {
+            background: var(--secondary);
             padding: 3rem 2rem;
-            background: var(--tertiary);
             border-top: 1px solid var(--border-light);
-            text-align: center;
-            color: var(--text-secondary);
         }
 
         .footer-content {
             max-width: 1600px;
             margin: 0 auto;
+            text-align: center;
         }
 
         .footer-text {
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
         }
 
         /* ==================== RESPONSIVE ==================== */
         @media (max-width: 768px) {
-            header {
-                padding: 1rem;
-            }
-
-            .hero {
-                height: 60vh;
+            .logo {
+                font-size: 1.1rem;
             }
 
             .hero-title {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
 
-            .filters {
-                grid-template-columns: 1fr;
-            }
-
-            .books-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 1rem;
-            }
-
-            .book-cover {
-                height: 200px;
+            .hero-subtitle {
+                font-size: 0.95rem;
             }
 
             .section-title {
                 font-size: 1.8rem;
             }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .book-cover {
+                height: 220px;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
         }
 
         @media (max-width: 480px) {
-            .hero {
-                height: 50vh;
+            header {
+                padding: 1rem;
             }
 
-            .nav-back {
-                padding: 0.5rem 1rem;
-                font-size: 0.8rem;
+            .hero {
+                height: 50vh;
+                margin-top: 50px;
             }
 
             .hero-title {
+                font-size: 1.3rem;
+            }
+
+            .library {
+                padding: 2rem 1rem;
+            }
+
+            .section-title {
                 font-size: 1.5rem;
             }
 
             .books-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-            }
-
-            .book-info {
-                padding: 0.8rem;
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -474,12 +478,12 @@
     <!-- ==================== HEADER ==================== -->
     <header>
         <div class="header-wrapper">
-            <div class="logo" onclick="window.location.href='https://paulaandreacruz.github.io/editorial_fontana/'">EDITORIAL FONTANA</div>
-            <button class="nav-back" onclick="window.location.href='https://paulaandreacruz.github.io/editorial_fontana/'">← Volver</button>
+            <div class="logo" onclick="window.location.href='index.html'">EDITORIAL FONTANA</div>
+            <button class="nav-back" onclick="window.location.href='index.html'">← Volver</button>
         </div>
     </header>
 
-    <!-- ==================== HERO SECTION ==================== -->
+    <!-- ==================== HERO SECTION CON VIDEO DE FONDO ==================== -->
     <section class="hero">
         <!-- VIDEO COMO FONDO ABSOLUTO -->
         <div class="hero-video-bg">
@@ -558,7 +562,9 @@
             </div>
 
             <div class="books-grid" id="booksGrid">
-                <!-- Los libros se renderizarán aquí -->
+                <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">
+                    <p style="font-size: 1.2rem;">Cargando libros desde Supabase...</p>
+                </div>
             </div>
         </div>
     </section>
@@ -576,9 +582,14 @@
     </footer>
 
     <script>
-        // ==================== BASE DE DATOS DE LIBROS ====================
-        // Base de datos vacía - Solo se cargan libros subidos por admin
-        const booksDatabase = [];
+        // ==================== SUPABASE ==================== 
+        const SUPABASE_URL = 'https://dkvadgydaiaxvtzjblpd.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ';
+
+        const { createClient } = window.supabase;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allBooks = [];
 
         function renderBooks(books) {
             const grid = document.getElementById('booksGrid');
@@ -600,20 +611,20 @@
                 card.style.cursor = 'pointer';
                 card.onclick = () => openBook(book.id);
                 
-                const coverHtml = book.cover 
-                    ? `<img src="${book.cover}" alt="${book.title}" style="width: 100%; height: 100%; object-fit: cover;">`
-                    : `${book.id}`;
+                const coverHtml = book.portada_url 
+                    ? `<img src="${book.portada_url}" alt="${book.titulo}" style="width: 100%; height: 100%; object-fit: cover;">`
+                    : book.titulo.substring(0, 1);
                 
                 card.innerHTML = `
                     <div class="book-cover">${coverHtml}</div>
                     <div class="book-info">
-                        <div class="book-title">${book.title}</div>
-                        <div class="book-author">${book.author}</div>
+                        <div class="book-title">${book.titulo}</div>
+                        <div class="book-author">${book.autor}</div>
                         <div class="book-meta">
-                            <span>${book.year}</span>
-                            <span>${book.pages || 'Digital'}</span>
+                            <span>📅 ${book.año || 'N/A'}</span>
+                            <span>🏷️ ${book.genero || 'Digital'}</span>
                         </div>
-                        <button class="book-btn" onclick="event.stopPropagation(); openBook(${book.id})">Ver Libro</button>
+                        <button class="book-btn" onclick="event.stopPropagation(); openBook('${book.id}')">Ver Libro</button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -621,48 +632,32 @@
         }
 
         function openBook(id) {
-            window.location.href = `book-viewer.html?id=${id}`;
+            const book = allBooks.find(b => b.id === id);
+            if (book) {
+                sessionStorage.setItem('currentBook', JSON.stringify(book));
+                window.location.href = `book-viewer.html?id=${id}`;
+            }
         }
 
-        // ==================== IndexedDB ==================== //
-        let db;
+        async function loadBooksFromSupabase() {
+            try {
+                const { data: books, error } = await supabase
+                    .from('libros')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-        function initIndexedDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('EditorialFontana', 2);
-                
-                request.onerror = () => {
-                    console.error('Error abriendo IndexedDB');
-                    reject(request.error);
-                };
-                
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    db = event.target.result;
-                    if (!db.objectStoreNames.contains('books')) {
-                        db.createObjectStore('books', { keyPath: 'id' });
-                    }
-                    if (!db.objectStoreNames.contains('comments')) {
-                        const commentsStore = db.createObjectStore('comments', { keyPath: 'id' });
-                        commentsStore.createIndex('bookId', 'bookId', { unique: false });
-                    }
-                };
-            });
-        }
+                if (error) throw error;
 
-        function getBooksFromIndexedDB() {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['books'], 'readonly');
-                const objectStore = transaction.objectStore('books');
-                const request = objectStore.getAll();
-                
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => resolve(request.result || []);
-            });
+                allBooks = books || [];
+                renderBooks(allBooks);
+            } catch (error) {
+                console.error('Error cargando libros:', error);
+                document.getElementById('booksGrid').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <p>Error cargando libros de Supabase</p>
+                    </div>
+                `;
+            }
         }
 
         function filterBooks() {
@@ -670,36 +665,22 @@
             const yearFilter = document.getElementById('yearFilter').value;
             const genreFilter = document.getElementById('genreFilter').value;
 
-            // Cargar libros de IndexedDB
-            getBooksFromIndexedDB().then(adminBooks => {
-                const filtered = adminBooks.filter(book => {
-                    const matchSearch = book.title.toLowerCase().includes(searchText) ||
-                                      book.author.toLowerCase().includes(searchText) ||
-                                      (book.description && book.description.toLowerCase().includes(searchText));
-                    const matchYear = !yearFilter || String(book.year) === yearFilter;
-                    const matchGenre = !genreFilter || book.genre === genreFilter;
+            const filtered = allBooks.filter(book => {
+                const matchSearch = book.titulo.toLowerCase().includes(searchText) ||
+                                  book.autor.toLowerCase().includes(searchText) ||
+                                  (book.descripcion && book.descripcion.toLowerCase().includes(searchText));
+                const matchYear = !yearFilter || String(book.año) === yearFilter;
+                const matchGenre = !genreFilter || book.genero === genreFilter;
 
-                    return matchSearch && matchYear && matchGenre;
-                });
-
-                renderBooks(filtered);
-            }).catch(error => {
-                console.error('Error filtrando libros:', error);
+                return matchSearch && matchYear && matchGenre;
             });
-        }
 
-        function viewBook(bookId) {
-            window.location.href = `book-viewer.html?id=${bookId}`;
+            renderBooks(filtered);
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Inicializar IndexedDB
-            await initIndexedDB();
-            
-            // Cargar SOLO libros subidos desde admin panel
-            const adminBooks = await getBooksFromIndexedDB();
-
-            renderBooks(adminBooks);
+            // Cargar libros desde Supabase
+            await loadBooksFromSupabase();
 
             // Inicializar rotación de videos
             const videoElement = document.querySelector('.hero-video');
