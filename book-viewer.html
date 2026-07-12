@@ -3,32 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor de Libro - Editorial Fontana</title>
+    <meta name="description" content="Visualizador de Libro - Editorial Fontana">
+    <title>Libro | Editorial Fontana</title>
+    
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0e27; color: #e0e0e0; font-family: Arial; }
-        header { background: rgba(10, 14, 39, 0.9); border-bottom: 1px solid #00d4ff; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
-        .header-wrapper { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .logo { color: #00ff88; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
-        .btn-back { background: #00d4ff; color: #0a0e27; border: none; padding: 0.8rem 1.5rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .btn-back:hover { opacity: 0.8; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-        .error { background: rgba(255,107,107,0.2); color: #ff6b6b; padding: 2rem; border-radius: 8px; text-align: center; margin-top: 2rem; }
-        .loading { text-align: center; padding: 3rem; color: #a0a0a0; }
-        .book-info { display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-bottom: 3rem; background: rgba(30,41,82,0.6); padding: 2rem; border: 1px solid #00d4ff; border-radius: 8px; }
-        .book-cover { text-align: center; }
-        .book-cover img { max-width: 100%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,212,255,0.2); }
-        .book-details h1 { color: #00ff88; margin-bottom: 1rem; }
-        .book-details p { margin-bottom: 0.8rem; color: #a0a0a0; }
-        .book-details .label { color: #00d4ff; font-weight: bold; }
-        .author-section { margin-top: 2rem; }
-        .author-section h3 { color: #00d4ff; margin-bottom: 1rem; }
-        .author-photo { max-width: 200px; border-radius: 8px; }
-        .pdf-viewer { background: rgba(30,41,82,0.6); padding: 2rem; border: 1px solid #00d4ff; border-radius: 8px; }
-        .pdf-button { background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0e27; border: none; padding: 1rem 2rem; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .pdf-button:hover { opacity: 0.9; }
-        iframe { width: 100%; height: 800px; border: none; border-radius: 4px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0a0e27;
+            --secondary: #0f1535;
+            --tertiary: #1a1f3a;
+            --accent-cyan: #00d4ff;
+            --accent-blue: #0099ff;
+            --accent-green: #00ff88;
+            --text-light: #ffffff;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--primary);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 1.2rem 2rem;
+        }
+
+        .header-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover { transform: scale(1.05); }
+
+        .btn-back {
+            padding: 0.7rem 1.8rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-back:hover { box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4); transform: translateY(-2px); }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .error { background: rgba(255,107,107,0.2); color: #ff6b6b; padding: 2rem; border-radius: 8px; text-align: center; }
+        .loading { text-align: center; padding: 3rem; color: var(--text-secondary); }
+
+        .book-header {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .book-cover-large {
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+        }
+
+        .book-cover-large img { width: 100%; height: 100%; object-fit: cover; }
+
+        .book-details h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2; }
+        .book-author { font-size: 1.1rem; color: var(--accent-cyan); margin-bottom: 1.5rem; font-weight: 600; }
+
+        .book-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+        }
+
+        .meta-item { display: flex; flex-direction: column; }
+        .meta-label { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .meta-value { font-size: 1rem; font-weight: 600; color: var(--text-light); }
+
+        .book-description {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .author-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .author-container {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .author-photo-wrapper {
+            width: 180px;
+            height: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border-light);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .author-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+
+        .pdf-viewer-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .pdf-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-controls button, .zoom-controls button {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-controls button:hover, .zoom-controls button:hover { opacity: 0.8; }
+
+        .pdf-pages { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .page-wrapper { background: white; border-radius: 8px; overflow: hidden; min-height: 500px; display: flex; align-items: center; justify-content: center; }
+        .page-wrapper img { width: 100%; height: 100%; object-fit: contain; }
+
+        @media (max-width: 768px) {
+            .book-header { grid-template-columns: 1fr; }
+            .author-container { grid-template-columns: 1fr; }
+            .pdf-pages { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -40,47 +231,85 @@
     </header>
 
     <div class="container">
-        <div id="loading" class="loading">Cargando libro...</div>
+        <div id="loading" class="loading">⏳ Cargando libro...</div>
+        
         <div id="content" style="display: none;">
-            <div class="book-info">
-                <div class="book-cover">
+            <div class="book-header">
+                <div class="book-cover-large">
                     <img id="bookCover" src="" alt="Portada">
                 </div>
                 <div class="book-details">
                     <h1 id="bookTitle"></h1>
-                    <p><span class="label">Autor:</span> <span id="bookAuthor"></span></p>
-                    <p><span class="label">Año:</span> <span id="bookYear"></span></p>
-                    <p><span class="label">Género:</span> <span id="bookGenre"></span></p>
-                    <p><span class="label">Descripción:</span></p>
-                    <p id="bookDesc"></p>
-                    
-                    <div class="author-section">
-                        <h3>📸 Última Página (Autor)</h3>
-                        <img id="authorPhoto" class="author-photo" src="" alt="Autor">
+                    <p class="book-author" id="bookAuthor"></p>
+                    <div class="book-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Año</span>
+                            <span class="meta-value" id="bookYear">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Género</span>
+                            <span class="meta-value" id="bookGenre">-</span>
+                        </div>
+                    </div>
+                    <div id="descContainer" class="book-description" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div id="authorContainer" class="author-section" style="display: none;">
+                <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📸 Autor</h2>
+                <div class="author-container">
+                    <div class="author-photo-wrapper">
+                        <img id="authorPhoto" src="" alt="Foto del autor" onclick="openPhotoModal()">
                     </div>
                 </div>
             </div>
 
-            <div class="pdf-viewer">
-                <button class="pdf-button" onclick="abrirPDF()">📄 Ver PDF en Nueva Ventana</button>
-                <p style="color: #a0a0a0; margin-top: 1rem; font-size: 0.9rem;">O visualiza el PDF aquí:</p>
-                <iframe id="pdfViewer"></iframe>
+            <div class="pdf-viewer-section">
+                <div class="pdf-controls">
+                    <div class="page-controls">
+                        <button id="prevBtn" onclick="previousPage()">← Anterior</button>
+                        <span style="color: var(--text-secondary); margin: 0 1rem;">
+                            <span id="pageNum">1</span> / <span id="pageTotal">0</span>
+                        </span>
+                        <button id="nextBtn" onclick="nextPage()">Siguiente →</button>
+                    </div>
+                    <div class="zoom-controls">
+                        <button onclick="zoomOut()">🔍−</button>
+                        <span id="zoomLevel" style="color: var(--text-secondary); margin: 0 1rem;">100%</span>
+                        <button onclick="zoomReset()">↺ Reset</button>
+                        <button onclick="zoomIn()">🔍+</button>
+                    </div>
+                </div>
+
+                <div class="pdf-pages">
+                    <div class="page-wrapper" id="leftPage"></div>
+                    <div class="page-wrapper" id="rightPage"></div>
+                </div>
             </div>
         </div>
-        <div id="error" style="display: none;"></div>
+
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <div id="photoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
+        <img id="modalPhotoImg" src="" alt="Autor" style="max-width: 90%; max-height: 90%; border-radius: 12px;">
     </div>
 
     <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
         const supa = window.supabase.createClient(
             'https://dkvadgydaiaxvtzjblpd.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ'
         );
 
         let currentBook = null;
+        let pageImages = [];
+        let currentPage = 0;
+        let currentZoom = 100;
 
-        async function cargar() {
+        async function loadBook() {
             try {
-                // Obtener ID del URL o sessionStorage
                 const params = new URLSearchParams(window.location.search);
                 const bookId = params.get('id');
 
@@ -96,51 +325,136 @@
                     libro = JSON.parse(sessionStorage.getItem('currentBook'));
                 }
 
-                if (!libro) {
-                    throw new Error('No se pudo cargar el libro');
-                }
+                if (!libro) throw new Error('No se pudo cargar el libro');
 
                 currentBook = libro;
-                mostrar();
+                displayBook();
+                await renderPDF();
             } catch (e) {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error').style.display = 'block';
-                document.getElementById('error').innerHTML = `<div class="error"><h2>❌ Error</h2><p>${e.message}</p></div>`;
+                document.getElementById('error').innerHTML = `<h2>❌ Error</h2><p>${e.message}</p>`;
             }
         }
 
-        function mostrar() {
+        function displayBook() {
             document.getElementById('bookTitle').textContent = currentBook.titulo;
             document.getElementById('bookAuthor').textContent = currentBook.autor;
-            document.getElementById('bookYear').textContent = currentBook.año || 'N/A';
-            document.getElementById('bookGenre').textContent = currentBook.genero || 'Digital';
-            document.getElementById('bookDesc').textContent = currentBook.descripcion || 'Sin descripción';
+            document.getElementById('bookYear').textContent = currentBook.año || '-';
+            document.getElementById('bookGenre').textContent = currentBook.genero || '-';
 
             if (currentBook.portada_url) {
                 document.getElementById('bookCover').src = currentBook.portada_url;
             }
 
+            if (currentBook.descripcion) {
+                document.getElementById('descContainer').textContent = currentBook.descripcion;
+                document.getElementById('descContainer').style.display = 'block';
+            }
+
             if (currentBook.autor_foto) {
                 document.getElementById('authorPhoto').src = currentBook.autor_foto;
-            } else {
-                document.querySelector('.author-section').style.display = 'none';
-            }
-
-            if (currentBook.pdf_url) {
-                document.getElementById('pdfViewer').src = `https://docs.google.com/gview?url=${encodeURIComponent(currentBook.pdf_url)}&embedded=true`;
-            }
-
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-        }
-
-        function abrirPDF() {
-            if (currentBook && currentBook.pdf_url) {
-                window.open(currentBook.pdf_url, '_blank');
+                document.getElementById('authorContainer').style.display = 'block';
             }
         }
 
-        window.addEventListener('load', cargar);
+        async function renderPDF() {
+            try {
+                if (!currentBook.pdf_url) {
+                    throw new Error('PDF no disponible');
+                }
+
+                const response = await fetch(currentBook.pdf_url);
+                const arrayBuffer = await response.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+
+                pageImages = [];
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 2 });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    await page.render({ canvasContext: context, viewport }).promise;
+                    pageImages.push(canvas.toDataURL('image/jpeg', 0.95));
+                }
+
+                document.getElementById('pageTotal').textContent = pageImages.length;
+                updatePages();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (e) {
+                throw new Error('Error renderizando PDF: ' + e.message);
+            }
+        }
+
+        function updatePages() {
+            const leftIdx = currentPage;
+            const rightIdx = currentPage + 1;
+            document.getElementById('leftPage').innerHTML = leftIdx < pageImages.length ? `<img src="${pageImages[leftIdx]}">` : '';
+            document.getElementById('rightPage').innerHTML = rightIdx < pageImages.length ? `<img src="${pageImages[rightIdx]}">` : '';
+            document.getElementById('pageNum').textContent = (leftIdx + 1);
+            document.getElementById('prevBtn').disabled = leftIdx === 0;
+            document.getElementById('nextBtn').disabled = rightIdx >= pageImages.length;
+        }
+
+        function previousPage() {
+            if (currentPage > 0) {
+                currentPage = Math.max(0, currentPage - 2);
+                updatePages();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage + 2 < pageImages.length) {
+                currentPage += 2;
+                updatePages();
+            }
+        }
+
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 25, 300);
+            applyZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 25, 50);
+            applyZoom();
+        }
+
+        function zoomReset() {
+            currentZoom = 100;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const container = document.querySelector('.pdf-viewer-section');
+            container.style.transform = `scale(${currentZoom / 100})`;
+            container.style.transformOrigin = 'top center';
+            document.getElementById('zoomLevel').textContent = currentZoom + '%';
+        }
+
+        function openPhotoModal() {
+            if (currentBook && currentBook.autor_foto) {
+                document.getElementById('modalPhotoImg').src = currentBook.autor_foto;
+                document.getElementById('photoModal').style.display = 'flex';
+            }
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+
+        document.getElementById('photoModal').addEventListener('click', (e) => {
+            if (e.target.id === 'photoModal') closePhotoModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closePhotoModal();
+        });
+
+        window.addEventListener('load', loadBook);
     </script>
 </body>
 </html>
