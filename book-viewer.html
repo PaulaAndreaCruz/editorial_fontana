@@ -6,23 +6,14 @@
     <meta name="description" content="Visualizador de Libro - Editorial Fontana">
     <title>Libro | Editorial Fontana</title>
     
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --primary: #0a0e27;
-            --secondary: #0f1535;
-            --tertiary: #1a1f3a;
             --accent-cyan: #00d4ff;
             --accent-blue: #0099ff;
             --accent-green: #00ff88;
@@ -33,187 +24,90 @@
             --glass-bg: rgba(255, 255, 255, 0.02);
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: var(--primary);
-            color: var(--text-main);
-            line-height: 1.6;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: var(--primary); color: var(--text-main); line-height: 1.6; }
 
-        header {
-            position: sticky;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-light);
-            padding: 1.2rem 2rem;
-        }
+        header { position: sticky; top: 0; width: 100%; z-index: 1000; background: rgba(10, 14, 39, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border-light); padding: 1.2rem 2rem; }
 
-        .header-wrapper {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .header-wrapper { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
 
-        .logo {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: 2.5px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+        .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: 2.5px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-transform: uppercase; cursor: pointer; }
 
-        .logo:hover { transform: scale(1.05); }
-
-        .btn-back {
-            padding: 0.7rem 1.8rem;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: var(--primary);
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .btn-back { padding: 0.7rem 1.8rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: var(--primary); border: none; border-radius: 30px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; }
 
         .btn-back:hover { box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4); transform: translateY(-2px); }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
 
         .error { background: rgba(255,107,107,0.2); color: #ff6b6b; padding: 2rem; border-radius: 8px; text-align: center; }
         .loading { text-align: center; padding: 3rem; color: var(--text-secondary); }
 
-        .book-header {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 3rem;
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-light);
-        }
+        .book-header { display: grid; grid-template-columns: 300px 1fr; gap: 3rem; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-light); }
 
-        .book-cover-large {
-            width: 100%;
-            height: 350px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
-        }
+        .book-cover-large { width: 100%; height: 400px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2); display: flex; align-items: center; justify-content: center; }
 
         .book-cover-large img { width: 100%; height: 100%; object-fit: cover; }
 
-        .book-details h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2; }
+        .book-details h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
         .book-author { font-size: 1.1rem; color: var(--accent-cyan); margin-bottom: 1.5rem; font-weight: 600; }
 
-        .book-meta {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 10px;
-        }
+        .book-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; padding: 1.5rem; background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 10px; }
 
-        .meta-item { display: flex; flex-direction: column; }
         .meta-label { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
         .meta-value { font-size: 1rem; font-weight: 600; color: var(--text-light); }
 
-        .book-description {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 10px;
-            line-height: 1.8;
-            color: var(--text-secondary);
-        }
+        .book-description { padding: 1.5rem; background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 10px; line-height: 1.8; color: var(--text-secondary); margin-bottom: 2rem; }
 
-        .author-section {
-            background: var(--glass-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 3rem;
-        }
+        .author-section { background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 15px; padding: 2rem; margin-bottom: 3rem; }
 
-        .author-container {
-            display: grid;
-            grid-template-columns: 180px 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
+        .author-container { display: grid; grid-template-columns: 200px 1fr; gap: 2rem; align-items: start; }
 
-        .author-photo-wrapper {
-            width: 180px;
-            height: 220px;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid var(--border-light);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            text-align: center;
-            padding: 1rem;
-        }
+        .author-photo-wrapper { width: 200px; height: 250px; border-radius: 12px; overflow: hidden; border: 2px solid var(--border-light); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1); background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
 
-        .author-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+        .author-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s ease; }
 
-        .pdf-viewer-section {
-            background: var(--glass-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 3rem;
-        }
+        .author-photo-wrapper img:hover { transform: scale(1.05); }
 
-        .pdf-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
+        .pdf-viewer-section { background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 15px; padding: 2rem; margin-bottom: 3rem; }
 
-        .page-controls button, .zoom-controls button {
-            padding: 0.6rem 1.2rem;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: var(--primary);
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+        .pdf-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+
+        .page-controls button, .zoom-controls button { padding: 0.6rem 1.2rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: var(--primary); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
 
         .page-controls button:hover, .zoom-controls button:hover { opacity: 0.8; }
+
+        .page-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .pdf-pages { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
         .page-wrapper { background: white; border-radius: 8px; overflow: hidden; min-height: 500px; display: flex; align-items: center; justify-content: center; }
         .page-wrapper img { width: 100%; height: 100%; object-fit: contain; }
+
+        .comments-section { background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 15px; padding: 2rem; }
+
+        .comments-header h2 { color: var(--accent-cyan); margin-bottom: 1.5rem; }
+
+        .comment-form { background: var(--glass-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; border: 1px solid var(--border-light); }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); border-radius: 6px; color: var(--text-main); font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--accent-cyan); background: rgba(0, 212, 255, 0.05); }
+
+        .submit-btn { width: 100%; padding: 0.8rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); color: var(--primary); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .submit-btn:hover { opacity: 0.9; }
+
+        .comments-list { }
+        .comment { background: var(--glass-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem; border-left: 3px solid var(--accent-cyan); }
+
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+        .comment-author { font-weight: 600; color: var(--text-light); }
+        .comment-date { color: var(--text-secondary); font-size: 0.85rem; }
+        .comment-rating { color: var(--accent-green); margin-bottom: 0.8rem; }
+        .comment-text { line-height: 1.6; color: var(--text-secondary); }
+
+        .empty-comments { text-align: center; padding: 2rem; color: var(--text-secondary); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+        .modal img { max-width: 90%; max-height: 90%; border-radius: 12px; }
 
         @media (max-width: 768px) {
             .book-header { grid-template-columns: 1fr; }
@@ -234,6 +128,7 @@
         <div id="loading" class="loading">⏳ Cargando libro...</div>
         
         <div id="content" style="display: none;">
+            <!-- PORTADA Y DETALLES -->
             <div class="book-header">
                 <div class="book-cover-large">
                     <img id="bookCover" src="" alt="Portada">
@@ -242,11 +137,11 @@
                     <h1 id="bookTitle"></h1>
                     <p class="book-author" id="bookAuthor"></p>
                     <div class="book-meta">
-                        <div class="meta-item">
+                        <div>
                             <span class="meta-label">Año</span>
                             <span class="meta-value" id="bookYear">-</span>
                         </div>
-                        <div class="meta-item">
+                        <div>
                             <span class="meta-label">Género</span>
                             <span class="meta-value" id="bookGenre">-</span>
                         </div>
@@ -255,15 +150,17 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN AUTOR -->
             <div id="authorContainer" class="author-section" style="display: none;">
-                <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📸 Autor</h2>
+                <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📸 Última Página (Autor)</h2>
                 <div class="author-container">
                     <div class="author-photo-wrapper">
-                        <img id="authorPhoto" src="" alt="Foto del autor" onclick="openPhotoModal()">
+                        <img id="authorPhoto" src="" alt="Foto del autor" onclick="openPhotoModal()" title="Clic para ampliar">
                     </div>
                 </div>
             </div>
 
+            <!-- VISOR PDF -->
             <div class="pdf-viewer-section">
                 <div class="pdf-controls">
                     <div class="page-controls">
@@ -286,13 +183,46 @@
                     <div class="page-wrapper" id="rightPage"></div>
                 </div>
             </div>
+
+            <!-- COMENTARIOS Y RESEÑAS -->
+            <div class="comments-section">
+                <div class="comments-header">
+                    <h2>💬 Comentarios y Reseñas</h2>
+                </div>
+
+                <form class="comment-form" onsubmit="addComment(event)">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="commentName" placeholder="Tu nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Calificación</label>
+                        <select id="commentRating">
+                            <option value="5">⭐⭐⭐⭐⭐ (5 estrellas)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 estrellas)</option>
+                            <option value="3">⭐⭐⭐ (3 estrellas)</option>
+                            <option value="2">⭐⭐ (2 estrellas)</option>
+                            <option value="1">⭐ (1 estrella)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tu Reseña</label>
+                        <textarea id="commentText" placeholder="Cuéntanos tu opinión..." rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Enviar Reseña</button>
+                </form>
+
+                <div class="comments-list" id="commentsList">
+                    <div class="empty-comments">📚 No hay comentarios aún. ¡Sé el primero!</div>
+                </div>
+            </div>
         </div>
 
         <div id="error" class="error" style="display: none;"></div>
     </div>
 
-    <div id="photoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
-        <img id="modalPhotoImg" src="" alt="Autor" style="max-width: 90%; max-height: 90%; border-radius: 12px;">
+    <div id="photoModal" class="modal" onclick="if(event.target.id === 'photoModal') closePhotoModal()">
+        <img id="modalPhotoImg" src="" alt="Autor">
     </div>
 
     <script>
@@ -307,11 +237,12 @@
         let pageImages = [];
         let currentPage = 0;
         let currentZoom = 100;
+        let bookId = null;
 
         async function loadBook() {
             try {
                 const params = new URLSearchParams(window.location.search);
-                const bookId = params.get('id');
+                bookId = params.get('id');
 
                 if (!bookId && !sessionStorage.getItem('currentBook')) {
                     throw new Error('Libro no encontrado');
@@ -328,8 +259,10 @@
                 if (!libro) throw new Error('No se pudo cargar el libro');
 
                 currentBook = libro;
+                bookId = currentBook.id;
                 displayBook();
                 await renderPDF();
+                loadComments();
             } catch (e) {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error').style.display = 'block';
@@ -360,9 +293,7 @@
 
         async function renderPDF() {
             try {
-                if (!currentBook.pdf_url) {
-                    throw new Error('PDF no disponible');
-                }
+                if (!currentBook.pdf_url) throw new Error('PDF no disponible');
 
                 const response = await fetch(currentBook.pdf_url);
                 const arrayBuffer = await response.arrayBuffer();
@@ -446,13 +377,54 @@
             document.getElementById('photoModal').style.display = 'none';
         }
 
-        document.getElementById('photoModal').addEventListener('click', (e) => {
-            if (e.target.id === 'photoModal') closePhotoModal();
-        });
-
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closePhotoModal();
         });
+
+        function addComment(event) {
+            event.preventDefault();
+
+            const comment = {
+                id: Date.now(),
+                bookId: bookId,
+                name: document.getElementById('commentName').value,
+                rating: parseInt(document.getElementById('commentRating').value),
+                text: document.getElementById('commentText').value,
+                date: new Date().toLocaleDateString('es-ES')
+            };
+
+            let comments = JSON.parse(localStorage.getItem('bookComments')) || [];
+            comments.push(comment);
+            localStorage.setItem('bookComments', JSON.stringify(comments));
+
+            document.getElementById('commentName').value = '';
+            document.getElementById('commentRating').value = '5';
+            document.getElementById('commentText').value = '';
+
+            loadComments();
+        }
+
+        function loadComments() {
+            const comments = JSON.parse(localStorage.getItem('bookComments')) || [];
+            const bookComments = comments.filter(c => c.bookId === bookId);
+            const commentsList = document.getElementById('commentsList');
+
+            if (bookComments.length === 0) {
+                commentsList.innerHTML = '<div class="empty-comments">📚 No hay comentarios aún. ¡Sé el primero!</div>';
+                return;
+            }
+
+            commentsList.innerHTML = bookComments.map(comment => `
+                <div class="comment">
+                    <div class="comment-header">
+                        <span class="comment-author">${comment.name}</span>
+                        <span class="comment-date">${comment.date}</span>
+                    </div>
+                    <div class="comment-rating">${'⭐'.repeat(comment.rating)}</div>
+                    <div class="comment-text">${comment.text}</div>
+                </div>
+            `).join('');
+        }
 
         window.addEventListener('load', loadBook);
     </script>
