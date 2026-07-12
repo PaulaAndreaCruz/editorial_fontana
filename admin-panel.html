@@ -3,180 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editorial Fontana - Admin Panel</title>
+    <title>Panel Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #0a0e27; color: #e0e0e0; padding: 2rem; }
-        .container { max-width: 800px; margin: 0 auto; }
-        h1 { color: #00ff88; margin-bottom: 2rem; }
-        .section { background: rgba(30, 41, 82, 0.6); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid rgba(0, 212, 255, 0.2); }
-        .section h2 { color: #00d4ff; margin-bottom: 1rem; }
-        input, textarea, select { width: 100%; padding: 0.8rem; margin-bottom: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: #e0e0e0; font-family: inherit; }
-        button { background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0e27; padding: 1rem 2rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
-        button:hover { opacity: 0.9; }
-        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid; }
-        .alert.success { background: rgba(0, 255, 136, 0.1); border-color: #00ff88; color: #00ff88; }
-        .alert.error { background: rgba(255, 107, 107, 0.1); border-color: #ff6b6b; color: #ff6b6b; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.1); }
-        th { background: rgba(0, 212, 255, 0.1); color: #00d4ff; }
+        body { background: #0a0e27; color: #e0e0e0; font-family: Arial; padding: 2rem; max-width: 800px; margin: 0 auto; }
+        h1 { color: #00ff88; }
+        input, select, textarea { width: 100%; padding: 0.8rem; margin: 0.5rem 0; background: rgba(255,255,255,0.05); border: 1px solid #00d4ff; color: #e0e0e0; border-radius: 4px; }
+        button { width: 100%; padding: 1rem; background: #00ff88; color: #0a0e27; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 1rem; }
+        button:hover { opacity: 0.8; }
+        .msg { padding: 1rem; margin: 1rem 0; border-radius: 4px; }
+        .msg.ok { background: rgba(0,255,136,0.2); color: #00ff88; }
+        .msg.err { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        table { width: 100%; margin-top: 2rem; border-collapse: collapse; }
+        td, th { padding: 0.5rem; border: 1px solid #00d4ff; text-align: left; }
+        th { background: rgba(0,212,255,0.1); }
+        .btn-del { background: #ff6b6b; color: white; border: none; padding: 0.5rem; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔐 Panel Admin - Editorial Fontana</h1>
-        <div id="alerts"></div>
+    <h1>🔐 Panel Admin</h1>
+    <div id="msg"></div>
 
-        <div class="section">
-            <h2>📤 Subir PDF</h2>
-            <div>
-                <input type="text" id="titulo" placeholder="Título *">
-                <input type="text" id="autor" placeholder="Autor *">
-                <input type="number" id="año" placeholder="Año *">
-                <select id="genero">
-                    <option value="">Seleccionar género *</option>
-                    <option value="poesia">Poesía</option>
-                    <option value="narrativa">Narrativa</option>
-                    <option value="ensayo">Ensayo</option>
-                    <option value="cuento">Cuento</option>
-                </select>
-                <textarea id="descripcion" placeholder="Descripción (opcional)"></textarea>
-                <input type="file" id="pdf" accept=".pdf">
-                <button onclick="subirLibro()">✅ Guardar en Supabase</button>
-            </div>
-        </div>
+    <input type="text" id="titulo" placeholder="Título">
+    <input type="text" id="autor" placeholder="Autor">
+    <input type="number" id="año" placeholder="Año">
+    <select id="genero">
+        <option value="">Género</option>
+        <option value="poesia">Poesía</option>
+        <option value="narrativa">Narrativa</option>
+        <option value="ensayo">Ensayo</option>
+        <option value="cuento">Cuento</option>
+    </select>
+    <textarea id="desc" placeholder="Descripción"></textarea>
+    <input type="file" id="pdf" accept=".pdf">
+    <button onclick="guardar()">Guardar en Supabase</button>
 
-        <div class="section">
-            <h2>📚 Libros Guardados</h2>
-            <table id="librosTable">
-                <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Autor</th>
-                        <th>Año</th>
-                        <th>Género</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="librosBody">
-                    <tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <table id="tabla">
+        <tr><th>Título</th><th>Autor</th><th>Año</th><th>Género</th><th>Acción</th></tr>
+    </table>
 
     <script>
-        const SUPABASE_URL = 'https://dkvadgydaiaxvtzjblpd.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ';
-        
-        const { createClient } = window.supabase;
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supa = window.supabase.createClient(
+            'https://dkvadgydaiaxvtzjblpd.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ'
+        );
 
-        function mostrarAlerta(msg, tipo) {
-            const div = document.createElement('div');
-            div.className = `alert ${tipo}`;
-            div.textContent = msg;
-            document.getElementById('alerts').appendChild(div);
-            setTimeout(() => div.remove(), 3000);
+        function aviso(txt, ok) {
+            const div = document.getElementById('msg');
+            div.textContent = txt;
+            div.className = ok ? 'msg ok' : 'msg err';
+            setTimeout(() => div.textContent = '', 3000);
         }
 
-        async function subirLibro() {
-            const titulo = document.getElementById('titulo').value.trim();
-            const autor = document.getElementById('autor').value.trim();
+        async function guardar() {
+            const titulo = document.getElementById('titulo').value;
+            const autor = document.getElementById('autor').value;
             const año = document.getElementById('año').value;
             const genero = document.getElementById('genero').value;
-            const descripcion = document.getElementById('descripcion').value;
-            const pdfFile = document.getElementById('pdf').files[0];
+            const desc = document.getElementById('desc').value;
+            const pdf = document.getElementById('pdf').files[0];
 
-            if (!titulo || !autor || !año || !genero || !pdfFile) {
-                mostrarAlerta('❌ Completa todos los campos y selecciona un PDF', 'error');
+            if (!titulo || !autor || !año || !genero || !pdf) {
+                aviso('❌ Completa todo y sube PDF', false);
                 return;
             }
 
             try {
-                mostrarAlerta('⏳ Subiendo PDF...', 'success');
+                aviso('⏳ Subiendo...', true);
 
-                // Subir PDF a Storage
-                const fileName = `${Date.now()}_${pdfFile.name}`;
-                const { error: uploadError } = await supabase.storage
-                    .from('pdfs')
-                    .upload(`public/${fileName}`, pdfFile);
+                const filename = Date.now() + '_' + pdf.name;
+                const { error: err1 } = await supa.storage.from('pdfs').upload('public/' + filename, pdf);
+                if (err1) throw err1;
 
-                if (uploadError) throw uploadError;
+                const url = supa.storage.from('pdfs').getPublicUrl('public/' + filename).data.publicUrl;
 
-                // Obtener URL pública
-                const { data } = supabase.storage.from('pdfs').getPublicUrl(`public/${fileName}`);
-                const pdfUrl = data.publicUrl;
-
-                // Guardar en base de datos
-                const { error } = await supabase.from('libros').insert([{
-                    titulo: titulo,
-                    autor: autor,
-                    año: parseInt(año),
-                    genero: genero,
-                    descripcion: descripcion,
-                    pdf_url: pdfUrl,
-                    portada_url: 'https://via.placeholder.com/200x300.png?text=Portada'
+                const { error: err2 } = await supa.from('libros').insert([{
+                    titulo, autor, año: parseInt(año), genero, 
+                    descripcion: desc, pdf_url: url, portada_url: 'https://via.placeholder.com/200x300'
                 }]);
+                if (err2) throw err2;
 
-                if (error) throw error;
-
-                mostrarAlerta('✅ Libro guardado exitosamente', 'success');
+                aviso('✅ Guardado', true);
                 document.getElementById('titulo').value = '';
                 document.getElementById('autor').value = '';
                 document.getElementById('año').value = '';
                 document.getElementById('genero').value = '';
-                document.getElementById('descripcion').value = '';
+                document.getElementById('desc').value = '';
                 document.getElementById('pdf').value = '';
-
-                cargarLibros();
-            } catch (error) {
-                mostrarAlerta('❌ Error: ' + error.message, 'error');
+                cargar();
+            } catch (e) {
+                aviso('❌ ' + e.message, false);
             }
         }
 
-        async function cargarLibros() {
+        async function cargar() {
             try {
-                const { data: libros, error } = await supabase
-                    .from('libros')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                const tbody = document.getElementById('librosBody');
-                if (!libros || libros.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay libros</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = libros.map(libro => `
-                    <tr>
-                        <td>${libro.titulo}</td>
-                        <td>${libro.autor}</td>
-                        <td>${libro.año}</td>
-                        <td>${libro.genero}</td>
-                        <td><button onclick="eliminarLibro('${libro.id}')" style="background:#ff6b6b;width:60px;padding:0.5rem;">🗑️</button></td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                console.error('Error:', error);
+                const { data: libros } = await supa.from('libros').select('*').order('created_at', { ascending: false });
+                const tabla = document.getElementById('tabla');
+                tabla.innerHTML = '<tr><th>Título</th><th>Autor</th><th>Año</th><th>Género</th><th>Acción</th></tr>';
+                libros.forEach(lib => {
+                    tabla.innerHTML += `<tr><td>${lib.titulo}</td><td>${lib.autor}</td><td>${lib.año}</td><td>${lib.genero}</td><td><button class="btn-del" onclick="borrar('${lib.id}')">🗑️</button></td></tr>`;
+                });
+            } catch (e) {
+                console.error(e);
             }
         }
 
-        async function eliminarLibro(id) {
-            if (!confirm('¿Eliminar?')) return;
-            try {
-                await supabase.from('libros').delete().eq('id', id);
-                mostrarAlerta('✅ Eliminado', 'success');
-                cargarLibros();
-            } catch (error) {
-                mostrarAlerta('❌ Error: ' + error.message, 'error');
+        async function borrar(id) {
+            if (confirm('¿Eliminar?')) {
+                await supa.from('libros').delete().eq('id', id);
+                aviso('✅ Eliminado', true);
+                cargar();
             }
         }
 
-        window.addEventListener('load', cargarLibros);
+        cargar();
     </script>
 </body>
 </html>
