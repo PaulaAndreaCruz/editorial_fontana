@@ -4,82 +4,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background: #0a0e27; color: #e0e0e0; font-family: Arial; padding: 2rem; max-width: 800px; margin: 0 auto; }
+        body { background: #0a0e27; color: #e0e0e0; font-family: Arial; padding: 2rem; max-width: 1000px; margin: 0 auto; }
         h1 { color: #00ff88; }
+        .section { background: rgba(30,41,82,0.6); padding: 2rem; border: 1px solid #00d4ff; border-radius: 8px; margin-bottom: 2rem; }
         input, select, textarea { width: 100%; padding: 0.8rem; margin: 0.5rem 0; background: rgba(255,255,255,0.05); border: 1px solid #00d4ff; color: #e0e0e0; border-radius: 4px; }
         button { width: 100%; padding: 1rem; background: #00ff88; color: #0a0e27; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 1rem; }
         button:hover { opacity: 0.8; }
         .msg { padding: 1rem; margin: 1rem 0; border-radius: 4px; }
         .msg.ok { background: rgba(0,255,136,0.2); color: #00ff88; }
         .msg.err { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .preview { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+        .preview-item { text-align: center; }
+        .preview-item h4 { color: #00d4ff; margin-bottom: 0.5rem; }
+        canvas, img { max-width: 100%; border-radius: 4px; max-height: 200px; }
         table { width: 100%; margin-top: 2rem; border-collapse: collapse; }
         td, th { padding: 0.5rem; border: 1px solid #00d4ff; text-align: left; }
         th { background: rgba(0,212,255,0.1); }
-        .btn-del { background: #ff6b6b; color: white; border: none; padding: 0.5rem; cursor: pointer; }
+        .btn-small { width: auto; padding: 0.5rem 1rem; display: inline-block; margin: 0 0.2rem; }
+        .btn-del { background: #ff6b6b; }
+        .btn-edit { background: #00d4ff; color: #0a0e27; }
+        #previewContainer { display: none; background: rgba(0,212,255,0.05); padding: 1.5rem; border-radius: 8px; margin: 1rem 0; }
     </style>
 </head>
 <body>
-    <h1>🔐 Panel Admin</h1>
+    <h1>🔐 Panel Admin - Editorial Fontana</h1>
     <div id="msg"></div>
 
-    <input type="text" id="titulo" placeholder="Título">
-    <input type="text" id="autor" placeholder="Autor">
-    <input type="number" id="año" placeholder="Año">
-    <select id="genero">
-        <option value="">Género</option>
-        <option value="poesia">Poesía</option>
-        <option value="narrativa">Narrativa</option>
-        <option value="ensayo">Ensayo</option>
-        <option value="cuento">Cuento</option>
-    </select>
-    <textarea id="desc" placeholder="Descripción"></textarea>
-    <input type="file" id="pdf" accept=".pdf">
-    <button onclick="guardar()">Guardar en Supabase</button>
+    <div class="section">
+        <h2>📤 Subir PDF</h2>
+        <input type="text" id="titulo" placeholder="Título">
+        <input type="text" id="autor" placeholder="Autor">
+        <input type="number" id="año" placeholder="Año">
+        <select id="genero">
+            <option value="">Género</option>
+            <option value="poesia">Poesía</option>
+            <option value="narrativa">Narrativa</option>
+            <option value="ensayo">Ensayo</option>
+            <option value="cuento">Cuento</option>
+        </select>
+        <textarea id="desc" placeholder="Descripción"></textarea>
+        <input type="file" id="pdf" accept=".pdf">
+        <button onclick="analizarPDF()">📄 Analizar PDF</button>
+        
+        <div id="previewContainer">
+            <div class="preview">
+                <div class="preview-item">
+                    <h4>Portada (1ª página)</h4>
+                    <canvas id="coverPreview"></canvas>
+                </div>
+                <div class="preview-item">
+                    <h4>Última página (Autor)</h4>
+                    <canvas id="authorPreview"></canvas>
+                </div>
+            </div>
+            <button onclick="guardar()">✅ Guardar en Supabase</button>
+        </div>
+    </div>
 
-    <table id="tabla">
-        <tr><th>Título</th><th>Autor</th><th>Año</th><th>Género</th><th>Acción</th></tr>
-    </table>
+    <div class="section">
+        <h2>📚 Libros Guardados</h2>
+        <table id="tabla">
+            <tr><th>Título</th><th>Autor</th><th>Año</th><th>Género</th><th>Acciones</th></tr>
+        </table>
+    </div>
 
     <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
         const supa = window.supabase.createClient(
             'https://dkvadgydaiaxvtzjblpd.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ'
         );
 
+        let pdfCubierta = null;
+        let pdfAutor = null;
+        let pdfFile = null;
+
         function aviso(txt, ok) {
             const div = document.getElementById('msg');
             div.textContent = txt;
             div.className = ok ? 'msg ok' : 'msg err';
-            setTimeout(() => div.textContent = '', 3000);
+            setTimeout(() => div.textContent = '', 4000);
+        }
+
+        async function analizarPDF() {
+            const pdfInput = document.getElementById('pdf');
+            if (!pdfInput.files.length) {
+                aviso('❌ Selecciona un PDF', false);
+                return;
+            }
+
+            pdfFile = pdfInput.files[0];
+            try {
+                aviso('⏳ Analizando PDF...', true);
+
+                const arrayBuffer = await pdfFile.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+
+                // Portada (1ª página)
+                const firstPage = await pdf.getPage(1);
+                const coverCanvas = document.getElementById('coverPreview');
+                const ctx = coverCanvas.getContext('2d');
+                const viewport = firstPage.getViewport({ scale: 1 });
+                coverCanvas.width = viewport.width;
+                coverCanvas.height = viewport.height;
+                await firstPage.render({ canvasContext: ctx, viewport }).promise;
+                pdfCubierta = coverCanvas.toDataURL('image/png');
+
+                // Última página (Autor)
+                const lastPage = await pdf.getPage(pdf.numPages);
+                const authorCanvas = document.getElementById('authorPreview');
+                const authorCtx = authorCanvas.getContext('2d');
+                const authorViewport = lastPage.getViewport({ scale: 1 });
+                authorCanvas.width = authorViewport.width;
+                authorCanvas.height = authorViewport.height;
+                await lastPage.render({ canvasContext: authorCtx, viewport: authorViewport }).promise;
+                pdfAutor = authorCanvas.toDataURL('image/png');
+
+                document.getElementById('previewContainer').style.display = 'block';
+                aviso('✅ PDF analizado exitosamente', true);
+            } catch (e) {
+                aviso('❌ Error: ' + e.message, false);
+            }
         }
 
         async function guardar() {
-            const titulo = document.getElementById('titulo').value;
-            const autor = document.getElementById('autor').value;
+            const titulo = document.getElementById('titulo').value.trim();
+            const autor = document.getElementById('autor').value.trim();
             const año = document.getElementById('año').value;
             const genero = document.getElementById('genero').value;
             const desc = document.getElementById('desc').value;
-            const pdf = document.getElementById('pdf').files[0];
 
-            if (!titulo || !autor || !año || !genero || !pdf) {
-                aviso('❌ Completa todo y sube PDF', false);
+            if (!titulo || !autor || !año || !genero || !pdfFile) {
+                aviso('❌ Completa todo', false);
                 return;
             }
 
             try {
                 aviso('⏳ Subiendo...', true);
 
-                const filename = Date.now() + '_' + pdf.name;
-                const { error: err1 } = await supa.storage.from('pdfs').upload('public/' + filename, pdf);
+                const filename = Date.now() + '_' + pdfFile.name;
+                const { error: err1 } = await supa.storage.from('pdfs').upload('public/' + filename, pdfFile);
                 if (err1) throw err1;
 
                 const url = supa.storage.from('pdfs').getPublicUrl('public/' + filename).data.publicUrl;
 
                 const { error: err2 } = await supa.from('libros').insert([{
-                    titulo, autor, año: parseInt(año), genero, 
-                    descripcion: desc, pdf_url: url, portada_url: 'https://via.placeholder.com/200x300'
+                    titulo, autor, año: parseInt(año), genero,
+                    descripcion: desc, pdf_url: url, 
+                    portada_url: pdfCubierta,
+                    autor_foto: pdfAutor
                 }]);
                 if (err2) throw err2;
 
@@ -90,6 +167,10 @@
                 document.getElementById('genero').value = '';
                 document.getElementById('desc').value = '';
                 document.getElementById('pdf').value = '';
+                document.getElementById('previewContainer').style.display = 'none';
+                pdfCubierta = null;
+                pdfAutor = null;
+                pdfFile = null;
                 cargar();
             } catch (e) {
                 aviso('❌ ' + e.message, false);
@@ -100,12 +181,56 @@
             try {
                 const { data: libros } = await supa.from('libros').select('*').order('created_at', { ascending: false });
                 const tabla = document.getElementById('tabla');
-                tabla.innerHTML = '<tr><th>Título</th><th>Autor</th><th>Año</th><th>Género</th><th>Acción</th></tr>';
+                tabla.innerHTML = '<tr><th>Título</th><th>Autor</th><th>Año</th><th>Género</th><th>Acciones</th></tr>';
                 libros.forEach(lib => {
-                    tabla.innerHTML += `<tr><td>${lib.titulo}</td><td>${lib.autor}</td><td>${lib.año}</td><td>${lib.genero}</td><td><button class="btn-del" onclick="borrar('${lib.id}')">🗑️</button></td></tr>`;
+                    tabla.innerHTML += `<tr>
+                        <td>${lib.titulo}</td>
+                        <td>${lib.autor}</td>
+                        <td>${lib.año}</td>
+                        <td>${lib.genero}</td>
+                        <td>
+                            <button class="btn-small btn-edit" onclick="editarLibro('${lib.id}')">✏️ Editar</button>
+                            <button class="btn-small btn-del" onclick="borrar('${lib.id}')">🗑️</button>
+                        </td>
+                    </tr>`;
                 });
             } catch (e) {
                 console.error(e);
+            }
+        }
+
+        async function editarLibro(id) {
+            const { data: libro } = await supa.from('libros').select('*').eq('id', id).single();
+            if (libro) {
+                document.getElementById('titulo').value = libro.titulo;
+                document.getElementById('autor').value = libro.autor;
+                document.getElementById('año').value = libro.año;
+                document.getElementById('genero').value = libro.genero;
+                document.getElementById('desc').value = libro.descripcion || '';
+                
+                // Mostrar portada y autor actuales
+                if (libro.portada_url) {
+                    const canvas = document.getElementById('coverPreview');
+                    const img = new Image();
+                    img.onload = () => {
+                        canvas.getContext('2d').drawImage(img, 0, 0);
+                        pdfCubierta = canvas.toDataURL('image/png');
+                    };
+                    img.src = libro.portada_url;
+                }
+                
+                if (libro.autor_foto) {
+                    const canvas = document.getElementById('authorPreview');
+                    const img = new Image();
+                    img.onload = () => {
+                        canvas.getContext('2d').drawImage(img, 0, 0);
+                        pdfAutor = canvas.toDataURL('image/png');
+                    };
+                    img.src = libro.autor_foto;
+                }
+                
+                document.getElementById('previewContainer').style.display = 'block';
+                window.scrollTo(0, 0);
             }
         }
 
