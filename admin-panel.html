@@ -4,249 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editorial Fontana - Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Space Grotesk', 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: #e0e0e0;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid rgba(0, 255, 136, 0.2);
-        }
-
-        .header h1 {
-            color: #00ff88;
-            font-size: 2rem;
-        }
-
-        .logout-btn {
-            background: linear-gradient(135deg, #ff6b6b, #ff8787);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        .section {
-            background: rgba(30, 41, 82, 0.6);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .section-title {
-            color: #00d4ff;
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .upload-area {
-            border: 2px dashed #00d4ff;
-            border-radius: 12px;
-            padding: 3rem;
-            text-align: center;
-            cursor: pointer;
-            background: rgba(0, 212, 255, 0.05);
-            transition: all 0.3s ease;
-            margin-bottom: 1.5rem;
-        }
-
-        .upload-area:hover {
-            border-color: #00ff88;
-            background: rgba(0, 255, 136, 0.1);
-        }
-
-        .upload-area.dragover {
-            border-color: #00ff88;
-            background: rgba(0, 255, 136, 0.2);
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        #pdfInput {
-            display: none;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        label {
-            display: block;
-            color: #00ff88;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 0.8rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-family: inherit;
-            font-size: 0.95rem;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #00d4ff;
-            background: rgba(0, 212, 255, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        button {
-            background: linear-gradient(135deg, #00d4ff, #00ff88);
-            color: #0a0e27;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border-left: 4px solid;
-        }
-
-        .alert.success {
-            background: rgba(0, 255, 136, 0.1);
-            border-color: #00ff88;
-            color: #00ff88;
-        }
-
-        .alert.error {
-            background: rgba(255, 107, 107, 0.1);
-            border-color: #ff6b6b;
-            color: #ff6b6b;
-        }
-
-        .alert.info {
-            background: rgba(0, 212, 255, 0.1);
-            border-color: #00d4ff;
-            color: #00d4ff;
-        }
-
-        #previewContainer {
-            display: none;
-            background: rgba(0, 212, 255, 0.05);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
-
-        .preview-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .preview-item {
-            text-align: center;
-        }
-
-        .preview-item h4 {
-            color: #00d4ff;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .preview-item img {
-            max-width: 100%;
-            border-radius: 8px;
-            max-height: 200px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        table thead {
-            background: rgba(0, 212, 255, 0.1);
-        }
-
-        table th {
-            padding: 1rem;
-            text-align: left;
-            color: #00d4ff;
-            font-weight: 700;
-        }
-
-        table td {
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-        }
-
-        table tr:hover {
-            background: rgba(0, 212, 255, 0.05);
-        }
-
-        .two-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            .two-columns {
-                grid-template-columns: 1fr;
-            }
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Space Grotesk', 'Inter', sans-serif; background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%); color: #e0e0e0; min-height: 100vh; padding: 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid rgba(0, 255, 136, 0.2); }
+        .header h1 { color: #00ff88; font-size: 2rem; }
+        .logout-btn { background: linear-gradient(135deg, #ff6b6b, #ff8787); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .section { background: rgba(30, 41, 82, 0.6); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; backdrop-filter: blur(10px); }
+        .section-title { color: #00d4ff; font-size: 1.3rem; margin-bottom: 1.5rem; }
+        .upload-area { border: 2px dashed #00d4ff; border-radius: 12px; padding: 3rem; text-align: center; cursor: pointer; background: rgba(0, 212, 255, 0.05); transition: all 0.3s ease; margin-bottom: 1.5rem; }
+        .upload-area:hover { border-color: #00ff88; background: rgba(0, 255, 136, 0.1); }
+        .upload-area.dragover { border-color: #00ff88; background: rgba(0, 255, 136, 0.2); }
+        .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
+        #pdfInput { display: none; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; color: #00ff88; font-weight: 700; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        input, textarea, select { width: 100%; padding: 0.8rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: #e0e0e0; font-family: inherit; font-size: 0.95rem; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+        textarea { resize: vertical; min-height: 100px; }
+        button { background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0e27; border: none; padding: 1rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: all 0.3s ease; }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid; }
+        .alert.success { background: rgba(0, 255, 136, 0.1); border-color: #00ff88; color: #00ff88; }
+        .alert.error { background: rgba(255, 107, 107, 0.1); border-color: #ff6b6b; color: #ff6b6b; }
+        .alert.info { background: rgba(0, 212, 255, 0.1); border-color: #00d4ff; color: #00d4ff; }
+        #previewContainer { display: none; background: rgba(0, 212, 255, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .preview-item { text-align: center; }
+        .preview-item h4 { color: #00d4ff; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .preview-item canvas { max-width: 100%; border-radius: 8px; max-height: 200px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        table thead { background: rgba(0, 212, 255, 0.1); }
+        table th { padding: 1rem; text-align: left; color: #00d4ff; font-weight: 700; }
+        table td { padding: 0.8rem 1rem; border-bottom: 1px solid rgba(0, 212, 255, 0.1); }
+        table tr:hover { background: rgba(0, 212, 255, 0.05); }
+        .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 768px) { .two-columns { grid-template-columns: 1fr; } .header { flex-direction: column; gap: 1rem; } }
     </style>
 </head>
 <body>
@@ -272,11 +69,11 @@
                 <div class="preview-grid">
                     <div class="preview-item">
                         <h4>Portada (1ª página)</h4>
-                        <canvas id="coverPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px;"></canvas>
+                        <canvas id="coverPreview"></canvas>
                     </div>
                     <div class="preview-item">
                         <h4>Última página (Autor)</h4>
-                        <canvas id="authorPagePreview" style="max-width: 100%; max-height: 200px; border-radius: 8px;"></canvas>
+                        <canvas id="authorPagePreview"></canvas>
                     </div>
                 </div>
 
@@ -285,7 +82,6 @@
                         <label>📚 Título del Libro *</label>
                         <input type="text" id="bookTitle" placeholder="Extraído del PDF o editar">
                     </div>
-
                     <div class="form-group">
                         <label>✍️ Autor *</label>
                         <input type="text" id="bookAuthor" placeholder="Extraído de última página o editar">
@@ -297,7 +93,6 @@
                         <label>📅 Año de Publicación *</label>
                         <input type="number" id="bookYear" placeholder="2024">
                     </div>
-
                     <div class="form-group">
                         <label>🏷️ Género Literario *</label>
                         <select id="bookGenre">
@@ -321,7 +116,6 @@
 
         <div class="section">
             <div class="section-title">📚 Libros Guardados</div>
-            
             <div id="booksContainer" style="overflow-x: auto;">
                 <table id="booksTable">
                     <thead>
@@ -343,9 +137,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
@@ -366,14 +157,14 @@
 
         function setupUploadArea() {
             const uploadArea = document.getElementById('uploadArea');
-            uploadArea.addEventListener('dragover', (e) => {
+            uploadArea.addEventListener('dragover', e => {
                 e.preventDefault();
                 uploadArea.classList.add('dragover');
             });
             uploadArea.addEventListener('dragleave', () => {
                 uploadArea.classList.remove('dragover');
             });
-            uploadArea.addEventListener('drop', (e) => {
+            uploadArea.addEventListener('drop', e => {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
                 if (e.dataTransfer.files.length > 0) {
@@ -390,13 +181,12 @@
 
         async function handleFile(file) {
             if (file.type !== 'application/pdf') {
-                showAlert('Por favor selecciona un archivo PDF', 'error');
+                showAlert('Por favor selecciona un PDF', 'error');
                 return;
             }
 
             try {
                 showAlert('⏳ Analizando PDF...', 'info');
-                
                 currentPDF = file;
                 currentFileName = `${Date.now()}_${file.name}`;
 
@@ -409,7 +199,7 @@
                 const viewport = firstPage.getViewport({ scale: 1 });
                 coverCanvas.width = viewport.width;
                 coverCanvas.height = viewport.height;
-                await firstPage.render({ canvasContext: context, viewport: viewport }).promise;
+                await firstPage.render({ canvasContext: context, viewport }).promise;
                 currentCoverImage = coverCanvas.toDataURL('image/png');
 
                 const lastPage = await pdf.getPage(pdf.numPages);
@@ -423,13 +213,11 @@
                 const textContent = await lastPage.getTextContent();
                 const text = textContent.items.map(item => item.str).join(' ');
                 const extractedAuthor = text.split('\n').reverse()[0] || 'Autor desconocido';
-                
+
                 document.getElementById('bookAuthor').value = extractedAuthor.substring(0, 100);
                 document.getElementById('bookTitle').value = file.name.replace('.pdf', '').substring(0, 100);
-
                 document.getElementById('previewContainer').style.display = 'block';
                 showAlert('✅ PDF analizado. Completa los datos.', 'success');
-                
             } catch (error) {
                 showAlert('❌ Error: ' + error.message, 'error');
             }
@@ -440,9 +228,9 @@
             const author = document.getElementById('bookAuthor').value.trim();
             const year = document.getElementById('bookYear').value;
             const genre = document.getElementById('bookGenre').value;
-            
+
             if (!title || !author || !year || !genre) {
-                showAlert('Completa todos los campos requeridos', 'error');
+                showAlert('Completa todos los campos', 'error');
                 return;
             }
 
@@ -450,9 +238,9 @@
             saveBtn.disabled = true;
 
             try {
-                showAlert('⏳ Subiendo a Supabase...', 'info');
+                showAlert('⏳ Subiendo...', 'info');
 
-                const { data, error: uploadError } = await supabase.storage
+                const { error: uploadError } = await supabase.storage
                     .from('pdfs')
                     .upload(`public/${currentFileName}`, currentPDF);
 
@@ -476,8 +264,7 @@
 
                 if (error) throw error;
 
-                showAlert('✅ Libro guardado en Supabase', 'success');
-                
+                showAlert('✅ Guardado en Supabase', 'success');
                 document.getElementById('pdfInput').value = '';
                 document.getElementById('previewContainer').style.display = 'none';
                 document.getElementById('bookTitle').value = '';
@@ -488,7 +275,6 @@
                 currentPDF = null;
                 currentFileName = null;
                 currentCoverImage = null;
-
                 loadBooks();
             } catch (error) {
                 showAlert('❌ Error: ' + error.message, 'error');
@@ -499,15 +285,10 @@
 
         async function loadBooks() {
             try {
-                const { data: books, error } = await supabase
-                    .from('libros')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
+                const { data: books, error } = await supabase.from('libros').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
 
                 const tbody = document.getElementById('booksBody');
-                
                 if (!books || books.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No hay libros</td></tr>';
                     return;
