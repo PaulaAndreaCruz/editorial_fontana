@@ -9,6 +9,7 @@
     <style>
         body { background: #0a0e27; color: #e0e0e0; font-family: Arial; padding: 2rem; max-width: 1000px; margin: 0 auto; }
         h1 { color: #00ff88; }
+        h2 { color: #00d4ff; margin: 1.5rem 0 1rem 0; }
         .section { background: rgba(30,41,82,0.6); padding: 2rem; border: 1px solid #00d4ff; border-radius: 8px; margin-bottom: 2rem; }
         input, select, textarea { width: 100%; padding: 0.8rem; margin: 0.5rem 0; background: rgba(255,255,255,0.05); border: 1px solid #00d4ff; color: #e0e0e0; border-radius: 4px; }
         button { width: 100%; padding: 1rem; background: #00ff88; color: #0a0e27; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 1rem; }
@@ -104,7 +105,6 @@
                 const arrayBuffer = await pdfFile.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
 
-                // Portada (1ª página)
                 const firstPage = await pdf.getPage(1);
                 const coverCanvas = document.getElementById('coverPreview');
                 const ctx = coverCanvas.getContext('2d');
@@ -114,7 +114,6 @@
                 await firstPage.render({ canvasContext: ctx, viewport }).promise;
                 pdfCubierta = coverCanvas.toDataURL('image/png');
 
-                // Última página (Autor)
                 const lastPage = await pdf.getPage(pdf.numPages);
                 const authorCanvas = document.getElementById('authorPreview');
                 const authorCtx = authorCanvas.getContext('2d');
@@ -190,7 +189,7 @@
                         <td>${lib.genero}</td>
                         <td>
                             <button class="btn-small btn-edit" onclick="editarLibro('${lib.id}')">✏️ Editar</button>
-                            <button class="btn-small btn-del" onclick="borrar('${lib.id}')">🗑️</button>
+                            <button class="btn-small btn-del" onclick="borrarLibro('${lib.id}', '${lib.pdf_url}')">🗑️</button>
                         </td>
                     </tr>`;
                 });
@@ -208,7 +207,6 @@
                 document.getElementById('genero').value = libro.genero;
                 document.getElementById('desc').value = libro.descripcion || '';
                 
-                // Mostrar portada y autor actuales
                 if (libro.portada_url) {
                     const canvas = document.getElementById('coverPreview');
                     const img = new Image();
@@ -234,11 +232,29 @@
             }
         }
 
-        async function borrar(id) {
-            if (confirm('¿Eliminar?')) {
-                await supa.from('libros').delete().eq('id', id);
-                aviso('✅ Eliminado', true);
+        async function borrarLibro(id, pdfUrl) {
+            if (!confirm('¿Eliminar este libro? Se borrará de la base de datos y Storage')) return;
+            
+            try {
+                aviso('⏳ Eliminando...', true);
+
+                // Extraer nombre del archivo del URL
+                const filename = pdfUrl.split('/').pop();
+                
+                // Eliminar del Storage
+                if (filename) {
+                    const { error: storageError } = await supa.storage.from('pdfs').remove(['public/' + filename]);
+                    if (storageError) console.warn('Error borrando PDF:', storageError);
+                }
+
+                // Eliminar de la base de datos
+                const { error: dbError } = await supa.from('libros').delete().eq('id', id);
+                if (dbError) throw dbError;
+
+                aviso('✅ Libro eliminado completamente', true);
                 cargar();
+            } catch (e) {
+                aviso('❌ ' + e.message, false);
             }
         }
 
