@@ -344,22 +344,23 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        // ⚙️ CONFIGURACIÓN SUPABASE
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
         const SUPABASE_URL = 'https://dkvadgydaiaxvtzjblpd.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ';
 
         const { createClient } = window.supabase;
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Configurar worker de PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-
         let currentPDF = null;
         let currentFileName = null;
         let currentCoverImage = null;
 
-        async function init() {
+        function init() {
             setupUploadArea();
             loadBooks();
         }
@@ -382,7 +383,7 @@
             });
         }
 
-        async function handleFileUpload(event) {
+        function handleFileUpload(event) {
             if (event.target.files.length > 0) {
                 handleFile(event.target.files[0]);
             }
@@ -395,16 +396,14 @@
             }
 
             try {
-                showAlert('⏳ Analizando PDF y extrayendo datos...', 'info');
+                showAlert('⏳ Analizando PDF...', 'info');
                 
                 currentPDF = file;
                 currentFileName = `${Date.now()}_${file.name}`;
 
-                // Extraer datos del PDF
                 const arrayBuffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
 
-                // Extraer portada (primera página)
                 const firstPage = await pdf.getPage(1);
                 const coverCanvas = document.getElementById('coverPreview');
                 const context = coverCanvas.getContext('2d');
@@ -414,7 +413,6 @@
                 await firstPage.render({ canvasContext: context, viewport: viewport }).promise;
                 currentCoverImage = coverCanvas.toDataURL('image/png');
 
-                // Extraer última página (autor)
                 const lastPage = await pdf.getPage(pdf.numPages);
                 const authorCanvas = document.getElementById('authorPagePreview');
                 const authorContext = authorCanvas.getContext('2d');
@@ -423,22 +421,18 @@
                 authorCanvas.height = authorViewport.height;
                 await lastPage.render({ canvasContext: authorContext, viewport: authorViewport }).promise;
 
-                // Extraer texto de última página
                 const textContent = await lastPage.getTextContent();
                 const text = textContent.items.map(item => item.str).join(' ');
-                const authorMatch = text.match(/(?:autor|author|por):\s*([^\n]+)/i) || text.split('\n').slice(-3);
-                const extractedAuthor = authorMatch ? (typeof authorMatch === 'string' ? authorMatch : authorMatch[1] || authorMatch[0]).trim() : 'Autor desconocido';
+                const extractedAuthor = text.split('\n').reverse()[0] || 'Autor desconocido';
                 
                 document.getElementById('bookAuthor').value = extractedAuthor.substring(0, 100);
                 document.getElementById('bookTitle').value = file.name.replace('.pdf', '').substring(0, 100);
 
-                // Mostrar formulario
                 document.getElementById('previewContainer').style.display = 'block';
-                showAlert('✅ PDF analizado. Completa los datos faltantes.', 'success');
+                showAlert('✅ PDF analizado. Completa los datos.', 'success');
                 
             } catch (error) {
-                showAlert('❌ Error analizando PDF: ' + error.message, 'error');
-                console.error(error);
+                showAlert('❌ Error: ' + error.message, 'error');
             }
         }
 
@@ -449,7 +443,7 @@
             const genre = document.getElementById('bookGenre').value;
             
             if (!title || !author || !year || !genre) {
-                showAlert('Por favor completa todos los campos requeridos (*)', 'error');
+                showAlert('Completa todos los campos requeridos', 'error');
                 return;
             }
 
@@ -457,24 +451,21 @@
             saveBtn.disabled = true;
 
             try {
-                showAlert('⏳ Subiendo PDF a Supabase...', 'info');
+                showAlert('⏳ Subiendo a Supabase...', 'info');
 
-                // Subir PDF a Storage
-                const { data: uploadData, error: uploadError } = await supabase.storage
+                const { data, error: uploadError } = await supabase.storage
                     .from('pdfs')
                     .upload(`public/${currentFileName}`, currentPDF);
 
                 if (uploadError) throw uploadError;
 
-                // Obtener URL pública del PDF
                 const { data: publicUrlData } = supabase.storage
                     .from('pdfs')
                     .getPublicUrl(`public/${currentFileName}`);
 
                 const pdfUrl = publicUrlData.publicUrl;
 
-                // Guardar metadatos en tabla
-                const { data, error } = await supabase.from('libros').insert([{
+                const { error } = await supabase.from('libros').insert([{
                     titulo: title,
                     autor: author,
                     año: parseInt(year),
@@ -486,9 +477,8 @@
 
                 if (error) throw error;
 
-                showAlert('✅ Libro guardado exitosamente en Supabase', 'success');
+                showAlert('✅ Libro guardado en Supabase', 'success');
                 
-                // Resetear formulario
                 document.getElementById('pdfInput').value = '';
                 document.getElementById('previewContainer').style.display = 'none';
                 document.getElementById('bookTitle').value = '';
@@ -503,7 +493,6 @@
                 loadBooks();
             } catch (error) {
                 showAlert('❌ Error: ' + error.message, 'error');
-                console.error(error);
             } finally {
                 saveBtn.disabled = false;
             }
@@ -521,7 +510,7 @@
                 const tbody = document.getElementById('booksBody');
                 
                 if (!books || books.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No hay libros. ¡Sube uno ahora!</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a0a0a0;">No hay libros</td></tr>';
                     return;
                 }
 
@@ -531,24 +520,19 @@
                         <td>${book.autor}</td>
                         <td>${book.año || '-'}</td>
                         <td>${book.genero || '-'}</td>
-                        <td>
-                            <button onclick="deleteBook('${book.id}')" style="background: linear-gradient(135deg, #ff6b6b, #ff8787); padding: 0.5rem 1rem; font-size: 0.8rem;">🗑️</button>
-                        </td>
+                        <td><button onclick="deleteBook('${book.id}')" style="background: #ff6b6b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">🗑️</button></td>
                     </tr>
                 `).join('');
             } catch (error) {
-                console.error('Error cargando libros:', error);
-                document.getElementById('booksBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff6b6b;">Error cargando libros</td></tr>';
+                console.error('Error:', error);
             }
         }
 
         async function deleteBook(id) {
-            if (!confirm('¿Eliminar este libro?')) return;
-
+            if (!confirm('¿Eliminar?')) return;
             try {
-                const { error } = await supabase.from('libros').delete().eq('id', id);
-                if (error) throw error;
-                showAlert('✅ Libro eliminado', 'success');
+                await supabase.from('libros').delete().eq('id', id);
+                showAlert('✅ Eliminado', 'success');
                 loadBooks();
             } catch (error) {
                 showAlert('❌ Error: ' + error.message, 'error');
@@ -565,8 +549,7 @@
         }
 
         function logout() {
-            localStorage.removeItem('adminLoggedIn');
-            window.location.href = 'login-admin.html';
+            window.location.href = 'index.html';
         }
 
         window.addEventListener('load', init);
