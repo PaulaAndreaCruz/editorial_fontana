@@ -46,10 +46,10 @@
             top: 0;
             width: 100%;
             z-index: 1000;
-            background: rgba(10, 14, 39, 0.85);
-            backdrop-filter: blur(15px);
+            background: linear-gradient(135deg, #0a0e27, #0f1535);
             border-bottom: 1px solid var(--border-light);
-            padding: 0.5rem 2rem;
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .header-wrapper {
@@ -58,14 +58,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 2rem;
         }
 
         .logo {
-            height: 100px;
+            height: 45px;
             cursor: pointer;
             display: flex;
             align-items: center;
             transition: transform 0.3s ease;
+            flex-shrink: 0;
         }
 
         .logo:hover {
@@ -75,7 +77,7 @@
         .logo img {
             height: 100%;
             width: auto;
-            max-width: 300px;
+            max-width: 250px;
             object-fit: contain;
         }
 
@@ -204,7 +206,7 @@
         }
 
         .hero-logo {
-            height: 180px;
+            height: 120px;
             margin: 0 auto 1.5rem;
             display: flex;
             align-items: center;
