@@ -8,6 +8,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://unpkg.com/page-flip@latest/page-flip.umd.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,77 +25,373 @@
             --glass-bg: rgba(255, 255, 255, 0.02);
         }
 
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: var(--primary); color: var(--text-main); line-height: 1.6; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            background: var(--primary); 
+            color: var(--text-main); 
+            line-height: 1.6; 
+        }
 
-        header { position: sticky; top: 0; width: 100%; z-index: 1000; background: linear-gradient(135deg, #0a0e27, #0f1535); border-bottom: 1px solid var(--border-light); padding: 0.8rem 2rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        header { 
+            position: sticky; 
+            top: 0; 
+            width: 100%; 
+            z-index: 1000; 
+            background: linear-gradient(135deg, #0a0e27, #0f1535);
+            border-bottom: 1px solid var(--border-light); 
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
 
-        .header-wrapper { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
+        .header-wrapper { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            gap: 2rem;
+        }
 
-        .logo { height: 45px; cursor: pointer; display: flex; align-items: center; transition: transform 0.3s ease; flex-shrink: 0; }
+        .logo { 
+            height: 45px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            transition: transform 0.3s ease; 
+            flex-shrink: 0;
+        }
         .logo:hover { transform: scale(1.05); }
         .logo img { height: 100%; width: auto; max-width: 250px; object-fit: contain; }
 
-        .btn-back { padding: 0.7rem 1.8rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: var(--primary); border: none; border-radius: 30px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; }
-
+        .btn-back { 
+            padding: 0.7rem 1.8rem; 
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); 
+            color: var(--primary); 
+            border: none; 
+            border-radius: 30px; 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+        }
         .btn-back:hover { box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4); transform: translateY(-2px); }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
 
-        .error { background: rgba(255,107,107,0.2); color: #ff6b6b; padding: 2rem; border-radius: 8px; text-align: center; }
+        .error { 
+            background: rgba(255,107,107,0.2); 
+            color: #ff6b6b; 
+            padding: 2rem; 
+            border-radius: 8px; 
+            text-align: center; 
+        }
         .loading { text-align: center; padding: 3rem; color: var(--text-secondary); }
 
-        .book-header { display: grid; grid-template-columns: 300px 1fr; gap: 3rem; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-light); }
+        .book-header { 
+            display: grid; 
+            grid-template-columns: 300px 1fr; 
+            gap: 3rem; 
+            margin-bottom: 3rem; 
+            padding-bottom: 2rem; 
+            border-bottom: 1px solid var(--border-light); 
+        }
 
-        .book-cover-large { width: 100%; height: 400px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2); display: flex; align-items: center; justify-content: center; }
-
+        .book-cover-large { 
+            width: 100%; 
+            height: 400px; 
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
         .book-cover-large img { width: 100%; height: 100%; object-fit: cover; }
 
         .book-details h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
         .book-author { font-size: 1.1rem; color: var(--accent-cyan); margin-bottom: 1.5rem; font-weight: 600; }
 
-        .book-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; padding: 1.5rem; background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 10px; }
+        .book-meta { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 1.5rem; 
+            margin-bottom: 2rem; 
+            padding: 1.5rem; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--border-light); 
+            border-radius: 10px; 
+        }
 
         .meta-label { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
         .meta-value { font-size: 1rem; font-weight: 600; color: var(--text-light); }
 
-        .book-description { padding: 1.5rem; background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 10px; line-height: 1.8; color: var(--text-secondary); margin-bottom: 2rem; }
+        .book-description { 
+            padding: 1.5rem; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--border-light); 
+            border-radius: 10px; 
+            line-height: 1.8; 
+            color: var(--text-secondary); 
+            margin-bottom: 2rem; 
+        }
 
-        .author-section { background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 15px; padding: 2rem; margin-bottom: 3rem; display: flex; align-items: center; gap: 2rem; }
+        .viewer-section {
+            background: linear-gradient(135deg, #1a1f3a, #0f1535);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.1);
+        }
 
-        .author-btn { padding: 1rem 2rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: var(--primary); border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; }
+        .viewer-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
+        .control-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .control-btn {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .control-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .page-info {
+            color: var(--text-secondary);
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .zoom-info {
+            color: var(--text-secondary);
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .book-viewer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+            perspective: 1200px;
+            background: linear-gradient(135deg, rgba(26,31,58,0.8), rgba(15,21,53,0.8));
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .flip-book {
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 
+                0 0 40px rgba(0, 212, 255, 0.2),
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .page {
+            padding: 40px;
+            background: linear-gradient(135deg, #f5f3f0, #f0ede8);
+            color: #2c2c2c;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 600px;
+            font-family: 'Georgia', serif;
+            position: relative;
+        }
+
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.02) 0%, transparent 50%, rgba(0,0,0,0.02) 100%);
+            pointer-events: none;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-header {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 1rem;
+        }
+
+        .page-number {
+            font-size: 0.9rem;
+            color: #999;
+            text-align: center;
+            margin-top: 1rem;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .page-text {
+            flex: 1;
+            font-size: 1rem;
+            line-height: 1.8;
+            text-align: justify;
+            color: #333;
+            margin: 1rem 0;
+            column-count: 2;
+            column-gap: 2rem;
+        }
+
+        .page-image {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .page-cover {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        .page-cover h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .page-cover p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 400px;
+        }
+
+        .flip-book.--left {
+            border-right: none;
+            box-shadow: inset -8px 0 30px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        .flip-book.--right {
+            border-left: none;
+            box-shadow: inset 8px 0 30px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        .author-section { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--border-light); 
+            border-radius: 15px; 
+            padding: 2rem; 
+            margin-bottom: 3rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 2rem; 
+        }
+
+        .author-btn { 
+            padding: 1rem 2rem; 
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); 
+            color: var(--primary); 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            font-size: 1rem; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            white-space: nowrap; 
+        }
         .author-btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3); }
 
-        .pdf-viewer-section { background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 15px; padding: 2rem; margin-bottom: 3rem; }
-
-        .pdf-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-
-        .page-controls button, .zoom-controls button { padding: 0.6rem 1.2rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: var(--primary); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-
-        .page-controls button:hover, .zoom-controls button:hover { opacity: 0.8; }
-
-        .page-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .pdf-pages { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
-        .page-wrapper { background: white; border-radius: 8px; overflow: hidden; min-height: 500px; display: flex; align-items: center; justify-content: center; }
-        .page-wrapper img { width: 100%; height: 100%; object-fit: contain; }
-
-        .comments-section { background: var(--glass-bg); border: 1px solid var(--border-light); border-radius: 15px; padding: 2rem; }
+        .comments-section { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--border-light); 
+            border-radius: 15px; 
+            padding: 2rem; 
+        }
 
         .comments-header h2 { color: var(--accent-cyan); margin-bottom: 1.5rem; }
 
-        .comment-form { background: var(--glass-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; border: 1px solid var(--border-light); }
+        .comment-form { 
+            background: var(--glass-bg); 
+            padding: 1.5rem; 
+            border-radius: 10px; 
+            margin-bottom: 2rem; 
+            border: 1px solid var(--border-light); 
+        }
 
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); border-radius: 6px; color: var(--text-main); font-family: inherit; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--accent-cyan); background: rgba(0, 212, 255, 0.05); }
+        .form-group input, .form-group textarea, .form-group select { 
+            width: 100%; 
+            padding: 0.8rem; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--border-light); 
+            border-radius: 6px; 
+            color: var(--text-main); 
+            font-family: inherit; 
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { 
+            outline: none; 
+            border-color: var(--accent-cyan); 
+            background: rgba(0, 212, 255, 0.05); 
+        }
 
-        .submit-btn { width: 100%; padding: 0.8rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); color: var(--primary); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .submit-btn { 
+            width: 100%; 
+            padding: 0.8rem; 
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); 
+            color: var(--primary); 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            cursor: pointer; 
+        }
         .submit-btn:hover { opacity: 0.9; }
 
-        .comments-list { }
-        .comment { background: var(--glass-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem; border-left: 3px solid var(--accent-cyan); }
+        .comment { 
+            background: var(--glass-bg); 
+            padding: 1.5rem; 
+            border-radius: 10px; 
+            margin-bottom: 1rem; 
+            border-left: 3px solid var(--accent-cyan); 
+        }
 
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
         .comment-author { font-weight: 600; color: var(--text-light); }
@@ -103,22 +400,50 @@
         .comment-text { line-height: 1.6; color: var(--text-secondary); }
 
         .empty-comments { text-align: center; padding: 2rem; color: var(--text-secondary); }
+        .comments-list { }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center; padding: 2rem; }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.95); 
+            z-index: 2000; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 2rem; 
+        }
         .modal img { max-width: 90%; max-height: 90%; border-radius: 12px; }
+
+        @media (max-width: 1024px) {
+            .book-header { grid-template-columns: 1fr; }
+            .viewer-section { padding: 1.5rem; }
+            .viewer-controls { flex-direction: column; align-items: stretch; }
+            .page { padding: 30px; min-height: 500px; }
+        }
 
         @media (max-width: 768px) {
             .book-header { grid-template-columns: 1fr; }
             .author-section { flex-direction: column; }
-            .pdf-pages { grid-template-columns: 1fr; }
+            .control-group { width: 100%; }
+            .page { padding: 20px; min-height: 450px; }
+            .page-text { column-count: 1; }
+            .page-cover h2 { font-size: 2rem; }
             .logo img { max-width: 200px; }
         }
+
         @media (max-width: 480px) {
             .logo img { max-width: 150px; }
+            .book-viewer-container { padding: 1rem; }
+            .page { padding: 15px; min-height: 400px; font-size: 0.9rem; }
+            .page-text { font-size: 0.9rem; line-height: 1.6; }
         }
     </style>
 </head>
 <body>
+
     <header>
         <div class="header-wrapper">
             <div class="logo" onclick="window.location.href='letras-y-versos.html'">
@@ -132,7 +457,6 @@
         <div id="loading" class="loading">⏳ Cargando libro...</div>
         
         <div id="content" style="display: none;">
-            <!-- PORTADA Y DETALLES -->
             <div class="book-header">
                 <div class="book-cover-large">
                     <img id="bookCover" src="" alt="Portada">
@@ -154,36 +478,32 @@
                 </div>
             </div>
 
-            <!-- BOTÓN AUTOR -->
             <div id="authorContainer" class="author-section" style="display: none;">
                 <button class="author-btn" onclick="openPhotoModal()">📸 Autor (Haz clic para conocer acerca del autor)</button>
             </div>
 
-            <!-- VISOR PDF -->
-            <div class="pdf-viewer-section">
-                <div class="pdf-controls">
-                    <div class="page-controls">
-                        <button id="prevBtn" onclick="previousPage()">← Anterior</button>
-                        <span style="color: var(--text-secondary); margin: 0 1rem;">
+            <div class="viewer-section">
+                <div class="viewer-controls">
+                    <div class="control-group">
+                        <button id="prevBtn" class="control-btn" onclick="flipPrev()">← Anterior</button>
+                        <div class="page-info">
                             <span id="pageNum">1</span> / <span id="pageTotal">0</span>
-                        </span>
-                        <button id="nextBtn" onclick="nextPage()">Siguiente →</button>
+                        </div>
+                        <button id="nextBtn" class="control-btn" onclick="flipNext()">Siguiente →</button>
                     </div>
-                    <div class="zoom-controls">
-                        <button onclick="zoomOut()">🔍−</button>
-                        <span id="zoomLevel" style="color: var(--text-secondary); margin: 0 1rem;">100%</span>
-                        <button onclick="zoomReset()">↺ Reset</button>
-                        <button onclick="zoomIn()">🔍+</button>
+                    <div class="control-group">
+                        <button class="control-btn" onclick="zoomOut()">🔍−</button>
+                        <div class="zoom-info"><span id="zoomLevel">100%</span></div>
+                        <button class="control-btn" onclick="zoomReset()">↺ Reset</button>
+                        <button class="control-btn" onclick="zoomIn()">🔍+</button>
                     </div>
                 </div>
 
-                <div class="pdf-pages">
-                    <div class="page-wrapper" id="leftPage"></div>
-                    <div class="page-wrapper" id="rightPage"></div>
+                <div class="book-viewer-container">
+                    <div class="flip-book" id="bookFlip"></div>
                 </div>
             </div>
 
-            <!-- COMENTARIOS Y RESEÑAS -->
             <div class="comments-section">
                 <div class="comments-header">
                     <h2>💬 Comentarios y Reseñas</h2>
@@ -233,10 +553,10 @@
         );
 
         let currentBook = null;
-        let pageImages = [];
-        let currentPage = 0;
-        let currentZoom = 100;
+        let pageFlip = null;
         let bookId = null;
+        let currentZoom = 100;
+        let pageImages = [];
 
         async function loadBook() {
             try {
@@ -261,6 +581,7 @@
                 bookId = currentBook.id;
                 displayBook();
                 await renderPDF();
+                initializePageFlip();
                 loadComments();
             } catch (e) {
                 document.getElementById('loading').style.display = 'none';
@@ -302,7 +623,7 @@
                     const page = await pdf.getPage(i);
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: 2 });
+                    const viewport = page.getViewport({ scale: 2.5 });
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
                     await page.render({ canvasContext: context, viewport }).promise;
@@ -310,36 +631,95 @@
                 }
 
                 document.getElementById('pageTotal').textContent = pageImages.length;
-                updatePages();
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
             } catch (e) {
                 throw new Error('Error renderizando PDF: ' + e.message);
             }
         }
 
-        function updatePages() {
-            const leftIdx = currentPage;
-            const rightIdx = currentPage + 1;
-            document.getElementById('leftPage').innerHTML = leftIdx < pageImages.length ? `<img src="${pageImages[leftIdx]}">` : '';
-            document.getElementById('rightPage').innerHTML = rightIdx < pageImages.length ? `<img src="${pageImages[rightIdx]}">` : '';
-            document.getElementById('pageNum').textContent = (leftIdx + 1);
-            document.getElementById('prevBtn').disabled = leftIdx === 0;
-            document.getElementById('nextBtn').disabled = rightIdx >= pageImages.length;
+        function initializePageFlip() {
+            const bookFlipContainer = document.getElementById('bookFlip');
+            bookFlipContainer.innerHTML = '';
+
+            const coverPage = document.createElement('div');
+            coverPage.className = 'page page-cover';
+            coverPage.innerHTML = `
+                <div class="page-content">
+                    <div style="text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <h2>${currentBook.titulo}</h2>
+                        <p style="margin-top: 1rem; font-size: 1.1rem;">${currentBook.autor}</p>
+                        <p style="margin-top: 2rem; font-size: 0.95rem; opacity: 0.9;">${currentBook.año || ''}</p>
+                    </div>
+                </div>
+            `;
+            bookFlipContainer.appendChild(coverPage);
+
+            pageImages.forEach((imageData, index) => {
+                const page = document.createElement('div');
+                page.className = 'page';
+                page.innerHTML = `
+                    <div class="page-content">
+                        <img src="${imageData}" class="page-image" alt="Página ${index + 1}">
+                        <div class="page-number">Página ${index + 1}</div>
+                    </div>
+                `;
+                bookFlipContainer.appendChild(page);
+            });
+
+            const backCoverPage = document.createElement('div');
+            backCoverPage.className = 'page page-cover';
+            backCoverPage.innerHTML = `
+                <div class="page-content">
+                    <div style="text-align: center; flex: 1; display: flex; align-items: center; justify-content: center;">
+                        <h2>FIN DEL LIBRO</h2>
+                    </div>
+                </div>
+            `;
+            bookFlipContainer.appendChild(backCoverPage);
+
+            pageFlip = new PageFlip(document.getElementById('bookFlip'), {
+                width: 550,
+                height: 733,
+                size: 'stretch',
+                minWidth: 315,
+                maxWidth: 1000,
+                minHeight: 420,
+                maxHeight: 1350,
+                maxShadowOpacity: 0.5,
+                showCover: true,
+                mobileScrollSupport: false,
+                disableFlip: false,
+                useMouseEvents: true,
+                startZIndex: 0,
+                autoSize: true
+            });
+
+            pageFlip.on('flip', (e) => {
+                document.getElementById('pageNum').textContent = e.data + 1;
+                updateButtonStates();
+            });
+
+            pageFlip.on('changeOrientation', (e) => {
+                console.log('Orientación cambió:', e.data);
+            });
+
+            updateButtonStates();
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
         }
 
-        function previousPage() {
-            if (currentPage > 0) {
-                currentPage = Math.max(0, currentPage - 2);
-                updatePages();
-            }
+        function updateButtonStates() {
+            const currentPage = pageFlip.getCurrentPageIndex();
+            const totalPages = pageFlip.getPageCount();
+            document.getElementById('prevBtn').disabled = currentPage === 0;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages - 1;
         }
 
-        function nextPage() {
-            if (currentPage + 2 < pageImages.length) {
-                currentPage += 2;
-                updatePages();
-            }
+        function flipPrev() {
+            if (pageFlip) pageFlip.flipPrev();
+        }
+
+        function flipNext() {
+            if (pageFlip) pageFlip.flipNext();
         }
 
         function zoomIn() {
@@ -358,7 +738,7 @@
         }
 
         function applyZoom() {
-            const container = document.querySelector('.pdf-viewer-section');
+            const container = document.querySelector('.book-viewer-container');
             container.style.transform = `scale(${currentZoom / 100})`;
             container.style.transformOrigin = 'top center';
             document.getElementById('zoomLevel').textContent = currentZoom + '%';
@@ -377,6 +757,8 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closePhotoModal();
+            if (e.key === 'ArrowLeft') flipPrev();
+            if (e.key === 'ArrowRight') flipNext();
         });
 
         function addComment(event) {
@@ -426,5 +808,6 @@
 
         window.addEventListener('load', loadBook);
     </script>
+
 </body>
 </html>
