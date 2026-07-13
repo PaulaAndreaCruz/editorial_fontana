@@ -71,14 +71,18 @@
         }
 
         .login-logo {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 1rem;
-            letter-spacing: 2px;
+            height: 100px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-logo img {
+            height: 100%;
+            width: auto;
+            max-width: 320px;
+            object-fit: contain;
         }
 
         .login-title {
@@ -230,7 +234,7 @@
             }
 
             .login-logo {
-                font-size: 1.5rem;
+                height: 60px;
             }
 
             .login-title {
@@ -243,7 +247,9 @@
 
     <div class="login-container">
         <div class="login-header">
-            <div class="login-logo">EDITORIAL FONTANA</div>
+            <div class="login-logo">
+                <img src="assets/logo_1.png" alt="Editorial Fontana">
+            </div>
             <h1 class="login-title">Panel Administrativo</h1>
             <p class="login-subtitle">Acceso restringido</p>
         </div>
