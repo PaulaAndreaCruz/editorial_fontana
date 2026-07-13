@@ -230,7 +230,6 @@
             position: relative;
             overflow: hidden;
             transform-style: preserve-3d;
-            transition: all 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
         }
 
         .page img {
@@ -250,26 +249,26 @@
             box-shadow: inset 8px 0 30px -8px rgba(0, 0, 0, 0.3);
         }
 
-        /* Animación cuando se voltea hacia atrás (Anterior) */
-        .page.flip-back {
-            animation: flipBack 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+        /* Cuando avanzas - solo la página DERECHA gira hacia la IZQUIERDA */
+        .page.right.flip-forward {
+            animation: flipRightForward 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
         }
 
-        @keyframes flipBack {
+        @keyframes flipRightForward {
             0% { transform: rotateY(0deg); opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { transform: rotateY(180deg); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: rotateY(-160deg); opacity: 0; }
         }
 
-        /* Animación cuando se voltea hacia adelante (Siguiente) */
-        .page.flip-forward {
-            animation: flipForward 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+        /* Cuando retrocedes - solo la página IZQUIERDA gira hacia la DERECHA */
+        .page.left.flip-back {
+            animation: flipLeftBack 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
         }
 
-        @keyframes flipForward {
+        @keyframes flipLeftBack {
             0% { transform: rotateY(0deg); opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { transform: rotateY(-180deg); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: rotateY(160deg); opacity: 0; }
         }
 
         .author-section { 
@@ -620,8 +619,8 @@
             // Remover animaciones después de actualizar
             if (animate) {
                 setTimeout(() => {
-                    leftPage.classList.remove('flip-back', 'flip-forward');
-                    rightPage.classList.remove('flip-back', 'flip-forward');
+                    leftPage.classList.remove('flip-back');
+                    rightPage.classList.remove('flip-forward');
                 }, 800);
             }
 
@@ -633,10 +632,9 @@
         function previousPage() {
             if (currentPage > 0) {
                 const leftPage = document.getElementById('leftPage');
-                const rightPage = document.getElementById('rightPage');
                 
+                // Solo la página IZQUIERDA gira hacia la derecha
                 leftPage.classList.add('flip-back');
-                rightPage.classList.add('flip-back');
                 
                 setTimeout(() => {
                     currentPage = Math.max(0, currentPage - 2);
@@ -647,10 +645,9 @@
 
         function nextPage() {
             if (currentPage + 2 < pageImages.length) {
-                const leftPage = document.getElementById('leftPage');
                 const rightPage = document.getElementById('rightPage');
                 
-                leftPage.classList.add('flip-forward');
+                // Solo la página DERECHA gira hacia la izquierda
                 rightPage.classList.add('flip-forward');
                 
                 setTimeout(() => {
