@@ -216,6 +216,8 @@
             background: white;
             box-shadow: 0 0 40px rgba(0, 212, 255, 0.2), 0 20px 60px rgba(0, 0, 0, 0.6);
             border-radius: 2px;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
         }
 
         .page {
@@ -227,6 +229,8 @@
             background: white;
             position: relative;
             overflow: hidden;
+            transform-style: preserve-3d;
+            transition: all 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
         }
 
         .page img {
@@ -239,11 +243,35 @@
         .page.left {
             border-right: 1px solid #ddd;
             box-shadow: inset -8px 0 30px -8px rgba(0, 0, 0, 0.3);
+            transform-origin: right center;
         }
 
         .page.right {
             border-left: 1px solid #ddd;
             box-shadow: inset 8px 0 30px -8px rgba(0, 0, 0, 0.3);
+            transform-origin: left center;
+        }
+
+        /* Animación cuando se voltea hacia atrás */
+        .page.left.flip-back {
+            transform: rotateY(180deg);
+            opacity: 0.5;
+        }
+
+        .page.right.flip-back {
+            transform: rotateY(-180deg);
+            opacity: 0.5;
+        }
+
+        /* Animación cuando se voltea hacia adelante */
+        .page.left.flip-forward {
+            transform: rotateY(-180deg);
+            opacity: 0.5;
+        }
+
+        .page.right.flip-forward {
+            transform: rotateY(180deg);
+            opacity: 0.5;
         }
 
         .author-section { 
@@ -577,6 +605,11 @@
             
             const leftPage = document.getElementById('leftPage');
             const rightPage = document.getElementById('rightPage');
+            const pageContainer = document.getElementById('pageContainer');
+
+            // Remover clases de animación anterior
+            leftPage.classList.remove('flip-back', 'flip-forward');
+            rightPage.classList.remove('flip-back', 'flip-forward');
 
             if (leftIdx < pageImages.length) {
                 leftPage.innerHTML = `<img src="${pageImages[leftIdx]}" alt="Página ${leftIdx + 1}">`;
@@ -597,15 +630,33 @@
 
         function previousPage() {
             if (currentPage > 0) {
-                currentPage = Math.max(0, currentPage - 2);
-                updatePages();
+                const leftPage = document.getElementById('leftPage');
+                const rightPage = document.getElementById('rightPage');
+                
+                // Agregar animación de giro hacia atrás
+                leftPage.classList.add('flip-back');
+                rightPage.classList.add('flip-back');
+                
+                setTimeout(() => {
+                    currentPage = Math.max(0, currentPage - 2);
+                    updatePages();
+                }, 400);
             }
         }
 
         function nextPage() {
             if (currentPage + 2 < pageImages.length) {
-                currentPage += 2;
-                updatePages();
+                const leftPage = document.getElementById('leftPage');
+                const rightPage = document.getElementById('rightPage');
+                
+                // Agregar animación de giro hacia adelante
+                leftPage.classList.add('flip-forward');
+                rightPage.classList.add('flip-forward');
+                
+                setTimeout(() => {
+                    currentPage += 2;
+                    updatePages();
+                }, 400);
             }
         }
 
