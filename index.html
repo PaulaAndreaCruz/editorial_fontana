@@ -486,7 +486,154 @@
             color: var(--accent-green);
         }
 
-        /* ==================== FOOTER ==================== */
+        /* ==================== SELLOS EDITORIALES SECTION ==================== */
+        .seals-section {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .seals-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .seals-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .seals-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .seals-header h2 .accent {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .seals-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .seals-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .seals-logo img {
+            height: 100px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .seals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .seal-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .seal-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 20px 50px rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .seal-card-image {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .seal-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 1.5rem;
+            transition: transform 0.4s ease;
+        }
+
+        .seal-card:hover .seal-card-image img {
+            transform: scale(1.1);
+        }
+
+        .seal-card-content {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .seal-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .seal-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .seal-card-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .seal-card-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .seal-card-btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         footer {
             background: #0f1535;
             padding: 3rem 2rem;
@@ -649,10 +796,10 @@
             </p>
 
             <div class="hero-buttons">
-                <button class="btn-primary" onclick="document.getElementById('biblioteca').scrollIntoView({behavior: 'smooth'})">
+                <button class="btn-primary" onclick="window.location.href='letras-y-versos.html'">
                     Explorar Biblioteca
                 </button>
-                <button class="btn-secondary">
+                <button class="btn-secondary" onclick="window.location.href='https://www.lafontana.edu.co/'">
                     Más Información
                 </button>
             </div>
@@ -686,7 +833,7 @@
     <!-- ==================== PROJECT SECTION ==================== -->
     <section class="project-section">
         <div class="project-wrapper">
-            <div class="project-content">
+            <div class="project-content" style="grid-column: 1/-1;">
                 <h2>
                     Acerca del Proyecto <span class="accent">Editorial Fontana</span>
                 </h2>
@@ -700,12 +847,67 @@
                     El Departamento de Investigación e Innovación en cooperación con el Departamento de Comunicación establecen tres sellos editoriales que permiten organizar y divulgar la producción bibliográfica de acuerdo a su tipología.
                 </p>
             </div>
+        </div>
+    </section>
 
-            <!-- BOTÓN LETRAS Y VERSOS CON IMAGEN -->
-            <button class="seal-button" onclick="openSeal('letras-versos')">
-                <img src="letras-versos.png" alt="Letras y Versos Fontana - Editorial">
-                <div class="seal-overlay"></div>
-            </button>
+    <!-- ==================== SELLOS EDITORIALES SECTION ==================== -->
+    <section class="seals-section" id="sellos">
+        <div class="seals-wrapper">
+            <div class="seals-header">
+                <div class="seals-logo">
+                    <img src="assets/sellos_editoriales.png" alt="Sellos Editoriales">
+                </div>
+                <h2>
+                    Nuestros <span class="accent">Sellos Editoriales</span>
+                </h2>
+                <p>
+                    Tres sellos que organizan y divulgan nuestra producción bibliográfica según su tipología
+                </p>
+            </div>
+
+            <div class="seals-grid">
+                <!-- LETRAS Y VERSOS -->
+                <div class="seal-card" onclick="window.location.href='letras-y-versos.html'">
+                    <div class="seal-card-image">
+                        <img src="assets/letras-y-versos.png" alt="Letras y Versos">
+                    </div>
+                    <div class="seal-card-content">
+                        <div>
+                            <h3>Letras y Versos</h3>
+                            <p>Poesía, narrativa y escritos de índole literario. Explora nuestra colección de obras creativas y literarias.</p>
+                        </div>
+                        <button class="seal-card-btn">Explorar</button>
+                    </div>
+                </div>
+
+                <!-- GCF NEWS -->
+                <div class="seal-card">
+                    <div class="seal-card-image">
+                        <img src="assets/GCF_NEWS.png" alt="GCF NEWS">
+                    </div>
+                    <div class="seal-card-content">
+                        <div>
+                            <h3>GCF NEWS</h3>
+                            <p>Historias que informan, inspiración que transforma. Accede a nuestro canal de contenido informativo y educativo.</p>
+                        </div>
+                        <a href="https://www.youtube.com/@LAFONTANAGCF" target="_blank" class="seal-card-btn">Ver en YouTube</a>
+                    </div>
+                </div>
+
+                <!-- FONTANA SEEDS -->
+                <div class="seal-card">
+                    <div class="seal-card-image">
+                        <img src="assets/FontanaSeeds.png" alt="Fontana Seeds">
+                    </div>
+                    <div class="seal-card-content">
+                        <div>
+                            <h3>Fontana Seeds</h3>
+                            <p>Ciencia, investigación e innovación. Descubre los trabajos científicos y de investigación de nuestra comunidad.</p>
+                        </div>
+                        <button class="seal-card-btn disabled">Próximamente</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
