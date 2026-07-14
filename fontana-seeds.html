@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Fontana Seeds - Semilleros de Investigación">
+    <title>Fontana Seeds | Semilleros de Investigación</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0a0e27;
+            --secondary: #0f1535;
+            --accent-cyan: #00d4ff;
+            --accent-blue: #0099ff;
+            --accent-green: #00ff88;
+            --text-light: #ffffff;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--primary);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: linear-gradient(135deg, #0a0e27, #0f1535);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .logo:hover { transform: scale(1.05); }
+        .logo img { height: 100%; width: auto; max-width: 250px; object-fit: contain; }
+
+        .btn-back {
+            padding: 0.7rem 1.8rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover { box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4); transform: translateY(-2px); }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; margin-top: 60px; }
+
+        /* HERO SECTION */
+        .hero {
+            height: 500px;
+            background: linear-gradient(135deg, rgba(0, 99, 255, 0.2), rgba(0, 212, 255, 0.1)), url('assets/fontana-seeds/principal.jpeg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: flex-end;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, transparent, rgba(10, 14, 39, 0.9));
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        .hero-content h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        /* CONTENT SECTION */
+        .content-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .content-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-section p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        /* CAROUSEL */
+        .carousel-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .carousel-section h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-light);
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: black;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .carousel {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+            width: 100%;
+        }
+
+        .carousel-item {
+            min-width: 100%;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: black;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 212, 255, 0.8);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-control:hover {
+            background: var(--accent-cyan);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-control.prev { left: 1rem; }
+        .carousel-control.next { right: 1rem; }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.8rem;
+            z-index: 10;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .indicator.active {
+            background: var(--accent-cyan);
+            transform: scale(1.3);
+        }
+
+        /* FOOTER */
+        footer {
+            background: #0f1535;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border-light);
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .hero { height: 300px; }
+            .hero-content h1 { font-size: 1.8rem; }
+            .content-section { padding: 1.5rem; }
+            .carousel-item { height: 350px; }
+            .carousel-control { width: 40px; height: 40px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-wrapper">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <img src="assets/logo_1.png" alt="Editorial Fontana">
+            </div>
+            <button class="btn-back" onclick="window.history.back()">← Volver</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-logo">
+                    <img src="assets/FontanaSeeds.png" alt="Fontana Seeds" style="height: 120px; width: auto; object-fit: contain; margin-bottom: 1rem;">
+                </div>
+                <p>Semilleros de Investigación - Ciencia, Investigación e Innovación</p>
+            </div>
+        </section>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <section class="content-section">
+            <h2>Acerca de Fontana Seeds</h2>
+            <p>
+                <strong>Fontana Seeds</strong> es el programa de semilleros de investigación del Gimnasio Campestre La Fontana, 
+                dedicado a fomentar la cultura científica, la investigación y la innovación en nuestra comunidad educativa.
+            </p>
+            <p>
+                A través de estos semilleros, nuestros estudiantes desarrollan proyectos de investigación rigurosos, 
+                participan en encuentros regionales y nacionales, y contribuyen al avance del conocimiento en diversas disciplinas.
+            </p>
+        </section>
+
+        <!-- NOTICIA PRINCIPAL -->
+        <section class="content-section">
+            <h2>XXIII Encuentro Regional de Semilleros de Investigación</h2>
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1rem; font-size: 1.3rem;">Nodo Amazonía Orinoquía</h3>
+            <p>
+                Nos complace compartir la participación de nuestro equipo de Fontana Seeds en el XXIII Encuentro Regional de 
+                Semilleros de Investigación del Nodo Amazonía Orinoquía. Esta es una oportunidad invaluable para que nuestros 
+                investigadores junior presenten sus trabajos, intercambien experiencias con otros semilleros de la región y 
+                fortalezcan sus habilidades en investigación científica.
+            </p>
+            <p>
+                Durante este encuentro, nuestros estudiantes tienen la oportunidad de:
+            </p>
+            <ul style="margin-left: 2rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <li>Presentar sus proyectos de investigación ante una comunidad académica</li>
+                <li>Recibir retroalimentación de investigadores experimentados</li>
+                <li>Establecer redes de colaboración con otros semilleros</li>
+                <li>Aprender sobre metodologías de investigación innovadoras</li>
+                <li>Contribuir al conocimiento científico regional</li>
+            </ul>
+        </section>
+
+        <!-- CARRUSEL DE FOTOS -->
+        <section class="carousel-section">
+            <h3>Galería del Evento</h3>
+            <div class="carousel-container">
+                <div class="carousel" id="carousel">
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-1.jpeg" alt="Evento 1">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-2.jpeg" alt="Evento 2">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-3.jpeg" alt="Evento 3">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-4.jpeg" alt="Evento 4">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-5.jpeg" alt="Evento 5">
+                    </div>
+                </div>
+
+                <button class="carousel-control prev" onclick="prevSlide()">❮</button>
+                <button class="carousel-control next" onclick="nextSlide()">❯</button>
+
+                <div class="carousel-indicators" id="indicators"></div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">
+                &copy; 2024 EDITORIAL FONTANA - Fontana Seeds. Todos los derechos reservados.
+            </p>
+            <p class="footer-text" style="font-size: 0.85rem; color: #707070;">
+                Semilleros de Investigación | Gimnasio Campestre La Fontana | Villavicencio, Colombia
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 5; // Cantidad de fotos en el carrusel
+
+        function initCarousel() {
+            const indicatorsContainer = document.getElementById('indicators');
+            for (let i = 0; i < totalSlides; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator' + (i === 0 ? ' active' : '');
+                indicator.onclick = () => goToSlide(i);
+                indicatorsContainer.appendChild(indicator);
+            }
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            const carousel = document.getElementById('carousel');
+            carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((ind, idx) => {
+                ind.classList.toggle('active', idx === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateCarousel();
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            updateCarousel();
+        }
+
+        // Inicializar carrusel
+        window.addEventListener('load', initCarousel);
+    </script>
+
+</body>
+</html>
