@@ -83,7 +83,7 @@
 
         /* HERO SECTION */
         .hero {
-            height: 500px;
+            height: 600px;
             background: linear-gradient(135deg, rgba(0, 99, 255, 0.2), rgba(0, 212, 255, 0.1)), url('assets/fontana-seeds/principal.jpeg');
             background-size: cover;
             background-position: center;
@@ -92,7 +92,8 @@
             position: relative;
             margin-bottom: 3rem;
             display: flex;
-            align-items: flex-end;
+            align-items: center;
+            justify-content: center;
             box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
         }
 
@@ -103,7 +104,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(180deg, transparent, rgba(10, 14, 39, 0.9));
+            background: linear-gradient(180deg, transparent, rgba(10, 14, 39, 0.7));
             z-index: 1;
         }
 
@@ -112,6 +113,10 @@
             z-index: 2;
             padding: 2rem;
             width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .hero-content h1 {
@@ -275,9 +280,7 @@
 
         @media (max-width: 768px) {
             .container { padding: 1rem; }
-            .hero { height: 300px; }
-            .hero-content h1 { font-size: 1.8rem; }
-            .content-section { padding: 1.5rem; }
+            .hero { height: 400px; }
             .carousel-item { height: 350px; }
             .carousel-control { width: 40px; height: 40px; font-size: 1.2rem; }
         }
@@ -298,10 +301,7 @@
         <!-- HERO SECTION -->
         <section class="hero">
             <div class="hero-content">
-                <div class="hero-logo">
-                    <img src="assets/FontanaSeeds.png" alt="Fontana Seeds" style="height: 120px; width: auto; object-fit: contain; margin-bottom: 1rem;">
-                </div>
-                <p>Semilleros de Investigación - Ciencia, Investigación e Innovación</p>
+                <img src="assets/FontanaSeeds.png" alt="Fontana Seeds" style="height: 400px; width: auto; object-fit: contain; max-width: 90%;">
             </div>
         </section>
 
@@ -360,6 +360,21 @@
                     <div class="carousel-item">
                         <img src="assets/fontana-seeds/foto-5.jpeg" alt="Evento 5">
                     </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-6.jpeg" alt="Evento 6">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-7.jpeg" alt="Evento 7">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-8.jpeg" alt="Evento 8">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-9.jpeg" alt="Evento 9">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="assets/fontana-seeds/foto-10.jpeg" alt="Evento 10">
+                    </div>
                 </div>
 
                 <button class="carousel-control prev" onclick="prevSlide()">❮</button>
@@ -383,7 +398,7 @@
 
     <script>
         let currentSlide = 0;
-        const totalSlides = 5; // Cantidad de fotos en el carrusel
+        const totalSlides = 10; // Cantidad de fotos en el carrusel
 
         function initCarousel() {
             const indicatorsContainer = document.getElementById('indicators');
