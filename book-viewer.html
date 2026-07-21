@@ -745,49 +745,51 @@
             event.preventDefault();
 
             const comment = {
-                id: Date.now(),
-                bookId: bookId,
-                name: document.getElementById('commentName').value,
+                book_id: bookId,
+                nombre: document.getElementById('commentName').value,
                 rating: parseInt(document.getElementById('commentRating').value),
-                text: document.getElementById('commentText').value,
-                date: new Date().toLocaleDateString('es-ES')
+                texto: document.getElementById('commentText').value
             };
 
-            let comments = JSON.parse(localStorage.getItem('bookComments')) || [];
-            comments.push(comment);
-            localStorage.setItem('bookComments', JSON.stringify(comments));
-
-            document.getElementById('commentName').value = '';
-            document.getElementById('commentRating').value = '5';
-            document.getElementById('commentText').value = '';
-
-            loadComments();
+            // Guardar en Supabase
+            supa.from('comentarios').insert([comment]).then(() => {
+                document.getElementById('commentName').value = '';
+                document.getElementById('commentRating').value = '5';
+                document.getElementById('commentText').value = '';
+                loadComments();
+            }).catch(err => console.error('Error:', err));
         }
 
         function loadComments() {
-            const comments = JSON.parse(localStorage.getItem('bookComments')) || [];
-            const bookComments = comments.filter(c => c.bookId === bookId);
-            const commentsList = document.getElementById('commentsList');
+            supa.from('comentarios')
+                .select('*')
+                .eq('book_id', bookId)
+                .order('created_at', { ascending: false })
+                .then(({ data }) => {
+                    const commentsList = document.getElementById('commentsList');
+                    
+                    if (!data || data.length === 0) {
+                        commentsList.innerHTML = '<div class="empty-comments">📚 No hay comentarios aún. ¡Sé el primero!</div>';
+                        return;
+                    }
 
-            if (bookComments.length === 0) {
-                commentsList.innerHTML = '<div class="empty-comments">📚 No hay comentarios aún. ¡Sé el primero!</div>';
-                return;
-            }
-
-            commentsList.innerHTML = bookComments.map(comment => `
-                <div class="comment">
-                    <div class="comment-header">
-                        <span class="comment-author">${comment.name}</span>
-                        <span class="comment-date">${comment.date}</span>
-                    </div>
-                    <div class="comment-rating">${'⭐'.repeat(comment.rating)}</div>
-                    <div class="comment-text">${comment.text}</div>
-                </div>
-            `).join('');
+                    commentsList.innerHTML = data.map(comment => `
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">${comment.nombre}</span>
+                                <span class="comment-date">${new Date(comment.created_at).toLocaleDateString('es-ES')}</span>
+                            </div>
+                            <div class="comment-rating">${'⭐'.repeat(comment.rating)}</div>
+                            <div class="comment-text">${comment.texto}</div>
+                        </div>
+                    `).join('');
+                })
+                .catch(err => console.error('Error cargando comentarios:', err));
         }
 
         window.addEventListener('load', loadBook);
     </script>
 
+    <script src="splash-cursor.js"></script>
 </body>
 </html>
