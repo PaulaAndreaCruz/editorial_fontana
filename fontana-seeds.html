@@ -258,6 +258,153 @@
             transform: scale(1.3);
         }
 
+        /* DOCUMENTOS SECTION */
+        .documentos-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(0, 20, 60, 0.5) 0%, rgba(0, 40, 80, 0.3) 100%);
+            border-top: 1px solid var(--border-light);
+        }
+
+        .documentos-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-cyan);
+        }
+
+        .documentos-section .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filters select {
+            padding: 0.8rem 1.2rem;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filters select:hover, .filters select:focus {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .btn-admin {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-green), #00cc66);
+            color: var(--primary);
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .documentos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .doc-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 100, 200, 0.05) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .doc-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.15);
+        }
+
+        .doc-header {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .doc-categoria {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--accent-cyan);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .doc-año {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent-green);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .doc-card h3 {
+            color: var(--text-light);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+
+        .doc-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            flex-grow: 1;
+        }
+
+        .doc-autor {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-descargar {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--primary);
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        .btn-descargar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
         /* FOOTER */
         footer {
             background: #0f1535;
@@ -382,6 +529,38 @@
                 <div class="carousel-indicators" id="indicators"></div>
             </div>
         </section>
+
+        <!-- SECCIÓN DOCUMENTOS -->
+        <section class="documentos-section">
+            <div class="container">
+                <h2>📚 Repositorio de Proyectos</h2>
+                <p class="subtitle">Explora los proyectos, pruebas internas y monografías de nuestros semilleros</p>
+
+                <div class="filters">
+                    <select id="filtroCategoria" onchange="filtrarDocumentos()">
+                        <option value="">Todas las categorías</option>
+                        <option value="Proyectos">Proyectos</option>
+                        <option value="Pruebas Internas">Pruebas Internas</option>
+                        <option value="Monografías">Monografías</option>
+                    </select>
+
+                    <select id="filtroAño" onchange="filtrarDocumentos()">
+                        <option value="">Todos los años</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                    </select>
+
+                    <a href="admin-documentos.html" class="btn-admin">📤 Panel Admin</a>
+                </div>
+
+                <div class="documentos-grid" id="documentosGrid">
+                    <p style="text-align: center; color: #888;">Cargando documentos...</p>
+                </div>
+            </div>
+        </section>
     </div>
 
     <footer>
@@ -395,9 +574,11 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Carrusel
         let currentSlide = 0;
-        const totalSlides = 10; // Cantidad de fotos en el carrusel
+        const totalSlides = 10;
 
         function initCarousel() {
             const indicatorsContainer = document.getElementById('indicators');
@@ -435,9 +616,70 @@
             updateCarousel();
         }
 
-        // Inicializar carrusel
-        window.addEventListener('load', initCarousel);
-    </script>
+        // Documentos Supabase
+        const SUPABASE_URL = 'https://dkvadgydaiaxvtzjblpd.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ';
 
-</body>
-</html>
+        const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function cargarDocumentos() {
+            try {
+                const { data, error } = await supa
+                    .from('documentos')
+                    .select('*')
+                    .order('año', { ascending: false })
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                window.todosDocumentos = data || [];
+                filtrarDocumentos();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('documentosGrid').innerHTML = '<p style="color: #ff6b9d;">Error cargando documentos</p>';
+            }
+        }
+
+        function filtrarDocumentos() {
+            const categoria = document.getElementById('filtroCategoria').value;
+            const año = document.getElementById('filtroAño').value;
+
+            let filtrados = window.todosDocumentos || [];
+
+            if (categoria) {
+                filtrados = filtrados.filter(d => d.categoria === categoria);
+            }
+            if (año) {
+                filtrados = filtrados.filter(d => d.año === parseInt(año));
+            }
+
+            mostrarDocumentos(filtrados);
+        }
+
+        function mostrarDocumentos(documentos) {
+            const grid = document.getElementById('documentosGrid');
+
+            if (documentos.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: #888; grid-column: 1/-1;">No hay documentos en esta categoría</p>';
+                return;
+            }
+
+            grid.innerHTML = documentos.map(doc => `
+                <div class="doc-card">
+                    <div class="doc-header">
+                        <span class="doc-categoria">${doc.categoria}</span>
+                        <span class="doc-año">${doc.año}</span>
+                    </div>
+                    <h3>${doc.titulo}</h3>
+                    <p class="doc-desc">${doc.descripcion || 'Sin descripción'}</p>
+                    ${doc.autor ? `<p class="doc-autor">👤 ${doc.autor}</p>` : ''}
+                    <a href="${doc.archivo_url}" target="_blank" class="btn-descargar">📥 Descargar</a>
+                </div>
+            `).join('');
+        }
+
+        window.addEventListener('load', () => {
+            initCarousel();
+            cargarDocumentos();
+        });
+    </script>
