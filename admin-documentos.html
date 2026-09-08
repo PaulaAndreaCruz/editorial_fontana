@@ -321,9 +321,21 @@
         const uploadForm = document.getElementById('uploadForm');
         const messageDiv = document.getElementById('message');
 
+        // Función para sanitizar nombres de archivos
+        function sanitizeFileName(fileName) {
+            return fileName
+                .normalize('NFD')                           // Descomponer caracteres con tildes
+                .replace(/[\u0300-\u036f]/g, '')           // Remover diacríticos
+                .replace(/[^a-zA-Z0-9.-]/g, '_')           // Reemplazar caracteres especiales
+                .replace(/_+/g, '_')                        // Reducir guiones bajos múltiples
+                .toLowerCase();
+        }
+
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
-                fileName.textContent = `✅ Archivo seleccionado: ${e.target.files[0].name}`;
+                const original = e.target.files[0].name;
+                const sanitized = sanitizeFileName(original);
+                fileName.textContent = `✅ Archivo: ${original} → ${sanitized}`;
             }
         });
 
@@ -345,18 +357,23 @@
             showMessage('Subiendo documento...', 'loading');
 
             try {
-                // Subir archivo a Storage
-                const fileName = `${Date.now()}-${file.name}`;
+                // Subir archivo a Storage con nombre sanitizado
+                const sanitized = sanitizeFileName(file.name);
+                const fileNameStorage = `${Date.now()}-${sanitized}`;
+                
+                console.log('Archivo original:', file.name);
+                console.log('Archivo sanitizado:', fileNameStorage);
+                
                 const { data: storageData, error: storageError } = await supa.storage
                     .from('documentos')
-                    .upload(fileName, file);
+                    .upload(fileNameStorage, file);
 
                 if (storageError) throw storageError;
 
                 // Obtener URL pública
                 const { data: urlData } = supa.storage
                     .from('documentos')
-                    .getPublicUrl(fileName);
+                    .getPublicUrl(fileNameStorage);
 
                 const archivo_url = urlData.publicUrl;
 
