@@ -287,6 +287,29 @@
             flex-wrap: wrap;
         }
 
+        #buscador {
+            padding: 0.8rem 1.2rem;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95em;
+            min-width: 250px;
+            transition: all 0.3s;
+        }
+
+        #buscador:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        #buscador::placeholder {
+            color: var(--text-secondary);
+        }
+
         .filters select {
             padding: 0.8rem 1.2rem;
             background: rgba(0, 212, 255, 0.05);
@@ -398,11 +421,95 @@
             transition: all 0.3s;
             display: inline-block;
             align-self: flex-start;
+            border: none;
+            cursor: pointer;
         }
 
         .btn-descargar:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* MODAL PDF */
+        .modal-pdf {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            padding: 2rem;
+        }
+
+        .modal-pdf.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5em;
+            color: var(--accent-cyan);
+        }
+
+        .btn-close-modal {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-close-modal:hover {
+            color: var(--accent-cyan);
+        }
+
+        .pdf-viewer {
+            flex: 1;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .pdf-viewer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .pdf-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .btn-download-pdf {
+            background: linear-gradient(135deg, var(--accent-green), #00cc66);
+            color: var(--primary);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-download-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
         }
 
         /* FOOTER */
@@ -537,6 +644,8 @@
                 <p class="subtitle">Explora los proyectos, pruebas internas y monografías de nuestros semilleros</p>
 
                 <div class="filters">
+                    <input type="text" id="buscador" placeholder="🔍 Buscar por título, autor..." onkeyup="filtrarDocumentos()">
+                    
                     <select id="filtroCategoria" onchange="filtrarDocumentos()">
                         <option value="">Todas las categorías</option>
                         <option value="Proyectos">Proyectos</option>
@@ -569,6 +678,21 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- MODAL VISOR PDF -->
+    <div class="modal-pdf" id="modalPdf">
+        <div class="modal-header">
+            <h2 id="pdfTitle">Documento</h2>
+            <button class="btn-close-modal" onclick="cerrarModalPdf()">✕</button>
+        </div>
+        <div class="pdf-viewer">
+            <iframe id="pdfFrame"></iframe>
+        </div>
+        <div class="pdf-actions">
+            <a id="btnDescargarPdf" href="#" target="_blank" class="btn-download-pdf">📥 Descargar PDF</a>
+            <button class="btn-download-pdf" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: var(--primary);" onclick="cerrarModalPdf()">✕ Cerrar</button>
+        </div>
     </div>
 
     <footer>
@@ -649,14 +773,27 @@
         }
 
         function filtrarDocumentos() {
+            const buscador = document.getElementById('buscador').value.toLowerCase();
             const categoria = document.getElementById('filtroCategoria').value;
             const año = document.getElementById('filtroAño').value;
 
             let filtrados = window.todosDocumentos || [];
 
+            // Filtrar por texto (título, descripción, autor)
+            if (buscador) {
+                filtrados = filtrados.filter(d => 
+                    (d.titulo && d.titulo.toLowerCase().includes(buscador)) ||
+                    (d.descripcion && d.descripcion.toLowerCase().includes(buscador)) ||
+                    (d.autor && d.autor.toLowerCase().includes(buscador))
+                );
+            }
+
+            // Filtrar por categoría
             if (categoria) {
                 filtrados = filtrados.filter(d => d.categoria === categoria);
             }
+
+            // Filtrar por año
             if (año) {
                 filtrados = filtrados.filter(d => d.año === parseInt(año));
             }
@@ -681,10 +818,27 @@
                     <h3>${doc.titulo}</h3>
                     <p class="doc-desc">${doc.descripcion || 'Sin descripción'}</p>
                     ${doc.autor ? `<p class="doc-autor">👤 ${doc.autor}</p>` : ''}
-                    <a href="${doc.archivo_url}" target="_blank" class="btn-descargar">📥 Descargar</a>
+                    <button class="btn-descargar" onclick="abrirModalPdf('${doc.titulo}', '${doc.archivo_url}')">👁️ Ver PDF</button>
                 </div>
             `).join('');
         }
+
+        function abrirModalPdf(titulo, url) {
+            document.getElementById('pdfTitle').textContent = titulo;
+            document.getElementById('pdfFrame').src = url;
+            document.getElementById('btnDescargarPdf').href = url;
+            document.getElementById('modalPdf').classList.add('active');
+        }
+
+        function cerrarModalPdf() {
+            document.getElementById('modalPdf').classList.remove('active');
+            document.getElementById('pdfFrame').src = '';
+        }
+
+        // Cerrar modal al presionar ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cerrarModalPdf();
+        });
 
         window.addEventListener('load', () => {
             initCarousel();
