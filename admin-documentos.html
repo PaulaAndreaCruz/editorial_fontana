@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Documentos - Fontana Seeds</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .admin-panel {
+            background: rgba(20, 30, 60, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00d4ff;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #0a0e27;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px dashed rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+            color: #00d4ff;
+        }
+
+        .file-input-label:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #90ee90;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .success {
+            background: rgba(0, 255, 100, 0.1);
+            color: #90ee90;
+            border: 1px solid rgba(0, 255, 100, 0.3);
+        }
+
+        .error {
+            background: rgba(255, 0, 100, 0.1);
+            color: #ff6b9d;
+            border: 1px solid rgba(255, 0, 100, 0.3);
+        }
+
+        .loading {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .documentos-list {
+            margin-top: 60px;
+        }
+
+        .documentos-list h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .doc-item {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .doc-info {
+            flex: 1;
+        }
+
+        .doc-info p {
+            margin: 3px 0;
+            font-size: 0.9em;
+        }
+
+        .doc-categoria {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .doc-año {
+            color: #90ee90;
+            font-size: 0.85em;
+        }
+
+        .btn-delete {
+            background: rgba(255, 0, 100, 0.2);
+            color: #ff6b9d;
+            border: 1px solid rgba(255, 0, 100, 0.3);
+            padding: 8px 12px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 0, 100, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Admin Documentos</h1>
+            <p>Fontana Seeds - Gestión de Proyectos</p>
+        </header>
+
+        <div class="admin-panel">
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="titulo">Título del Documento</label>
+                    <input type="text" id="titulo" required placeholder="ej: Proyecto de Investigación 2024">
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" placeholder="Descripción breve del documento..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria" required>
+                        <option value="">Selecciona una categoría</option>
+                        <option value="Proyectos">Proyectos</option>
+                        <option value="Pruebas Internas">Pruebas Internas</option>
+                        <option value="Monografías">Monografías</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="año">Año</label>
+                    <select id="año" required>
+                        <option value="">Selecciona el año</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="autor">Autor/Grupo</label>
+                    <input type="text" id="autor" placeholder="ej: Grupo de Biología">
+                </div>
+
+                <div class="form-group">
+                    <label>Archivo PDF</label>
+                    <div class="file-input-wrapper">
+                        <label for="fileInput" class="file-input-label">
+                            📄 Arrastra un archivo o haz click aquí
+                        </label>
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx">
+                    </div>
+                    <div id="fileName" class="file-name"></div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-submit">📤 Subir Documento</button>
+                    <button type="reset" class="btn-reset">Limpiar Formulario</button>
+                </div>
+
+                <div id="message"></div>
+            </form>
+        </div>
+
+        <div class="documentos-list">
+            <h2>Documentos Subidos</h2>
+            <div id="documentosList"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://dkvadgydaiaxvtzjblpd.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmFkZ3lkYWlheHZ0empibHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODI4NzEsImV4cCI6MjA5OTQ1ODg3MX0.AtzgtMrfeAgWiv5u-rCwtQOOHg-FgKxjlkVrejcWMuQ';
+
+        const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const uploadForm = document.getElementById('uploadForm');
+        const messageDiv = document.getElementById('message');
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileName.textContent = `✅ Archivo seleccionado: ${e.target.files[0].name}`;
+            }
+        });
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            if (!file) {
+                showMessage('Por favor selecciona un archivo', 'error');
+                return;
+            }
+
+            const titulo = document.getElementById('titulo').value;
+            const descripcion = document.getElementById('descripcion').value;
+            const categoria = document.getElementById('categoria').value;
+            const año = parseInt(document.getElementById('año').value);
+            const autor = document.getElementById('autor').value;
+
+            showMessage('Subiendo documento...', 'loading');
+
+            try {
+                // Subir archivo a Storage
+                const fileName = `${Date.now()}-${file.name}`;
+                const { data: storageData, error: storageError } = await supa.storage
+                    .from('documentos')
+                    .upload(fileName, file);
+
+                if (storageError) throw storageError;
+
+                // Obtener URL pública
+                const { data: urlData } = supa.storage
+                    .from('documentos')
+                    .getPublicUrl(fileName);
+
+                const archivo_url = urlData.publicUrl;
+
+                // Guardar metadata en tabla
+                const { data, error } = await supa.from('documentos').insert([{
+                    titulo,
+                    descripcion,
+                    categoria,
+                    año,
+                    autor,
+                    archivo_url
+                }]);
+
+                if (error) throw error;
+
+                showMessage('✅ Documento subido correctamente', 'success');
+                uploadForm.reset();
+                fileName.textContent = '';
+                loadDocumentos();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage(`❌ Error: ${error.message}`, 'error');
+            }
+        });
+
+        function showMessage(msg, type) {
+            messageDiv.textContent = msg;
+            messageDiv.className = `message ${type}`;
+        }
+
+        async function loadDocumentos() {
+            try {
+                const { data, error } = await supa
+                    .from('documentos')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const listDiv = document.getElementById('documentosList');
+                if (!data || data.length === 0) {
+                    listDiv.innerHTML = '<p style="text-align: center; color: #888;">No hay documentos aún</p>';
+                    return;
+                }
+
+                listDiv.innerHTML = data.map(doc => `
+                    <div class="doc-item">
+                        <div class="doc-info">
+                            <p><strong>${doc.titulo}</strong></p>
+                            <p>${doc.descripcion}</p>
+                            <span class="doc-categoria">${doc.categoria}</span>
+                            <span class="doc-año">Año: ${doc.año}</span>
+                            ${doc.autor ? `<p>Autor: ${doc.autor}</p>` : ''}
+                        </div>
+                        <button class="btn-delete" onclick="deleteDocumento(${doc.id})">Eliminar</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error cargando documentos:', error);
+            }
+        }
+
+        async function deleteDocumento(id) {
+            if (!confirm('¿Eliminar este documento?')) return;
+
+            try {
+                const { error } = await supa.from('documentos').delete().eq('id', id);
+                if (error) throw error;
+                loadDocumentos();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        loadDocumentos();
+    </script>
+</body>
+</html>
